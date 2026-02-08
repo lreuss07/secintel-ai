@@ -1,0 +1,406 @@
+# Third-Party Security Tools Tracker Configuration
+# Copy this file to config.yaml and customize with your organization's tools
+#
+# IMPORTANT: Do not commit your actual config.yaml - it reveals your security stack
+#
+# This example includes popular security tools across categories:
+# - EDR/XDR: CrowdStrike, SentinelOne, Carbon Black
+# - SIEM: Splunk, Elastic
+# - Vulnerability Management: Qualys, Rapid7, Tenable
+# - Network Security: Palo Alto, Fortinet, Cisco, Zscaler
+# - Identity: Okta, Duo, CyberArk
+# - Email Security: Proofpoint, Mimecast, Abnormal
+# - Security Awareness: KnowBe4
+
+sources:
+  # =============================================================================
+  # EDR / XDR PLATFORMS
+  # Note: Many EDR vendors require customer portal authentication
+  # =============================================================================
+
+  # CrowdStrike Falcon - REQUIRES AUTH (falcon.crowdstrike.com needs login)
+  # Alternative: Monitor CrowdStrike blog for announcements
+  - name: "CrowdStrike Blog"
+    type: rss
+    url: "https://www.crowdstrike.com/en-us/blog"
+    feed_url: "https://www.crowdstrike.com/en-us/blog/feed"
+    vendor: "CrowdStrike"
+    product: "Falcon Platform"
+
+  # SentinelOne - REQUIRES AUTH (support portal needs login)
+  # Alternative: Monitor SentinelLabs blog for security research
+  - name: "SentinelLabs Blog"
+    type: rss
+    url: "https://www.sentinelone.com/labs"
+    feed_url: "https://www.sentinelone.com/labs/feed/"
+    vendor: "SentinelOne"
+    product: "Singularity Platform"
+
+  # Carbon Black (VMware)
+  - name: "Carbon Black Cloud Release Notes"
+    type: web
+    url: "https://docs.vmware.com/en/VMware-Carbon-Black-Cloud/services/rn/vmware-carbon-black-cloud-release-notes/index.html"
+    vendor: "VMware"
+    product: "Carbon Black Cloud"
+    selectors:
+      article_container: "article, section"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # =============================================================================
+  # SIEM / LOG MANAGEMENT
+  # =============================================================================
+
+  # Splunk - Note: No RSS feed available; using web scraping
+  - name: "Splunk Blog"
+    type: web
+    url: "https://www.splunk.com/en_us/blog/security.html"
+    vendor: "Splunk"
+    product: "Splunk Enterprise"
+    selectors:
+      article_container: "article, [class*='blog'], [class*='card']"
+      title: "h2, h3, a"
+      content: "p"
+
+  # Elastic Security
+  - name: "Elastic Security Release Notes"
+    type: web
+    url: "https://www.elastic.co/guide/en/security/current/release-notes.html"
+    vendor: "Elastic"
+    product: "Elastic Security"
+    selectors:
+      article_container: "article, section, .chapter"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # =============================================================================
+  # VULNERABILITY MANAGEMENT
+  # =============================================================================
+
+  # Qualys - Note: Docs require authentication
+  # Alternative: Monitor Qualys blog for announcements
+  - name: "Qualys Blog"
+    type: rss
+    url: "https://blog.qualys.com"
+    feed_url: "https://blog.qualys.com/feed"
+    vendor: "Qualys"
+    product: "Qualys Cloud Platform"
+
+  # Rapid7 InsightVM
+  - name: "Rapid7 InsightVM"
+    type: rss
+    url: "https://docs.rapid7.com/insightvm/release-notes/"
+    feed_url: "https://www.rapid7.com/rss.xml"
+    vendor: "Rapid7"
+    product: "InsightVM"
+
+  # Tenable Nessus
+  - name: "Tenable Documentation"
+    type: rss
+    url: "https://docs.tenable.com/rss.xml"
+    vendor: "Tenable"
+    product: "Nessus"
+    filter_pattern: "Nessus"
+
+  # Tenable.io
+  - name: "Tenable.io Release Notes"
+    type: rss
+    url: "https://docs.tenable.com/rss.xml"
+    vendor: "Tenable"
+    product: "Tenable.io"
+    filter_pattern: "Tenable.io"
+
+  # =============================================================================
+  # NETWORK SECURITY / FIREWALLS
+  # =============================================================================
+
+  # Palo Alto Networks
+  - name: "Palo Alto PAN-OS Documentation"
+    type: web
+    url: "https://docs.paloaltonetworks.com/pan-os"
+    vendor: "Palo Alto Networks"
+    product: "PAN-OS"
+    selectors:
+      article_container: "article, section, .content"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # Fortinet Products
+  - name: "Fortinet Firmware"
+    type: rss
+    url: "https://support.fortinet.com/rss/firmware.xml"
+    vendor: "Fortinet"
+    products:
+      - "FortiGate"
+      - "FortiAnalyzer"
+      - "FortiManager"
+      - "FortiClient"
+      - "FortiSIEM"
+      - "FortiEDR"
+    filter_by_title: true
+
+  # Cisco Firepower
+  - name: "Cisco Firepower Release Notes"
+    type: web
+    url: "https://www.cisco.com/c/en/us/support/security/firepower-ngfw/products-release-notes-list.html"
+    vendor: "Cisco"
+    product: "Firepower"
+    selectors:
+      release_item: "li"
+      link: "a"
+
+  # Cisco ISE
+  - name: "Cisco ISE"
+    type: web
+    url: "https://www.cisco.com/c/en/us/support/security/identity-services-engine/products-release-notes-list.html"
+    vendor: "Cisco"
+    product: "Identity Services Engine"
+    selectors:
+      version_group: "div.group"
+      version_heading: "div.heading"
+      release_item: "li"
+      link: "a"
+
+  # Zscaler ZIA
+  - name: "Zscaler ZIA"
+    type: headless
+    url_template: "https://help.zscaler.com/zia/release-upgrade-summary-{year}"
+    vendor: "Zscaler"
+    product: "ZIA"
+    dynamic_year: true
+    fallback_to_previous_year: true
+    wait_for: ".r-notes-title, .parent-release-notes"
+
+  # Zscaler ZPA
+  - name: "Zscaler ZPA"
+    type: headless
+    url_template: "https://help.zscaler.com/zpa/release-upgrade-summary-{year}"
+    vendor: "Zscaler"
+    product: "ZPA"
+    dynamic_year: true
+    fallback_to_previous_year: true
+    wait_for: ".r-notes-title, .parent-release-notes"
+
+  # =============================================================================
+  # IDENTITY & ACCESS MANAGEMENT
+  # =============================================================================
+
+  # Okta
+  - name: "Okta Release Notes"
+    type: web
+    url: "https://help.okta.com/en-us/content/topics/releasenotes/production.htm"
+    vendor: "Okta"
+    product: "Okta Identity Cloud"
+    selectors:
+      article_container: "article, section, .release-note"
+      title: "h2, h3"
+      date: "time, .date"
+      content: "p, ul"
+
+  # Duo Security
+  - name: "Duo Security Documentation"
+    type: web
+    url: "https://duo.com/docs"
+    vendor: "Cisco"
+    product: "Duo Security"
+    selectors:
+      article_container: "article, section, .content"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # CyberArk - Note: Main docs site requires authentication
+  # Alternative: Monitor CyberArk blog for announcements
+  - name: "CyberArk Blog"
+    type: web
+    url: "https://www.cyberark.com/blog/"
+    vendor: "CyberArk"
+    product: "Privileged Access Manager"
+    selectors:
+      article_container: "article, .blog-post, [class*='post']"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # BeyondTrust
+  - name: "BeyondTrust PRA"
+    type: rss
+    url: "https://docs.beyondtrust.com/pra/changelog.rss"
+    vendor: "BeyondTrust"
+    product: "Privileged Remote Access"
+
+  # =============================================================================
+  # EMAIL SECURITY
+  # =============================================================================
+
+  # Proofpoint
+  - name: "Proofpoint Release Notes"
+    type: web
+    url: "https://help.proofpoint.com/Threat_Insight_Dashboard/Release_Notes"
+    vendor: "Proofpoint"
+    product: "Threat Protection"
+    selectors:
+      article_container: "article, section"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # Mimecast - Note: Community portal may require login
+  - name: "Mimecast Community"
+    type: web
+    url: "https://community.mimecast.com"
+    vendor: "Mimecast"
+    product: "Email Security"
+    selectors:
+      article_container: "article, .release-note, [class*='post']"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # Abnormal Security - Note: Help center may have connectivity issues
+  # Alternative: Monitor their main site for announcements
+  - name: "Abnormal Security Blog"
+    type: web
+    url: "https://abnormalsecurity.com/blog"
+    vendor: "Abnormal Security"
+    product: "Email Security Platform"
+    selectors:
+      article_container: "article, [class*='blog'], [class*='post']"
+      title: "h2, h3, a"
+      link: "a"
+
+  # =============================================================================
+  # SECURITY AWARENESS TRAINING
+  # =============================================================================
+
+  # KnowBe4 KSAT
+  - name: "KnowBe4 KSAT"
+    type: headless
+    url: "https://support.knowbe4.com/hc/en-us/articles/115009454228-KnowBe4-Security-Awareness-Training-KSAT-Change-Log"
+    vendor: "KnowBe4"
+    product: "Security Awareness Training (KSAT)"
+    wait_for: ".article-content table, article table"
+
+  # KnowBe4 PhishER
+  - name: "KnowBe4 PhishER"
+    type: headless
+    url: "https://support.knowbe4.com/hc/en-us/articles/360014088973-PhishER-Change-Log"
+    vendor: "KnowBe4"
+    product: "PhishER"
+    wait_for: ".article-content table, article table"
+
+  # =============================================================================
+  # CLOUD SECURITY
+  # =============================================================================
+
+  # Wiz
+  - name: "Wiz Release Notes"
+    type: web
+    url: "https://docs.wiz.io/wiz-docs/docs/release-notes"
+    vendor: "Wiz"
+    product: "Wiz Cloud Security"
+    selectors:
+      article_container: "article, section"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # Orca Security
+  - name: "Orca Security Release Notes"
+    type: web
+    url: "https://docs.orcasecurity.io/docs/release-notes"
+    vendor: "Orca Security"
+    product: "Orca Platform"
+    selectors:
+      article_container: "article, section"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # Lacework
+  - name: "Lacework Release Notes"
+    type: web
+    url: "https://docs.lacework.com/release-notes"
+    vendor: "Lacework"
+    product: "Lacework Platform"
+    selectors:
+      article_container: "article, section"
+      title: "h2, h3"
+      content: "p, ul"
+
+  # =============================================================================
+  # ENDPOINT MANAGEMENT
+  # =============================================================================
+
+  # Tanium
+  - name: "Tanium"
+    type: api
+    url: "https://help-be.tanium.com/search"
+    vendor: "Tanium"
+    product: "Tanium Platform"
+    params:
+      groupByPub: "false"
+      labelkey:
+        - "release_notes"
+        - "announcements"
+        - "platform_server"
+        - "tanium_deploy"
+        - "tanium_patch"
+      rpp: 50
+      "sort.field": "lastRevised"
+      "sort.value": "desc"
+
+  # Jamf Pro (Mac management)
+  - name: "Jamf Pro Release Notes"
+    type: web
+    url: "https://learn.jamf.com/bundle/jamf-pro-release-notes/page/Jamf_Pro_Release_Notes.html"
+    vendor: "Jamf"
+    product: "Jamf Pro"
+    selectors:
+      article_container: "article, section"
+      title: "h2, h3"
+      content: "p, ul"
+
+# =============================================================================
+# KEYWORDS for update type classification
+# =============================================================================
+keywords:
+  feature_update:
+    - "new feature"
+    - "enhancement"
+    - "added"
+    - "introducing"
+    - "now available"
+    - "capability"
+    - "support for"
+
+  bug_fix:
+    - "bug fix"
+    - "fixed"
+    - "resolved"
+    - "corrected"
+    - "issue"
+    - "defect"
+    - "patch"
+
+  security_patch:
+    - "security"
+    - "vulnerability"
+    - "CVE"
+    - "exploit"
+    - "critical"
+    - "advisory"
+
+  performance:
+    - "performance"
+    - "optimization"
+    - "improved"
+    - "faster"
+    - "efficiency"
+
+  deprecation:
+    - "deprecated"
+    - "end of life"
+    - "EOL"
+    - "retiring"
+    - "removed"
+    - "sunset"
+
+  known_issue:
+    - "known issue"
+    - "limitation"
+    - "workaround"

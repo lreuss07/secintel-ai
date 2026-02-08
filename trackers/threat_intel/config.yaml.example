@@ -1,0 +1,155 @@
+# Configuration for SecIntel AI - Security Intelligence Tracker
+
+# Database settings
+database:
+  path: data/secintel.db  # Path to SQLite database file
+
+# Sources to scrape for threat intelligence
+sources:
+  # RSS feed sources
+  - name: Krebs on Security
+    url: https://krebsonsecurity.com
+    type: rss
+    feed_url: https://krebsonsecurity.com/feed/
+    
+  - name: The Hacker News
+    url: https://thehackernews.com
+    type: rss
+    feed_url: https://feeds.feedburner.com/TheHackersNews
+
+  - name: Info Security Magazine
+    url: https://www.infosecurity-magazine.com
+    type: rss
+    feed_url: https://www.infosecurity-magazine.com/rss/news/
+
+  - name: DarkReading
+    url: https://www.darkreading.com/
+    type: rss
+    feed_url: https://www.darkreading.com/rss.xml
+    
+  # Web page sources
+ 
+  - name: Microsoft Security Blog
+    url: https://www.microsoft.com/en-us/security/blog
+    type: web
+    article_selector: h3.c-heading-4 a
+    content_selector: div.c-content-card
+    
+  # Volexity Blog - Feed removed due to persistent errors
+
+  # Additional vendor threat intelligence sources
+
+  - name: Cisco Talos Intelligence
+    url: https://blog.talosintelligence.com
+    type: rss
+    feed_url: https://blog.talosintelligence.com/rss/
+
+  - name: Palo Alto Unit 42
+    url: https://unit42.paloaltonetworks.com
+    type: rss
+    feed_url: https://unit42.paloaltonetworks.com/feed/
+
+  - name: Google Threat Analysis Group
+    url: https://blog.google/threat-analysis-group
+    type: rss
+    feed_url: https://blog.google/threat-analysis-group/rss/
+
+  - name: Mandiant (Google Cloud)
+    url: https://cloud.google.com/blog/topics/threat-intelligence
+    type: rss
+    feed_url: https://cloudblog.withgoogle.com/topics/threat-intelligence/rss/
+
+  - name: CrowdStrike Blog
+    url: https://www.crowdstrike.com/en-us/blog
+    type: rss
+    feed_url: https://www.crowdstrike.com/en-us/blog/feed
+
+  - name: SentinelLabs
+    url: https://www.sentinelone.com/labs
+    type: rss
+    feed_url: https://www.sentinelone.com/labs/feed/
+
+  - name: Sophos Blog
+    url: https://www.sophos.com/en-us/blog
+    type: rss
+    feed_url: https://www.sophos.com/en-us/blog/feed?id=blt6f15f4f7deaf4242
+
+  - name: ESET Research
+    url: https://www.welivesecurity.com/en
+    type: rss
+    feed_url: https://www.welivesecurity.com/en/rss/feed/
+
+  # Kaspersky Securelist - Removed due to network connectivity issues (site unreachable)
+
+  - name: Trend Micro Research
+    url: https://www.trendmicro.com/en_us/research.html
+    type: rss
+    feed_url: http://feeds.trendmicro.com/TrendMicroSimplySecurity
+
+  - name: Recorded Future
+    url: https://www.recordedfuture.com/blog
+    type: rss
+    feed_url: https://www.recordedfuture.com/feed
+
+  # Secureworks - Acquired by Sophos, blog redirects to Sophos news (sophos.com/en-us/news)
+
+  - name: Proofpoint Threat Insight
+    url: https://www.proofpoint.com/us/blog/threat-insight
+    type: rss
+    feed_url: https://www.proofpoint.com/us/threat-insight-blog.xml
+
+  - name: Bleeping Computer
+    url: https://www.bleepingcomputer.com
+    type: rss
+    feed_url: https://www.bleepingcomputer.com/feed/
+
+  # Specialized sources
+
+  # CISA Alerts RSS - Note: The XML feed may be blocked; use web scraping as fallback
+  - name: CISA Cybersecurity Advisories
+    url: https://www.cisa.gov/news-events/cybersecurity-advisories
+    type: web
+    article_selector: ".c-view__row a"
+    content_selector: "article, .l-full__main"
+
+  # US-CERT Alerts - CISA discontinued RSS feeds in May 2025, moved to email subscriptions only
+  # Subscribe at: https://www.cisa.gov/about/contact-us/subscribe-updates-cisa
+
+  - name: SANS Internet Storm Center
+    url: https://isc.sans.edu
+    type: rss
+    feed_url: https://isc.sans.edu/rssfeed_full.xml
+
+  # SANS NewsBites - No RSS feed available, newsletter subscription only
+  # Alternative: SANS Stormcast podcast at https://isc.sans.edu/dailypodcast.xml
+
+  - name: TrustedSec
+    url: https://www.trustedsec.com
+    type: rss
+    feed_url: https://www.trustedsec.com/feed.rss
+
+  - name: Rapid7
+    url: https://www.rapid7.com
+    type: rss
+    feed_url: https://www.rapid7.com/rss.xml
+
+  - name: Black Hills InfoSec
+    url: https://www.blackhillsinfosec.com
+    type: rss
+    feed_url: https://www.blackhillsinfosec.com/feed/
+
+  - name: Ars Technica Security
+    url: https://arstechnica.com/security
+    type: rss
+    feed_url: https://feeds.arstechnica.com/arstechnica/technology-lab
+
+# AI settings for summarization
+ai:
+  base_url: 'http://localhost:1234/v1'
+  api_key: 'lm-studio'
+  model: 'local-model'
+
+# Reporting settings
+reporting:
+  output_directory: reports
+  time_window_days: 1  # How many days of data to include in reports

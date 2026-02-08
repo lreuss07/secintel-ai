@@ -1,0 +1,234 @@
+# Configuration for SecIntel AI - Security Intelligence Tracker
+# Microsoft Security Products Tracker - Non-Defender Products
+
+# Database settings
+database:
+  path: data/microsoft_security_products.db  # Path to SQLite database file
+
+# Sources to scrape for Microsoft Security Product updates
+sources:
+  # ========================================
+  # Microsoft Security Blog - General
+  # ========================================
+  - name: Microsoft Security Blog
+    url: https://www.microsoft.com/en-us/security/blog
+    type: rss
+    feed_url: https://www.microsoft.com/en-us/security/blog/feed/
+    # No keywords - capture all security blog posts
+
+  # ========================================
+  # MICROSOFT ENTRA ID (formerly Azure AD)
+  # ========================================
+
+  - name: Entra ID What's New
+    url: https://learn.microsoft.com/en-us/entra/fundamentals/whats-new
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Tech Community - Entra Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-entra-blog/bg-p/microsoft-entra-blog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=microsoft-entra-blog
+
+  # Entra Identity Protection - Removed (404 error - page may have moved or been deprecated)
+
+  # ========================================
+  # MICROSOFT INTUNE
+  # ========================================
+
+  - name: Intune What's New
+    url: https://learn.microsoft.com/en-us/mem/intune/fundamentals/whats-new
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Tech Community - Intune Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-intune-blog/bg-p/microsoftintuneblog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=microsoftintuneblog
+
+  # Intune App Protection - Removed (404 error - content likely merged into main Intune What's New)
+
+  # ========================================
+  # MICROSOFT PURVIEW (Data Governance & Compliance)
+  # ========================================
+
+  - name: Purview What's New
+    url: https://learn.microsoft.com/en-us/purview/whats-new
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Tech Community - Purview Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-purview-blog/bg-p/AzurePurviewBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=AzurePurviewBlog
+
+  # Purview DLP - Removed (404 error - content likely in main Purview What's New)
+
+  # ========================================
+  # MICROSOFT 365 / OFFICE 365
+  # ========================================
+
+  - name: Microsoft 365 Admin Center What's New
+    url: https://learn.microsoft.com/en-us/microsoft-365/admin/whats-new-in-preview
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Tech Community - Microsoft 365 Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-365-blog/bg-p/microsoft_365blog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=microsoft_365blog
+
+  # ========================================
+  # MICROSOFT TEAMS
+  # ========================================
+
+  - name: Tech Community - Microsoft Teams Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-teams-blog/bg-p/MicrosoftTeamsBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftTeamsBlog
+
+  # ========================================
+  # MICROSOFT SHAREPOINT
+  # ========================================
+
+  - name: Tech Community - SharePoint Blog
+    url: https://techcommunity.microsoft.com/t5/sharepoint-blog/bg-p/SPBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=SPBlog
+
+  # ========================================
+  # MICROSOFT EXCHANGE
+  # ========================================
+
+  - name: Tech Community - Exchange Blog
+    url: https://techcommunity.microsoft.com/t5/exchange-blog/bg-p/Exchange
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Exchange
+
+  # ========================================
+  # WINDOWS SECURITY
+  # ========================================
+
+  - name: Tech Community - Windows IT Pro Blog
+    url: https://techcommunity.microsoft.com/t5/windows-it-pro-blog/bg-p/Windows-ITPro-blog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Windows-ITPro-blog
+
+  # ========================================
+  # MICROSOFT COPILOT (Security-focused)
+  # ========================================
+
+  - name: Security Copilot What's New
+    url: https://learn.microsoft.com/en-us/copilot/security/whats-new-copilot-security
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Tech Community - Security Copilot Blog
+    url: https://techcommunity.microsoft.com/t5/security-copilot-blog/bg-p/SecurityCopilotBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=SecurityCopilotBlog
+
+  - name: Tech Community - Microsoft 365 Copilot Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-365-copilot-blog/bg-p/Microsoft365CopilotBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Microsoft365CopilotBlog
+
+  # ========================================
+  # TECH COMMUNITY BLOGS (Official Announcements)
+  # ========================================
+  # Note: Product-specific blogs have been moved to their respective product sections above.
+  # This section now contains only general security content.
+
+  - name: Tech Community - Microsoft Security Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-security-blog/bg-p/microsoft-security-blog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=microsoft-security-blog
+
+# AI settings for summarization
+ai:
+  base_url: 'http://localhost:1234/v1'
+  api_key: 'lm-studio'
+  model: 'local-model'
+
+# Reporting settings
+reporting:
+  output_directory: reports/security_products
+  time_window_days: 30  # How many days of data to include in reports
+  formats:
+    - html
+    - markdown
+
+# Product categories for tracking and organization
+product_categories:
+  - name: "Identity & Access"
+    products:
+      - Entra ID
+      - Entra Identity Protection
+      - Entra Permissions Management
+      - Entra Verified ID
+
+  - name: "Endpoint Management"
+    products:
+      - Microsoft Intune
+      - Windows Update for Business
+      - Autopilot
+
+  - name: "Data Governance & Compliance"
+    products:
+      - Microsoft Purview
+      - Purview Data Loss Prevention
+      - Purview Information Protection
+      - Purview Insider Risk Management
+      - Purview eDiscovery
+
+  - name: "Microsoft 365 & Collaboration"
+    products:
+      - Microsoft 365 Security
+      - Office 365 Security
+      - Exchange Online Protection
+      - Microsoft Teams
+      - SharePoint
+      - Exchange Online
+
+  - name: "Windows Security"
+    products:
+      - Windows Security
+      - Windows 11 Security
+      - Windows Hello for Business
+      - BitLocker
+      - Secure Boot
+
+  - name: "Microsoft Copilot"
+    products:
+      - Security Copilot
+      - Microsoft Copilot for Security
+      - Microsoft Copilot for Microsoft 365
+      - Copilot for Service
+      - Copilot for Sales
+
+# Update type classifications (same across all products)
+tracking_focus:
+  categories:
+    - Feature Updates
+    - Bug Fixes
+    - Security Patches
+    - Performance Improvements
+    - New Capabilities
+    - Detection Updates
+    - Known Issues
+    - Platform Updates
+    - Integration Changes
+    - API Changes
+    - Deprecations
+    - Preview Features
+
+# Notes:
+# - This configuration covers Microsoft security products EXCLUDING Defender products
+# - Defender products are tracked separately by another SecIntel AI instance
+# - Sources include official Microsoft Learn documentation and Tech Community blogs
+# - Products focus on: Purview, Copilot, Intune, Azure, Entra ID, Office 365, and Windows

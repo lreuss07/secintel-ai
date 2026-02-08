@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .header .ai-model {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            font-size: 0.9em;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header .ai-model .badge {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 3px 10px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .product-summary {
+            padding: 30px 40px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .product-summary h2 {
+            color: #0078d4;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .product-item {
+            background: #f9f9f9;
+            padding: 15px 20px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #0078d4;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .product-item:hover {
+            background: #f0f7ff;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 120, 212, 0.2);
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .product-count {
+            background: #0078d4;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .product-count.zero {
+            background: #d0d0d0;
+            color: #666;
+        }
+
+        .whats-new-section {
+            padding: 30px 40px;
+            background: linear-gradient(135deg, #fff4e6 0%, #ffe8cc 100%);
+            border-bottom: 3px solid #ff8800;
+        }
+
+        .whats-new-section h2 {
+            color: #ff6600;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .whats-new-section .whats-new-summary {
+            text-align: center;
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #ff8800;
+        }
+
+        .whats-new-section .whats-new-summary strong {
+            color: #ff6600;
+            font-size: 1.3em;
+        }
+
+        .whats-new-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 15px;
+        }
+
+        .whats-new-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ff8800;
+            box-shadow: 0 2px 5px rgba(255, 136, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .whats-new-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3);
+        }
+
+        .whats-new-item h4 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .whats-new-item h4 a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+
+        .whats-new-item h4 a:hover {
+            text-decoration: underline;
+        }
+
+        .whats-new-item .meta {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .new-badge {
+            display: inline-block;
+            background: #ff6600;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid #0078d4;
+        }
+
+        .stat-card.features {
+            border-left-color: #107c10;
+        }
+
+        .stat-card.bugs {
+            border-left-color: #ffb900;
+        }
+
+        .stat-card.performance {
+            border-left-color: #8661c5;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #0078d4;
+            margin-bottom: 5px;
+        }
+
+        .stat-card.features .stat-number {
+            color: #107c10;
+        }
+
+        .stat-card.bugs .stat-number {
+            color: #ffb900;
+        }
+
+        .stat-card.performance .stat-number {
+            color: #8661c5;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #0078d4;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0078d4;
+        }
+
+        .executive-summary {
+            background: #f0f7ff;
+            padding: 40px;
+            border-radius: 8px;
+            border-left: 4px solid #0078d4;
+            margin-bottom: 30px;
+        }
+
+        .executive-summary h3 {
+            color: #0078d4;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #0078d4;
+            padding-bottom: 10px;
+        }
+
+        .executive-summary h4,
+        .executive-summary h5 {
+            color: #005a9e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .executive-summary > p {
+            margin-bottom: 18px;
+            line-height: 1.8;
+        }
+
+        .executive-summary > p:first-of-type {
+            font-size: 1.15em;
+            font-weight: 600;
+            color: #0078d4;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #cce7ff;
+        }
+
+        .executive-summary > p > strong:first-child {
+            display: block;
+            font-size: 1.15em;
+            color: #005a9e;
+            margin-bottom: 8px;
+            margin-top: 20px;
+        }
+
+        .executive-summary > hr {
+            margin: 25px 0;
+            border: none;
+            border-top: 2px solid #cce7ff;
+        }
+
+        .executive-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .executive-summary table th {
+            background: #0078d4;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #005a9e;
+        }
+
+        .executive-summary table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .executive-summary table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .executive-summary table tr:hover {
+            background: #f0f7ff;
+        }
+
+        .executive-summary ul {
+            margin: 15px 0 25px 0;
+            padding-left: 25px;
+            background: white;
+            padding: 20px 20px 20px 45px;
+            border-radius: 5px;
+            border-left: 3px solid #0078d4;
+        }
+
+        .executive-summary li {
+            margin: 12px 0;
+            line-height: 1.8;
+        }
+
+        .executive-summary li strong {
+            color: #0078d4;
+        }
+
+        .executive-summary code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #d13438;
+        }
+
+        .executive-summary strong {
+            color: #005a9e;
+        }
+
+        .product-section {
+            margin-bottom: 40px;
+            background: #fafafa;
+            padding: 30px;
+            border-radius: 8px;
+            scroll-margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .product-section:target {
+            background: #e8f4ff;
+            box-shadow: 0 0 0 3px #0078d4;
+        }
+
+        .product-section h3 {
+            color: #005a9e;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-section h3 .back-link {
+            font-size: 0.6em;
+            color: #0078d4;
+            text-decoration: none;
+            font-weight: normal;
+            padding: 5px 12px;
+            border: 1px solid #0078d4;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .product-section h3 .back-link:hover {
+            background: #0078d4;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 120, 212, 0.3);
+        }
+
+        .product-exec-summary {
+            background: linear-gradient(135deg, #e8f4ff 0%, #cce7ff 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #0078d4;
+            box-shadow: 0 2px 8px rgba(0, 120, 212, 0.15);
+        }
+
+        .product-exec-summary .narrative {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .product-exec-summary .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .product-exec-summary .metric-box {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            border-left: 3px solid #0078d4;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-exec-summary .metric-box.critical {
+            border-left-color: #d13438;
+        }
+
+        .product-exec-summary .metric-box.high {
+            border-left-color: #ff8c00;
+        }
+
+        .product-exec-summary .metric-box.medium {
+            border-left-color: #ffb900;
+        }
+
+        .product-exec-summary .metric-box.ga {
+            border-left-color: #107c10;
+        }
+
+        .product-exec-summary .metric-box.deprecated {
+            border-left-color: #d13438;
+            background: #fff5f5;
+        }
+
+        .product-exec-summary .metric-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #0078d4;
+            margin-bottom: 2px;
+        }
+
+        .product-exec-summary .metric-box.critical .metric-number {
+            color: #d13438;
+        }
+
+        .product-exec-summary .metric-box.high .metric-number {
+            color: #ff8c00;
+        }
+
+        .product-exec-summary .metric-box.medium .metric-number {
+            color: #ffb900;
+        }
+
+        .product-exec-summary .metric-box.ga .metric-number {
+            color: #107c10;
+        }
+
+        .product-exec-summary .metric-box.deprecated .metric-number {
+            color: #d13438;
+        }
+
+        .product-exec-summary .metric-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-exec-summary .themes {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .product-exec-summary .themes strong {
+            color: #0078d4;
+        }
+
+        /* Product-specific executive summary markdown-converted content styles */
+        .product-exec-summary h3 {
+            color: #0078d4;
+            margin-bottom: 15px;
+            margin-top: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #0078d4;
+            padding-bottom: 8px;
+        }
+
+        .product-exec-summary p {
+            margin-bottom: 12px;
+            line-height: 1.7;
+            color: #333;
+        }
+
+        .product-exec-summary p:first-of-type {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #005a9e;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 120, 212, 0.2);
+        }
+
+        .product-exec-summary strong {
+            color: #005a9e;
+            font-weight: 600;
+        }
+
+        .product-exec-summary hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid rgba(0, 120, 212, 0.3);
+        }
+
+        .product-exec-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 0.9em;
+        }
+
+        .product-exec-summary table th {
+            background: #0078d4;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #005a9e;
+        }
+
+        .product-exec-summary table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .product-exec-summary table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .product-exec-summary table tr:hover {
+            background: rgba(240, 247, 255, 0.8);
+        }
+
+        .product-exec-summary ul,
+        .product-exec-summary ol {
+            margin: 12px 0;
+            padding-left: 25px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 15px 15px 15px 35px;
+            border-radius: 5px;
+            border-left: 3px solid #0078d4;
+        }
+
+        .product-exec-summary li {
+            margin: 8px 0;
+            line-height: 1.7;
+        }
+
+        .product-exec-summary li strong {
+            color: #0078d4;
+        }
+
+        .product-exec-summary code {
+            background: rgba(245, 245, 245, 0.9);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85em;
+            color: #d13438;
+        }
+
+        /* Collapsible Article Styles */
+        .article-details {
+            background: white;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border-left: 3px solid #0078d4;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .article-details:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .article-details summary {
+            padding: 20px;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+            position: relative;
+            outline: none;
+        }
+
+        .article-details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .article-details summary::before {
+            content: '+';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            background: #0078d4;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 120, 212, 0.3);
+        }
+
+        .article-details[open] summary::before {
+            content: '−';
+            background: #005a9e;
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .article-details summary:hover::before {
+            background: #005a9e;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .article-details[open] summary:hover::before {
+            transform: translateY(-50%) rotate(180deg) scale(1.1);
+        }
+
+        .article-details summary:focus {
+            outline: 2px solid #0078d4;
+            outline-offset: 2px;
+        }
+
+        .article-summary-header h4 {
+            color: #0078d4;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .article-summary-header h4 a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+
+        .article-summary-header h4 a:hover {
+            text-decoration: underline;
+        }
+
+        .meta-preview {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .article-content {
+            padding: 0 20px 20px 20px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Legacy article class for backward compatibility */
+        .article {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border-left: 3px solid #0078d4;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .article h4 {
+            color: #0078d4;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .article h4 a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+
+        .article h4 a:hover {
+            text-decoration: underline;
+        }
+
+        /* Expand/Collapse Controls */
+        .expand-collapse-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f7ff;
+            border-radius: 8px;
+        }
+
+        .control-btn {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 120, 212, 0.3);
+        }
+
+        .control-btn:hover {
+            background: #005a9e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 120, 212, 0.4);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-btn:focus {
+            outline: 2px solid #0078d4;
+            outline-offset: 2px;
+        }
+
+        .article-meta {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .article-meta span {
+            margin-right: 15px;
+        }
+
+        .date-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .date-badge.today {
+            background: #ff4444;
+            color: white;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .date-badge.new {
+            background: #ff8800;
+            color: white;
+        }
+
+        .date-badge.recent {
+            background: #0078d4;
+            color: white;
+        }
+
+        .date-badge.older {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .date-badge.unknown {
+            background: #f0f0f0;
+            color: #999;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .date-text {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .source-type-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+            color: white;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .source-type-badge.documentation {
+            background: #0078d4;
+        }
+
+        .source-type-badge.blog {
+            background: #107c10;
+        }
+
+        .source-type-badge.announcement {
+            background: #5c2d91;
+        }
+
+        .source-type-badge.third_party {
+            background: #ff8c00;
+        }
+
+        .source-type-badge.other {
+            background: #666666;
+        }
+
+        .availability-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+            color: white;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .availability-badge.ga {
+            background: #107c10;
+        }
+
+        .availability-badge.preview {
+            background: #ffb900;
+            color: #333;
+        }
+
+        .availability-badge.deprecated {
+            background: #d13438;
+        }
+
+        .licensing-section {
+            background: #f0f7ff;
+            padding: 30px;
+            border-radius: 8px;
+            border-left: 4px solid #5c2d91;
+            margin-bottom: 30px;
+        }
+
+        .licensing-section h3 {
+            color: #5c2d91;
+            margin-bottom: 15px;
+        }
+
+        .licensing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .licensing-tier {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .licensing-tier h4 {
+            color: #5c2d91;
+            font-size: 1em;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #5c2d91;
+        }
+
+        .licensing-tier.e5 h4 {
+            border-bottom-color: #d13438;
+            color: #d13438;
+        }
+
+        .licensing-tier.copilot h4 {
+            border-bottom-color: #0078d4;
+            color: #0078d4;
+        }
+
+        .licensing-tier ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .licensing-tier li {
+            font-size: 0.85em;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+        }
+
+        .licensing-tier li:last-child {
+            border-bottom: none;
+        }
+
+        .licensing-count {
+            display: inline-block;
+            background: #5c2d91;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        .table-of-contents {
+            padding: 20px 40px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table-of-contents h2 {
+            color: #0078d4;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .toc-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            border-left: 3px solid #0078d4;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+        }
+
+        .toc-item:hover {
+            background: #f0f7ff;
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px rgba(0, 120, 212, 0.2);
+        }
+
+        .toc-item.highlight {
+            border-left-color: #ff8800;
+        }
+
+        .article-preview {
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin: 10px 0 15px 0;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-left: 3px solid #0078d4;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .article-summary {
+            color: #444;
+            line-height: 1.8;
+        }
+
+        .article-summary p {
+            margin-bottom: 10px;
+        }
+
+        .article-summary h4,
+        .article-summary h5 {
+            color: #005a9e;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .article-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            font-size: 0.95em;
+        }
+
+        .article-summary table th {
+            background: #0078d4;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #005a9e;
+        }
+
+        .article-summary table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .article-summary table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .article-summary table tr:hover {
+            background: #f0f7ff;
+        }
+
+        .article-summary ul,
+        .article-summary ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+
+        .article-summary li {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        .article-summary code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #d13438;
+        }
+
+        .article-summary strong {
+            color: #005a9e;
+            font-weight: 600;
+        }
+
+        .tags {
+            margin-top: 15px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e1f0ff;
+            color: #0078d4;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .tag.security {
+            background: #ffe6e6;
+            color: #d13438;
+        }
+
+        .tag.feature {
+            background: #e6f7e6;
+            color: #107c10;
+        }
+
+        .tag.bugfix {
+            background: #fff7e6;
+            color: #c87400;
+        }
+
+        .footer {
+            background: #f5f5f5;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #0078d4;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
+            transition: all 0.3s ease;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .back-to-top:hover {
+            background: #005a9e;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 120, 212, 0.6);
+        }
+
+        .no-updates {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .article-details summary::before {
+                left: -5px;
+                width: 24px;
+                height: 24px;
+                font-size: 16px;
+            }
+
+            .expand-collapse-controls {
+                flex-direction: column;
+            }
+
+            .control-btn {
+                width: 100%;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .article,
+            .article-details {
+                page-break-inside: avoid;
+            }
+
+            .back-to-top,
+            .back-link {
+                display: none !important;
+            }
+
+            .product-item {
+                cursor: default;
+            }
+
+            table {
+                page-break-inside: avoid;
+            }
+
+            .executive-summary table tr:hover,
+            .article-summary table tr:hover {
+                background: inherit;
+            }
+
+            /* Auto-expand all collapsible sections when printing */
+            .article-details summary {
+                display: block;
+                pointer-events: none;
+            }
+
+            .article-details summary::before {
+                display: none !important;
+            }
+
+            .article-content {
+                display: block !important;
+            }
+
+            .expand-collapse-controls {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="top">
+        <div class="header">
+            <h1>{{ title }}</h1>
+            <div class="subtitle">{{ date }}</div>
+            <div class="subtitle">Report Period: {{ time_period }}</div>
+            {% if ai_model_info %}
+            <div class="ai-model">
+                {{ ai_model_info.display }}
+                <span class="badge">{{ ai_model_info.provider_type }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_updates }}</div>
+                <div class="stat-label">Total Updates</div>
+            </div>
+            <div class="stat-card features">
+                <div class="stat-number">{{ stats.new_features }}</div>
+                <div class="stat-label">New Features</div>
+            </div>
+            <div class="stat-card bugs">
+                <div class="stat-number">{{ stats.bug_fixes }}</div>
+                <div class="stat-label">Bug Fixes</div>
+            </div>
+            <div class="stat-card performance">
+                <div class="stat-number">{{ stats.performance_improvements }}</div>
+                <div class="stat-label">Performance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.integrations }}</div>
+                <div class="stat-label">Integrations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.platform_updates }}</div>
+                <div class="stat-label">Platform Updates</div>
+            </div>
+        </div>
+
+        {% if products %}
+        <div class="product-summary" id="products-overview">
+            <h2>Updates by Product</h2>
+            <div class="product-grid">
+                {% for product_name, articles in products.items() %}
+                <a href="#product-{{ loop.index }}" class="product-item">
+                    <div class="product-name">{{ product_name }}</div>
+                    <div class="product-count {% if articles|length == 0 %}zero{% endif %}">{{ articles|length }}</div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="table-of-contents">
+            <h2>Quick Navigation</h2>
+            <div class="toc-grid">
+                {% if new_count > 0 %}
+                <a href="#whats-new" class="toc-item highlight">What's New ({{ new_count }})</a>
+                {% endif %}
+                {% if executive_summary %}
+                <a href="#executive-summary" class="toc-item">Executive Summary</a>
+                {% endif %}
+                <a href="#all-updates" class="toc-item">All Updates ({{ total_updates }})</a>
+            </div>
+        </div>
+
+        {% if new_count > 0 %}
+        <div class="whats-new-section" id="whats-new">
+            <h2>🆕 What's New Since Last Report</h2>
+            <div class="whats-new-summary">
+                {% if last_report_time %}
+                <strong>{{ new_count }}</strong> new update{{ 's' if new_count != 1 else '' }} added since {{ last_report_time }}
+                {% else %}
+                <strong>{{ new_count }}</strong> update{{ 's' if new_count != 1 else '' }} in this report
+                <br><span style="font-size: 0.9em; color: #777;">(This is your first report generation)</span>
+                {% endif %}
+                {% if existing_count > 0 %}
+                <br><span style="font-size: 0.9em; color: #777;">({{ existing_count }} existing update{{ 's' if existing_count != 1 else '' }} also included)</span>
+                {% endif %}
+            </div>
+
+            <div class="whats-new-grid">
+                {% for article in new_articles[:10] %}
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="{{ article.url }}" target="_blank">{{ article.title }}</a>
+                        <span class="new-badge">NEW</span>
+                        {% if article.availability %}<span class="availability-badge {{ article.availability.status }}">{{ article.availability.label }}</span>{% endif %}
+                    </h4>
+                    <div class="meta">
+                        {% if article.date_info %}
+                        <span class="date-badge {{ article.date_info.age_category }}">{{ article.date_info.age_text }}</span>
+                        {% endif %}
+                        {% if article.source %}
+                        <span><strong>Source:</strong> {{ article.source }}{% if article.source_type %}<span class="source-type-badge {{ article.source_type.type }}">{{ article.source_type.label }}</span>{% endif %}</span>
+                        {% endif %}
+                    </div>
+                    {% if article.update_type %}
+                    <div class="meta">
+                        <strong>Type:</strong> {{ article.update_type|join(', ') }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if new_count > 10 %}
+            <p style="text-align: center; margin-top: 20px; color: #666;">
+                <em>Showing first 10 of {{ new_count }} new updates. See full details below.</em>
+            </p>
+            {% endif %}
+        </div>
+        {% elif last_report_time %}
+        <div class="whats-new-section" style="background: #f0f7ff; border-bottom: 3px solid #0078d4;">
+            <h2 style="color: #0078d4;">📊 No New Updates</h2>
+            <div class="whats-new-summary" style="border-color: #0078d4;">
+                No new updates have been added since your last report on {{ last_report_time }}.
+                <br><span style="font-size: 0.9em; color: #777;">All {{ total_updates }} updates shown were already in the previous report.</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="content">
+            {% if executive_summary %}
+            <div class="executive-summary" id="executive-summary">
+                <h3>Executive Summary</h3>
+                {{ executive_summary|safe }}
+            </div>
+            {% endif %}
+
+            <div class="section" id="all-updates">
+                <h2>Updates by Product</h2>
+
+                {% if products %}
+                    {% for product_name, articles in products.items() %}
+                    <div class="product-section" id="product-{{ loop.index }}">
+                        <h3>
+                            <span>{{ product_name }} ({{ articles|length }} update{{ 's' if articles|length != 1 else '' }})</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        {% if product_summaries and product_name in product_summaries and product_summaries[product_name] %}
+                        <div class="product-exec-summary">
+                            {{ product_summaries[product_name]|safe }}
+                        </div>
+                        {% endif %}
+
+                        {% if articles|length > 0 %}
+                            <div class="expand-collapse-controls">
+                                <button class="control-btn" onclick="expandAll()" title="Expand all articles (Keyboard: E)">
+                                    ⬇ Expand All
+                                </button>
+                                <button class="control-btn" onclick="collapseAll()" title="Collapse all articles (Keyboard: C)">
+                                    ⬆ Collapse All
+                                </button>
+                            </div>
+
+                            {% for article in articles %}
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            {% if article.url %}
+                                            <a href="{{ article.url }}" target="_blank">{{ article.title }}</a>
+                                            {% else %}
+                                            {{ article.title }}
+                                            {% endif %}
+                                            {% if article.availability %}<span class="availability-badge {{ article.availability.status }}">{{ article.availability.label }}</span>{% endif %}
+                                        </h4>
+                                        <div class="meta-preview">
+                                            {% if article.date_info %}
+                                            <span class="date-badge {{ article.date_info.age_category }}">
+                                                {% if article.date_info.age_text %}
+                                                {{ article.date_info.age_text }}
+                                                {% else %}
+                                                {{ article.date_info.formatted_date }}
+                                                {% endif %}
+                                            </span>
+                                            {% elif article.published_date %}
+                                            <span class="date-badge older">{{ article.published_date }}</span>
+                                            {% endif %}
+                                            {% if article.source %}
+                                            <span><strong>Source:</strong> {{ article.source }}{% if article.source_type %}<span class="source-type-badge {{ article.source_type.type }}">{{ article.source_type.label }}</span>{% endif %}</span>
+                                            {% endif %}
+                                            {% if article.update_type %}
+                                            <span><strong>Type:</strong> {{ article.update_type|join(', ') }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        {% if article.date_info %}
+                                        <span class="date-text">{{ article.date_info.formatted_date }}</span>
+                                        {% elif article.published_date %}
+                                        <span><strong>Published:</strong> {{ article.published_date }}</span>
+                                        {% endif %}
+                                        {% if article.author %}
+                                        <span><strong>Author:</strong> {{ article.author }}</span>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if article.summary %}
+                                    <div class="article-summary">
+                                        {{ article.summary|safe }}
+                                    </div>
+                                    {% endif %}
+
+                                    {% if article.update_type %}
+                                    <div class="tags">
+                                        {% for tag in article.update_type %}
+                                        <span class="tag {% if 'security' in tag.lower() or 'patch' in tag.lower() %}security{% elif 'feature' in tag.lower() %}feature{% elif 'bug' in tag.lower() or 'fix' in tag.lower() %}bugfix{% endif %}">
+                                            {{ tag }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </details>
+                            {% endfor %}
+                        {% else %}
+                            <p class="no-updates" style="padding: 20px; margin: 0;">No updates available for this product in the reporting period.</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="no-updates">
+                    <p>No security product updates found for this time period.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>SecIntel AI - Security Intelligence Tracker</strong></p>
+            <p>Microsoft Security Product Tracker</p>
+            <p>Generated on {{ date }}</p>
+            {% if ai_model_info %}
+            <p>{{ ai_model_info.display }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <a href="#top" class="back-to-top" title="Back to top">↑</a>
+
+    <script>
+        // Expand/Collapse All functionality
+        function expandAll() {
+            const details = document.querySelectorAll('.article-details');
+            details.forEach(detail => {
+                detail.open = true;
+            });
+        }
+
+        function collapseAll() {
+            const details = document.querySelectorAll('.article-details');
+            details.forEach(detail => {
+                detail.open = false;
+            });
+        }
+
+        // Optional keyboard shortcuts (E to expand all, C to collapse all)
+        document.addEventListener('keydown', function(e) {
+            // Only trigger if not typing in an input field
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                if (e.key === 'e' || e.key === 'E') {
+                    expandAll();
+                } else if (e.key === 'c' || e.key === 'C') {
+                    collapseAll();
+                }
+            }
+        });
+
+        // Prevent link clicks in summary from toggling details
+        document.addEventListener('DOMContentLoaded', function() {
+            const summaryLinks = document.querySelectorAll('.article-details summary a');
+            summaryLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

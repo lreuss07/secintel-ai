@@ -1,0 +1,171 @@
+# Configuration for SecIntel AI - Security Intelligence Tracker
+# Modified for Microsoft Defender Update Tracking - FIXED RSS FEEDS
+
+# Database settings
+database:
+  path: data/defender_updates.db  # Path to SQLite database file
+
+# Sources to scrape for Microsoft Defender updates
+sources:
+  # Microsoft Security Blog - Blog posts and announcements
+  - name: Microsoft Security Blog
+    url: https://www.microsoft.com/en-us/security/blog
+    type: rss
+    feed_url: https://www.microsoft.com/en-us/security/blog/feed/
+    keywords:
+      - defender
+      - microsoft defender
+      - endpoint protection
+      - edr
+      - xdr
+
+  # Microsoft Learn "What's New" Pages - Comprehensive product update logs
+  # These are web scraped since they don't have working RSS feeds
+
+  - name: Defender XDR What's New
+    url: https://learn.microsoft.com/en-us/defender-xdr/whats-new
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Defender for Endpoint What's New
+    url: https://learn.microsoft.com/en-us/defender-endpoint/whats-new-in-microsoft-defender-endpoint
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Defender for Office 365 What's New
+    url: https://learn.microsoft.com/en-us/defender-office-365/defender-for-office-365-whats-new
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Defender for Identity What's New
+    url: https://learn.microsoft.com/en-us/defender-for-identity/whats-new
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Defender for Cloud Apps Release Notes
+    url: https://learn.microsoft.com/en-us/defender-cloud-apps/release-notes
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Defender Vulnerability Management What's New
+    url: https://learn.microsoft.com/en-us/defender-vulnerability-management/whats-new-in-microsoft-defender-vulnerability-management
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  - name: Microsoft Sentinel What's New
+    url: https://learn.microsoft.com/en-us/azure/sentinel/whats-new?tabs=defender-portal
+    type: web
+    single_page: true
+    content_selector: main, article, [role="main"]
+
+  # Microsoft Tech Community - Defender XDR Blog RSS
+  - name: Tech Community - Defender XDR Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-365-defender-blog/bg-p/MicrosoftThreatProtectionBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftThreatProtectionBlog
+
+  # Microsoft Tech Community - Defender for Endpoint Blog RSS
+  - name: Tech Community - Defender for Endpoint Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-defender-for-endpoint/bg-p/MicrosoftDefenderATPBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftDefenderATPBlog
+
+  # Microsoft Tech Community - Security Copilot Blog RSS
+  - name: Tech Community - Security Copilot Blog
+    url: https://techcommunity.microsoft.com/t5/security-copilot-blog/bg-p/SecurityCopilotBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=SecurityCopilotBlog
+
+  # Microsoft Tech Community - Defender Threat Intelligence Blog RSS
+  - name: Tech Community - Defender Threat Intelligence Blog
+    url: https://techcommunity.microsoft.com/t5/defender-threat-intelligence/bg-p/DefenderThreatIntelligence
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=DefenderThreatIntelligence
+
+  # Microsoft Tech Community - Defender for Cloud Apps Blog RSS
+  - name: Tech Community - Defender for Cloud Apps Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/bg-p/MicrosoftDefenderCloudBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftDefenderCloudBlog
+
+  # Microsoft Tech Community - Defender for Office 365 Blog RSS
+  - name: Tech Community - Defender for Office 365 Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-defender-for-office/bg-p/MicrosoftDefenderforOffice365Blog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftDefenderforOffice365Blog
+
+  # Microsoft Tech Community - Defender Vulnerability Management Blog RSS
+  - name: Tech Community - Defender Vulnerability Management Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-defender-vulnerability/bg-p/Vulnerability-Management
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Vulnerability-Management
+
+  # Microsoft Tech Community - Microsoft Sentinel Blog RSS
+  - name: Tech Community - Microsoft Sentinel Blog
+    url: https://techcommunity.microsoft.com/t5/microsoft-sentinel-blog/bg-p/MicrosoftSentinelBlog
+    type: rss
+    feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftSentinelBlog
+
+  # 3rd Party Sources - Community blogs and articles about Defender
+  - name: Jeffrey Appel Blog
+    url: https://jeffreyappel.nl
+    type: rss
+    feed_url: https://jeffreyappel.nl/feed/
+    keywords:
+      - defender
+      - microsoft defender
+      - endpoint
+      - sentinel
+      - xdr
+
+# AI settings for summarization
+ai:
+  base_url: 'http://localhost:1234/v1'
+  api_key: 'lm-studio'
+  model: 'local-model'
+
+# Reporting settings
+reporting:
+  output_directory: reports/defender
+  time_window_days: 30  # How many days of data to include in reports
+  formats:
+    - html
+    - markdown
+  
+# Focus areas for Microsoft Defender tracking
+tracking_focus:
+  categories:
+    - Feature Updates
+    - Bug Fixes
+    - Security Patches
+    - Performance Improvements
+    - New Capabilities
+    - Detection Updates
+    - Known Issues
+    - Platform Updates
+    - Integration Changes
+    - API Changes
+  
+  components:
+    - Microsoft Defender for Endpoint
+    - Microsoft Defender for Cloud
+    - Microsoft Defender for Office 365
+    - Microsoft Defender for Identity
+    - Microsoft Defender Antivirus
+    - Microsoft Defender SmartScreen
+    - Microsoft Defender Application Guard
+    - Microsoft 365 Defender (XDR)
+    - EDR (Endpoint Detection and Response)
+    - Attack Surface Reduction (ASR)
+
+# Notes:
+# - Microsoft Learn RSS feeds use aka.ms shortlinks
+# - MSRC Security Update Guide has dedicated RSS for CVEs
+# - Some feeds return many items, keywords filter for Defender relevance
+# - Tech Community RSS feeds had issues, replaced with Microsoft Learn feeds

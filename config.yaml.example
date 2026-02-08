@@ -1,0 +1,79 @@
+# SecIntel AI Configuration
+# Copy this file to config.yaml and customize for your environment
+
+# Global AI settings (shared across all trackers)
+ai:
+  # AI provider selection: 'lmstudio' or 'claude'
+  # - lmstudio: Use local LM Studio with OpenAI-compatible API (RECOMMENDED)
+  # - claude: Use Anthropic Claude API (cloud-based)
+  provider: 'lmstudio'
+
+  # LM Studio settings (used when provider = 'lmstudio')
+  lmstudio:
+    base_url: 'http://localhost:1234/v1'
+    api_key: 'lm-studio'  # LM Studio doesn't require real API key
+    model: 'local-model'
+
+  # Claude settings (used when provider = 'claude')
+  claude:
+    api_key: 'your-anthropic-api-key-here'
+    model: 'claude-sonnet-4-20250514'
+
+  # Shared settings (applied to both providers)
+  temperature: 0.1
+
+# Global database settings
+database:
+  path: data/secintel.db
+
+# Tracker configurations
+trackers:
+  # Microsoft Defender tracker
+  defender:
+    enabled: true
+    display_name: "Microsoft Defender Updates"
+    time_window_days: 30
+    report_dir: reports/defender
+    # Sources loaded from trackers/defender/config.yaml
+
+  # Microsoft Products tracker
+  microsoft_products:
+    enabled: true
+    display_name: "Microsoft Security Products"
+    time_window_days: 30
+    report_dir: reports/microsoft_products
+    # Sources loaded from trackers/microsoft_products/config.yaml
+
+  # Threat Intelligence tracker
+  threat_intel:
+    enabled: true
+    display_name: "Threat Intelligence News"
+    time_window_days: 30
+    report_dir: reports/threat_intel
+    # Sources loaded from trackers/threat_intel/config.yaml
+
+  # Third-party Security Tools tracker
+  thirdparty_security:
+    enabled: true
+    display_name: "3rd Party Security Products"
+    time_window_days: 30
+    report_dir: reports/thirdparty_security
+    # Sources loaded from trackers/thirdparty_security/config.yaml
+
+  # LLM News tracker
+  llm_news:
+    enabled: true
+    display_name: "LLM News & Updates"
+    time_window_days: 30
+    report_dir: reports/llm_news
+    # Sources loaded from trackers/llm_news/config.yaml
+
+# Reporting settings
+reporting:
+  formats:
+    - html
+    - markdown
+  time_windows:
+    tier1: 7   # Weekly digest
+    tier2: 14  # Bi-weekly review
+    tier3: 30  # Monthly archive

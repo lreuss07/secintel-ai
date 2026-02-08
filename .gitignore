@@ -1,0 +1,57 @@
+# Previous ignores
+TODO_NEXT_SESSION.md
+
+# ===========================================
+# PRIVATE FILES - Never commit these
+# ===========================================
+
+# ===========================================
+# SENSITIVE CONFIG FILES - contain API keys and vendor info
+# ===========================================
+# These reveal your security stack - never commit to public repos
+# Use the .example files as templates
+config.yaml
+trackers/*/config.yaml
+
+# Generated data and reports (contain your specific intel)
+data/
+reports/
+*.db
+logs/
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Environment
+.env
+.venv
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dropbox sync artifacts
+*:com.dropbox.attrs
+
+# Debug/test artifacts
+debug_html/
+
+# Sync script (contains local paths)
+scripts/sync-to-public.sh
+
+# Zone identifier files (Windows/OneDrive artifacts)
+*:Zone.Identifier

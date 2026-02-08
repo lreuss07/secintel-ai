@@ -1,0 +1,300 @@
+# LLM News Tracker Configuration
+# Sources for tracking Large Language Model news and updates
+
+sources:
+  # =============================================================================
+  # RSS FEEDS - Reliable and easy to parse
+  # =============================================================================
+
+  # OpenAI Status Feed (reliable alternative to blocked changelog)
+  - name: "OpenAI Status"
+    type: rss
+    url: "https://status.openai.com"
+    feed_url: "https://status.openai.com/history.rss"
+    provider: "OpenAI"
+    product: "OpenAI API"
+
+  # OpenAI News RSS (redirects from /blog to /news)
+  - name: "OpenAI News"
+    type: rss
+    url: "https://openai.com/news"
+    feed_url: "https://openai.com/news/rss.xml"
+    provider: "OpenAI"
+    product: "ChatGPT/GPT"
+
+  # Google Workspace Updates (includes Gemini and AI announcements)
+  - name: "Google Workspace Updates"
+    type: rss
+    url: "https://workspaceupdates.googleblog.com/"
+    feed_url: "https://workspaceupdates.googleblog.com/feeds/posts/default"
+    provider: "Google"
+    product: "Google Workspace"
+
+  # Google AI Blog
+  - name: "Google AI Blog"
+    type: rss
+    url: "https://blog.google/innovation-and-ai/technology/ai/"
+    feed_url: "https://blog.google/innovation-and-ai/technology/ai/rss/"
+    provider: "Google"
+    product: "Gemini"
+
+  # Anthropic SDK Python Releases (verified working - 60+ releases)
+  - name: "Anthropic SDK Releases"
+    type: rss
+    url: "https://github.com/anthropics/anthropic-sdk-python"
+    feed_url: "https://github.com/anthropics/anthropic-sdk-python/releases.atom"
+    provider: "Anthropic"
+    product: "Claude SDK"
+
+  # Meta Llama Models GitHub (more active than main llama repo)
+  - name: "Meta Llama Models"
+    type: rss
+    url: "https://github.com/meta-llama/llama-models"
+    feed_url: "https://github.com/meta-llama/llama-models/releases.atom"
+    provider: "Meta"
+    product: "Llama"
+
+  # Hugging Face Transformers Releases
+  - name: "Hugging Face Transformers"
+    type: rss
+    url: "https://github.com/huggingface/transformers"
+    feed_url: "https://github.com/huggingface/transformers/releases.atom"
+    provider: "Hugging Face"
+    product: "Transformers"
+
+  # GitHub Copilot Changelog
+  - name: "GitHub Copilot Changelog"
+    type: rss
+    url: "https://github.blog/changelog/"
+    feed_url: "https://github.blog/changelog/feed/"
+    provider: "Microsoft"
+    product: "GitHub Copilot"
+    filter_keywords:
+      - "Copilot"
+      - "AI"
+      - "code completion"
+
+  # Mistral AI GitHub Releases
+  - name: "Mistral AI GitHub"
+    type: rss
+    url: "https://github.com/mistralai/mistral-inference"
+    feed_url: "https://github.com/mistralai/mistral-inference/releases.atom"
+    provider: "Mistral AI"
+    product: "Mistral Models"
+
+  # Ollama Releases (popular local LLM runner)
+  - name: "Ollama Releases"
+    type: rss
+    url: "https://github.com/ollama/ollama"
+    feed_url: "https://github.com/ollama/ollama/releases.atom"
+    provider: "Ollama"
+    product: "Ollama"
+
+  # vLLM Releases (LLM inference engine)
+  - name: "vLLM Releases"
+    type: rss
+    url: "https://github.com/vllm-project/vllm"
+    feed_url: "https://github.com/vllm-project/vllm/releases.atom"
+    provider: "vLLM"
+    product: "vLLM"
+
+  # LangChain Releases
+  - name: "LangChain Releases"
+    type: rss
+    url: "https://github.com/langchain-ai/langchain"
+    feed_url: "https://github.com/langchain-ai/langchain/releases.atom"
+    provider: "LangChain"
+    product: "LangChain"
+
+  # =============================================================================
+  # WEB SCRAPING - Static pages
+  # =============================================================================
+
+  # Anthropic News (updated selectors)
+  - name: "Anthropic News"
+    type: web
+    url: "https://www.anthropic.com/news"
+    provider: "Anthropic"
+    product: "Claude"
+    selectors:
+      article_container: "a[href*='/news/'], article, [class*='card'], [class*='post']"
+      title: "h2, h3, h4, [class*='title'], [class*='heading']"
+      link: "a[href*='/news/']"
+      date: "time, [datetime], [class*='date'], span[class*='text-']"
+      content: "p, [class*='description'], [class*='excerpt'], [class*='summary']"
+
+  # Claude Release Notes
+  - name: "Claude Release Notes"
+    type: web
+    url: "https://docs.anthropic.com/en/release-notes"
+    provider: "Anthropic"
+    product: "Claude API"
+    selectors:
+      article_container: "article, section, [class*='release'], div[class*='content']"
+      title: "h1, h2, h3"
+      date: "time, [datetime], [class*='date']"
+      content: "p, ul, li, [class*='description']"
+
+  # Google Gemini API Changelog
+  - name: "Google Gemini API Changelog"
+    type: web
+    url: "https://ai.google.dev/gemini-api/docs/changelog"
+    provider: "Google"
+    product: "Gemini API"
+    selectors:
+      article_container: "article, section, [class*='changelog'], div[class*='devsite']"
+      title: "h2, h3, h4"
+      date: "time, [class*='date']"
+      content: "p, ul, li"
+
+  # LM Studio Blog (updated Tailwind selectors)
+  - name: "LM Studio Blog"
+    type: web
+    url: "https://lmstudio.ai/blog"
+    provider: "LM Studio"
+    product: "LM Studio"
+    selectors:
+      article_container: "a[href*='/blog/'], div[class*='flex'][class*='flex-col'], article"
+      title: "p[class*='text-xl'], h2, h3, [class*='font-medium']"
+      link: "a[href*='/blog/']"
+      date: "div[class*='text-xs'], span[class*='opacity'], time"
+      content: "p, [class*='markdown'], [class*='prose']"
+
+  # Mistral AI News
+  - name: "Mistral AI News"
+    type: web
+    url: "https://mistral.ai/news"
+    provider: "Mistral AI"
+    product: "Mistral"
+    selectors:
+      article_container: "a[href*='/news/'], article, [class*='card'], [class*='post']"
+      title: "h2, h3, h4, [class*='title']"
+      link: "a[href*='/news/']"
+      date: "time, [datetime], [class*='date']"
+      content: "p, [class*='description'], [class*='excerpt']"
+
+  # Groq - DISABLED (changelog uses JS rendering, scraper can't extract content)
+  # Re-enable if Groq adds an RSS feed or static changelog page
+
+  # Microsoft Copilot Release Notes
+  - name: "Microsoft Copilot Release Notes"
+    type: web
+    url: "https://learn.microsoft.com/en-us/copilot/microsoft-365/release-notes"
+    provider: "Microsoft"
+    product: "Microsoft Copilot"
+    selectors:
+      article_container: "article, section, [class*='content'], tr"
+      title: "h2, h3, td:first-child"
+      date: "time, [class*='date'], td"
+      content: "p, ul, li, td"
+
+  # xAI Grok API Release Notes (working alternative to blocked x.ai/news)
+  - name: "xAI API Release Notes"
+    type: web
+    url: "https://docs.x.ai/docs/release-notes"
+    provider: "xAI"
+    product: "Grok"
+    selectors:
+      article_container: "article, section, [class*='content'], div[class*='prose'], main"
+      title: "h1, h2, h3"
+      date: "time, [datetime], [class*='date']"
+      content: "p, ul, li, [class*='markdown']"
+
+  # Perplexity API Changelog - DISABLED (uses React/JS rendering, scraper can't extract)
+  # The page uses custom React Update components with label attributes rather than HTML
+  # - name: "Perplexity API Changelog"
+  #   type: web
+  #   url: "https://docs.perplexity.ai/changelog/changelog"
+  #   provider: "Perplexity"
+  #   product: "Perplexity API"
+
+  # Perplexity Python SDK Releases (RSS) - PRIMARY SOURCE
+  - name: "Perplexity SDK Releases"
+    type: rss
+    url: "https://github.com/perplexityai/perplexity-py"
+    feed_url: "https://github.com/perplexityai/perplexity-py/releases.atom"
+    provider: "Perplexity"
+    product: "Perplexity SDK"
+
+  # =============================================================================
+  # BLOCKED SOURCES (commented out - require special handling)
+  # =============================================================================
+  # These sources block automated access (403/400 errors)
+  # The alternatives above (docs.x.ai and docs.perplexity.ai) are now used instead
+
+  # xAI/Grok - Blocked (403) - REPLACED with docs.x.ai/docs/release-notes above
+  # - name: "xAI News"
+  #   url: "https://x.ai/news"
+  #   Alternative: Monitor @xikiaia on X/Twitter
+
+  # Perplexity - Blocked (403)
+  # - name: "Perplexity Changelog"
+  #   url: "https://www.perplexity.ai/changelog"
+  #   Alternative: Monitor @peraborin on X/Twitter
+
+  # Meta AI Blog - Blocked (400)
+  # - name: "Meta AI Blog"
+  #   url: "https://ai.meta.com/blog/"
+  #   Alternative: Using GitHub releases instead
+
+# =============================================================================
+# KEYWORDS for content classification
+# =============================================================================
+keywords:
+  model_release:
+    - "new model"
+    - "model release"
+    - "launching"
+    - "introducing"
+    - "announcing"
+    - "we're releasing"
+    - "now available"
+    - "gpt-"
+    - "claude-"
+    - "gemini-"
+    - "llama-"
+    - "mistral-"
+
+  api_update:
+    - "api update"
+    - "api change"
+    - "endpoint"
+    - "deprecation"
+    - "breaking change"
+    - "rate limit"
+    - "sdk update"
+    - "library update"
+
+  feature_announcement:
+    - "new feature"
+    - "new capability"
+    - "enhancement"
+    - "we're adding"
+    - "now supports"
+    - "beta release"
+    - "preview"
+    - "function calling"
+    - "tool use"
+
+  research:
+    - "research paper"
+    - "benchmark"
+    - "evaluation"
+    - "technical report"
+    - "arxiv"
+    - "findings"
+
+  pricing_change:
+    - "pricing update"
+    - "price change"
+    - "new pricing"
+    - "cost reduction"
+    - "free tier"
+
+  security_notice:
+    - "security update"
+    - "vulnerability"
+    - "cve-"
+    - "security patch"
+    - "safety update"
+    - "content policy"

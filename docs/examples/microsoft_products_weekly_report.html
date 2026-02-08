@@ -1,0 +1,3650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Security Product Update Report - Tier 1: Critical &amp; High Priority Digest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .header .ai-model {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            font-size: 0.9em;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header .ai-model .badge {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 3px 10px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .product-summary {
+            padding: 30px 40px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .product-summary h2 {
+            color: #0078d4;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .product-item {
+            background: #f9f9f9;
+            padding: 15px 20px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #0078d4;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .product-item:hover {
+            background: #f0f7ff;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 120, 212, 0.2);
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .product-count {
+            background: #0078d4;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .product-count.zero {
+            background: #d0d0d0;
+            color: #666;
+        }
+
+        .whats-new-section {
+            padding: 30px 40px;
+            background: linear-gradient(135deg, #fff4e6 0%, #ffe8cc 100%);
+            border-bottom: 3px solid #ff8800;
+        }
+
+        .whats-new-section h2 {
+            color: #ff6600;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .whats-new-section .whats-new-summary {
+            text-align: center;
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #ff8800;
+        }
+
+        .whats-new-section .whats-new-summary strong {
+            color: #ff6600;
+            font-size: 1.3em;
+        }
+
+        .whats-new-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 15px;
+        }
+
+        .whats-new-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ff8800;
+            box-shadow: 0 2px 5px rgba(255, 136, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .whats-new-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3);
+        }
+
+        .whats-new-item h4 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .whats-new-item h4 a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+
+        .whats-new-item h4 a:hover {
+            text-decoration: underline;
+        }
+
+        .whats-new-item .meta {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .new-badge {
+            display: inline-block;
+            background: #ff6600;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid #0078d4;
+        }
+
+        .stat-card.features {
+            border-left-color: #107c10;
+        }
+
+        .stat-card.bugs {
+            border-left-color: #ffb900;
+        }
+
+        .stat-card.performance {
+            border-left-color: #8661c5;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #0078d4;
+            margin-bottom: 5px;
+        }
+
+        .stat-card.features .stat-number {
+            color: #107c10;
+        }
+
+        .stat-card.bugs .stat-number {
+            color: #ffb900;
+        }
+
+        .stat-card.performance .stat-number {
+            color: #8661c5;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #0078d4;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0078d4;
+        }
+
+        .executive-summary {
+            background: #f0f7ff;
+            padding: 40px;
+            border-radius: 8px;
+            border-left: 4px solid #0078d4;
+            margin-bottom: 30px;
+        }
+
+        .executive-summary h3 {
+            color: #0078d4;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #0078d4;
+            padding-bottom: 10px;
+        }
+
+        .executive-summary h4,
+        .executive-summary h5 {
+            color: #005a9e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .executive-summary > p {
+            margin-bottom: 18px;
+            line-height: 1.8;
+        }
+
+        .executive-summary > p:first-of-type {
+            font-size: 1.15em;
+            font-weight: 600;
+            color: #0078d4;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #cce7ff;
+        }
+
+        .executive-summary > p > strong:first-child {
+            display: block;
+            font-size: 1.15em;
+            color: #005a9e;
+            margin-bottom: 8px;
+            margin-top: 20px;
+        }
+
+        .executive-summary > hr {
+            margin: 25px 0;
+            border: none;
+            border-top: 2px solid #cce7ff;
+        }
+
+        .executive-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .executive-summary table th {
+            background: #0078d4;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #005a9e;
+        }
+
+        .executive-summary table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .executive-summary table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .executive-summary table tr:hover {
+            background: #f0f7ff;
+        }
+
+        .executive-summary ul {
+            margin: 15px 0 25px 0;
+            padding-left: 25px;
+            background: white;
+            padding: 20px 20px 20px 45px;
+            border-radius: 5px;
+            border-left: 3px solid #0078d4;
+        }
+
+        .executive-summary li {
+            margin: 12px 0;
+            line-height: 1.8;
+        }
+
+        .executive-summary li strong {
+            color: #0078d4;
+        }
+
+        .executive-summary code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #d13438;
+        }
+
+        .executive-summary strong {
+            color: #005a9e;
+        }
+
+        .product-section {
+            margin-bottom: 40px;
+            background: #fafafa;
+            padding: 30px;
+            border-radius: 8px;
+            scroll-margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .product-section:target {
+            background: #e8f4ff;
+            box-shadow: 0 0 0 3px #0078d4;
+        }
+
+        .product-section h3 {
+            color: #005a9e;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-section h3 .back-link {
+            font-size: 0.6em;
+            color: #0078d4;
+            text-decoration: none;
+            font-weight: normal;
+            padding: 5px 12px;
+            border: 1px solid #0078d4;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .product-section h3 .back-link:hover {
+            background: #0078d4;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 120, 212, 0.3);
+        }
+
+        .product-exec-summary {
+            background: linear-gradient(135deg, #e8f4ff 0%, #cce7ff 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #0078d4;
+            box-shadow: 0 2px 8px rgba(0, 120, 212, 0.15);
+        }
+
+        .product-exec-summary .narrative {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .product-exec-summary .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .product-exec-summary .metric-box {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            border-left: 3px solid #0078d4;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-exec-summary .metric-box.critical {
+            border-left-color: #d13438;
+        }
+
+        .product-exec-summary .metric-box.high {
+            border-left-color: #ff8c00;
+        }
+
+        .product-exec-summary .metric-box.medium {
+            border-left-color: #ffb900;
+        }
+
+        .product-exec-summary .metric-box.ga {
+            border-left-color: #107c10;
+        }
+
+        .product-exec-summary .metric-box.deprecated {
+            border-left-color: #d13438;
+            background: #fff5f5;
+        }
+
+        .product-exec-summary .metric-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #0078d4;
+            margin-bottom: 2px;
+        }
+
+        .product-exec-summary .metric-box.critical .metric-number {
+            color: #d13438;
+        }
+
+        .product-exec-summary .metric-box.high .metric-number {
+            color: #ff8c00;
+        }
+
+        .product-exec-summary .metric-box.medium .metric-number {
+            color: #ffb900;
+        }
+
+        .product-exec-summary .metric-box.ga .metric-number {
+            color: #107c10;
+        }
+
+        .product-exec-summary .metric-box.deprecated .metric-number {
+            color: #d13438;
+        }
+
+        .product-exec-summary .metric-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-exec-summary .themes {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .product-exec-summary .themes strong {
+            color: #0078d4;
+        }
+
+        /* Product-specific executive summary markdown-converted content styles */
+        .product-exec-summary h3 {
+            color: #0078d4;
+            margin-bottom: 15px;
+            margin-top: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #0078d4;
+            padding-bottom: 8px;
+        }
+
+        .product-exec-summary p {
+            margin-bottom: 12px;
+            line-height: 1.7;
+            color: #333;
+        }
+
+        .product-exec-summary p:first-of-type {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #005a9e;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 120, 212, 0.2);
+        }
+
+        .product-exec-summary strong {
+            color: #005a9e;
+            font-weight: 600;
+        }
+
+        .product-exec-summary hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid rgba(0, 120, 212, 0.3);
+        }
+
+        .product-exec-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 0.9em;
+        }
+
+        .product-exec-summary table th {
+            background: #0078d4;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #005a9e;
+        }
+
+        .product-exec-summary table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .product-exec-summary table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .product-exec-summary table tr:hover {
+            background: rgba(240, 247, 255, 0.8);
+        }
+
+        .product-exec-summary ul,
+        .product-exec-summary ol {
+            margin: 12px 0;
+            padding-left: 25px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 15px 15px 15px 35px;
+            border-radius: 5px;
+            border-left: 3px solid #0078d4;
+        }
+
+        .product-exec-summary li {
+            margin: 8px 0;
+            line-height: 1.7;
+        }
+
+        .product-exec-summary li strong {
+            color: #0078d4;
+        }
+
+        .product-exec-summary code {
+            background: rgba(245, 245, 245, 0.9);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85em;
+            color: #d13438;
+        }
+
+        /* Collapsible Article Styles */
+        .article-details {
+            background: white;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border-left: 3px solid #0078d4;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .article-details:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .article-details summary {
+            padding: 20px;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+            position: relative;
+            outline: none;
+        }
+
+        .article-details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .article-details summary::before {
+            content: '+';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            background: #0078d4;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 120, 212, 0.3);
+        }
+
+        .article-details[open] summary::before {
+            content: '−';
+            background: #005a9e;
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .article-details summary:hover::before {
+            background: #005a9e;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .article-details[open] summary:hover::before {
+            transform: translateY(-50%) rotate(180deg) scale(1.1);
+        }
+
+        .article-details summary:focus {
+            outline: 2px solid #0078d4;
+            outline-offset: 2px;
+        }
+
+        .article-summary-header h4 {
+            color: #0078d4;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .article-summary-header h4 a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+
+        .article-summary-header h4 a:hover {
+            text-decoration: underline;
+        }
+
+        .meta-preview {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .article-content {
+            padding: 0 20px 20px 20px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Legacy article class for backward compatibility */
+        .article {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border-left: 3px solid #0078d4;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .article h4 {
+            color: #0078d4;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .article h4 a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+
+        .article h4 a:hover {
+            text-decoration: underline;
+        }
+
+        /* Expand/Collapse Controls */
+        .expand-collapse-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f7ff;
+            border-radius: 8px;
+        }
+
+        .control-btn {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 120, 212, 0.3);
+        }
+
+        .control-btn:hover {
+            background: #005a9e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 120, 212, 0.4);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-btn:focus {
+            outline: 2px solid #0078d4;
+            outline-offset: 2px;
+        }
+
+        .article-meta {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .article-meta span {
+            margin-right: 15px;
+        }
+
+        .date-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .date-badge.today {
+            background: #ff4444;
+            color: white;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .date-badge.new {
+            background: #ff8800;
+            color: white;
+        }
+
+        .date-badge.recent {
+            background: #0078d4;
+            color: white;
+        }
+
+        .date-badge.older {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .date-badge.unknown {
+            background: #f0f0f0;
+            color: #999;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .date-text {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .source-type-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+            color: white;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .source-type-badge.documentation {
+            background: #0078d4;
+        }
+
+        .source-type-badge.blog {
+            background: #107c10;
+        }
+
+        .source-type-badge.announcement {
+            background: #5c2d91;
+        }
+
+        .source-type-badge.third_party {
+            background: #ff8c00;
+        }
+
+        .source-type-badge.other {
+            background: #666666;
+        }
+
+        .availability-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+            color: white;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .availability-badge.ga {
+            background: #107c10;
+        }
+
+        .availability-badge.preview {
+            background: #ffb900;
+            color: #333;
+        }
+
+        .availability-badge.deprecated {
+            background: #d13438;
+        }
+
+        .licensing-section {
+            background: #f0f7ff;
+            padding: 30px;
+            border-radius: 8px;
+            border-left: 4px solid #5c2d91;
+            margin-bottom: 30px;
+        }
+
+        .licensing-section h3 {
+            color: #5c2d91;
+            margin-bottom: 15px;
+        }
+
+        .licensing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .licensing-tier {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .licensing-tier h4 {
+            color: #5c2d91;
+            font-size: 1em;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #5c2d91;
+        }
+
+        .licensing-tier.e5 h4 {
+            border-bottom-color: #d13438;
+            color: #d13438;
+        }
+
+        .licensing-tier.copilot h4 {
+            border-bottom-color: #0078d4;
+            color: #0078d4;
+        }
+
+        .licensing-tier ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .licensing-tier li {
+            font-size: 0.85em;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+        }
+
+        .licensing-tier li:last-child {
+            border-bottom: none;
+        }
+
+        .licensing-count {
+            display: inline-block;
+            background: #5c2d91;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        .table-of-contents {
+            padding: 20px 40px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table-of-contents h2 {
+            color: #0078d4;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .toc-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            border-left: 3px solid #0078d4;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+        }
+
+        .toc-item:hover {
+            background: #f0f7ff;
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px rgba(0, 120, 212, 0.2);
+        }
+
+        .toc-item.highlight {
+            border-left-color: #ff8800;
+        }
+
+        .article-preview {
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin: 10px 0 15px 0;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-left: 3px solid #0078d4;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .article-summary {
+            color: #444;
+            line-height: 1.8;
+        }
+
+        .article-summary p {
+            margin-bottom: 10px;
+        }
+
+        .article-summary h4,
+        .article-summary h5 {
+            color: #005a9e;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .article-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            font-size: 0.95em;
+        }
+
+        .article-summary table th {
+            background: #0078d4;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #005a9e;
+        }
+
+        .article-summary table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .article-summary table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .article-summary table tr:hover {
+            background: #f0f7ff;
+        }
+
+        .article-summary ul,
+        .article-summary ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+
+        .article-summary li {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        .article-summary code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #d13438;
+        }
+
+        .article-summary strong {
+            color: #005a9e;
+            font-weight: 600;
+        }
+
+        .tags {
+            margin-top: 15px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e1f0ff;
+            color: #0078d4;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .tag.security {
+            background: #ffe6e6;
+            color: #d13438;
+        }
+
+        .tag.feature {
+            background: #e6f7e6;
+            color: #107c10;
+        }
+
+        .tag.bugfix {
+            background: #fff7e6;
+            color: #c87400;
+        }
+
+        .footer {
+            background: #f5f5f5;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #0078d4;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
+            transition: all 0.3s ease;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .back-to-top:hover {
+            background: #005a9e;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 120, 212, 0.6);
+        }
+
+        .no-updates {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .article-details summary::before {
+                left: -5px;
+                width: 24px;
+                height: 24px;
+                font-size: 16px;
+            }
+
+            .expand-collapse-controls {
+                flex-direction: column;
+            }
+
+            .control-btn {
+                width: 100%;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .article,
+            .article-details {
+                page-break-inside: avoid;
+            }
+
+            .back-to-top,
+            .back-link {
+                display: none !important;
+            }
+
+            .product-item {
+                cursor: default;
+            }
+
+            table {
+                page-break-inside: avoid;
+            }
+
+            .executive-summary table tr:hover,
+            .article-summary table tr:hover {
+                background: inherit;
+            }
+
+            /* Auto-expand all collapsible sections when printing */
+            .article-details summary {
+                display: block;
+                pointer-events: none;
+            }
+
+            .article-details summary::before {
+                display: none !important;
+            }
+
+            .article-content {
+                display: block !important;
+            }
+
+            .expand-collapse-controls {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="top">
+        <div class="header">
+            <h1>Microsoft Security Product Update Report - Tier 1: Critical &amp; High Priority Digest</h1>
+            <div class="subtitle">January 28, 2026 at 08:52 PM</div>
+            <div class="subtitle">Report Period: last 7 days</div>
+            
+            <div class="ai-model">
+                AI Model: local-model (Local - LM Studio)
+                <span class="badge">Local</span>
+            </div>
+            
+        </div>
+
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-number">18</div>
+                <div class="stat-label">Total Updates</div>
+            </div>
+            <div class="stat-card features">
+                <div class="stat-number">11</div>
+                <div class="stat-label">New Features</div>
+            </div>
+            <div class="stat-card bugs">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Bug Fixes</div>
+            </div>
+            <div class="stat-card performance">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Performance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Integrations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Platform Updates</div>
+            </div>
+        </div>
+
+        
+        <div class="product-summary" id="products-overview">
+            <h2>Updates by Product</h2>
+            <div class="product-grid">
+                
+                <a href="#product-1" class="product-item">
+                    <div class="product-name">Entra ID</div>
+                    <div class="product-count zero">0</div>
+                </a>
+                
+                <a href="#product-2" class="product-item">
+                    <div class="product-name">Microsoft Intune</div>
+                    <div class="product-count zero">0</div>
+                </a>
+                
+                <a href="#product-3" class="product-item">
+                    <div class="product-name">Microsoft Purview</div>
+                    <div class="product-count zero">0</div>
+                </a>
+                
+                <a href="#product-4" class="product-item">
+                    <div class="product-name">Office 365 Security</div>
+                    <div class="product-count zero">0</div>
+                </a>
+                
+                <a href="#product-5" class="product-item">
+                    <div class="product-name">Microsoft Teams</div>
+                    <div class="product-count ">1</div>
+                </a>
+                
+                <a href="#product-6" class="product-item">
+                    <div class="product-name">SharePoint</div>
+                    <div class="product-count zero">0</div>
+                </a>
+                
+                <a href="#product-7" class="product-item">
+                    <div class="product-name">Exchange</div>
+                    <div class="product-count ">3</div>
+                </a>
+                
+                <a href="#product-8" class="product-item">
+                    <div class="product-name">Windows Security</div>
+                    <div class="product-count ">1</div>
+                </a>
+                
+                <a href="#product-9" class="product-item">
+                    <div class="product-name">Copilot</div>
+                    <div class="product-count ">5</div>
+                </a>
+                
+                <a href="#product-10" class="product-item">
+                    <div class="product-name">Other Security Updates</div>
+                    <div class="product-count ">5</div>
+                </a>
+                
+            </div>
+        </div>
+        
+
+        <div class="table-of-contents">
+            <h2>Quick Navigation</h2>
+            <div class="toc-grid">
+                
+                <a href="#whats-new" class="toc-item highlight">What's New (18)</a>
+                
+                
+                <a href="#executive-summary" class="toc-item">Executive Summary</a>
+                
+                <a href="#all-updates" class="toc-item">All Updates (18)</a>
+            </div>
+        </div>
+
+        
+        <div class="whats-new-section" id="whats-new">
+            <h2>🆕 What's New Since Last Report</h2>
+            <div class="whats-new-summary">
+                
+                <strong>18</strong> updates in this report
+                <br><span style="font-size: 0.9em; color: #777;">(This is your first report generation)</span>
+                
+                
+            </div>
+
+            <div class="whats-new-grid">
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://techcommunity.microsoft.com/t5/exchange-team-blog/message-trace-support-using-graph-api-is-now-in-public-preview/ba-p/4488587" target="_blank">Message Trace Support Using Graph API is now in Public Preview</a>
+                        <span class="new-badge">NEW</span>
+                        <span class="availability-badge deprecated">Deprecated</span>
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge new">5 days ago</span>
+                        
+                        
+                        <span><strong>Source:</strong> Tech Community - Exchange Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> Deprecation, Preview
+                    </div>
+                    
+                </div>
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://techcommunity.microsoft.com/t5/microsoft-security-copilot-blog/where-partners-build-and-scale-partner-built-security-copilot/ba-p/4488589" target="_blank">Where Partners Build and Scale: Partner-Built Security Copilot Agents in Security Store</a>
+                        <span class="new-badge">NEW</span>
+                        <span class="availability-badge ga">GA</span>
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge new">2 days ago</span>
+                        
+                        
+                        <span><strong>Source:</strong> Tech Community - Security Copilot Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> General Update
+                    </div>
+                    
+                </div>
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://techcommunity.microsoft.com/t5/microsoft-security-community/microsoft-purview-data-security-investigations-is-now-generally/ba-p/4489363" target="_blank">Microsoft Purview Data Security Investigations is now generally available</a>
+                        <span class="new-badge">NEW</span>
+                        <span class="availability-badge ga">GA</span>
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge new">2 days ago</span>
+                        
+                        
+                        <span><strong>Source:</strong> Tech Community - Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> Feature Update, Integration, Preview
+                    </div>
+                    
+                </div>
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://techcommunity.microsoft.com/t5/microsoft-teams-blog/licensing-updates-extend-access-to-advanced-capabilities-in/ba-p/4488312" target="_blank">Licensing updates extend access to advanced capabilities in Microsoft Teams and Microsoft Places</a>
+                        <span class="new-badge">NEW</span>
+                        <span class="availability-badge ga">GA</span>
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge new">6 days ago</span>
+                        
+                        
+                        <span><strong>Source:</strong> Tech Community - Microsoft Teams Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> Feature Update
+                    </div>
+                    
+                </div>
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://www.microsoft.com/en-us/security/blog/2026/01/23/runtime-risk-realtime-defense-securing-ai-agents/" target="_blank">From runtime risk to real‑time defense: Securing AI agents</a>
+                        <span class="new-badge">NEW</span>
+                        <span class="availability-badge preview">Preview</span>
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge new">5 days ago</span>
+                        
+                        
+                        <span><strong>Source:</strong> Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> Integration
+                    </div>
+                    
+                </div>
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://www.microsoft.com/en-us/security/blog/2026/01/21/multistage-aitm-phishing-bec-campaign-abusing-sharepoint/" target="_blank">Resurgence of a multi‑stage AiTM phishing and BEC campaign abusing SharePoint</a>
+                        <span class="new-badge">NEW</span>
+                        <span class="availability-badge preview">Preview</span>
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge new">6 days ago</span>
+                        
+                        
+                        <span><strong>Source:</strong> Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> Configuration Update, Integration
+                    </div>
+                    
+                </div>
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://techcommunity.microsoft.com/t5/microsoft-security-community/driving-devsecops-standards-microsoft-s-role-in-shaping-nist-sp/ba-p/4468145" target="_blank">Driving DevSecOps Standards: Microsoft’s Role in Shaping NIST SP 1800-44 Volume B</a>
+                        <span class="new-badge">NEW</span>
+                        
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge new">2 days ago</span>
+                        
+                        
+                        <span><strong>Source:</strong> Tech Community - Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> Integration
+                    </div>
+                    
+                </div>
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://techcommunity.microsoft.com/t5/exchange-team-blog/updated-exchange-online-smtp-auth-basic-authentication/ba-p/4489835" target="_blank">Updated Exchange Online SMTP AUTH Basic Authentication Deprecation Timeline</a>
+                        <span class="new-badge">NEW</span>
+                        
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge new">Yesterday</span>
+                        
+                        
+                        <span><strong>Source:</strong> Tech Community - Exchange Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> Deprecation
+                    </div>
+                    
+                </div>
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://www.microsoft.com/en-us/security/blog/2026/01/26/security-strategies-for-safeguarding-governmental-data/" target="_blank">Security strategies for safeguarding governmental data</a>
+                        <span class="new-badge">NEW</span>
+                        
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge new">2 days ago</span>
+                        
+                        
+                        <span><strong>Source:</strong> Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> General Update
+                    </div>
+                    
+                </div>
+                
+                <div class="whats-new-item">
+                    <h4>
+                        <a href="https://techcommunity.microsoft.com/t5/microsoft-security-community/making-ai-apps-enterprise-ready-with-microsoft-purview-and/ba-p/4489887" target="_blank">Making AI Apps Enterprise-Ready with Microsoft Purview and Microsoft Foundry</a>
+                        <span class="new-badge">NEW</span>
+                        <span class="availability-badge ga">GA</span>
+                    </h4>
+                    <div class="meta">
+                        
+                        <span class="date-badge today">Today</span>
+                        
+                        
+                        <span><strong>Source:</strong> Tech Community - Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                        
+                    </div>
+                    
+                    <div class="meta">
+                        <strong>Type:</strong> Integration
+                    </div>
+                    
+                </div>
+                
+            </div>
+
+            
+            <p style="text-align: center; margin-top: 20px; color: #666;">
+                <em>Showing first 10 of 18 new updates. See full details below.</em>
+            </p>
+            
+        </div>
+        
+
+        <div class="content">
+            
+            <div class="executive-summary" id="executive-summary">
+                <h3>Executive Summary</h3>
+                <p><strong>Microsoft Security Product Update Summary – For the week of January 28th, 2026</strong></p>
+<hr />
+<h3>Executive Overview</h3>
+<p>This week’s releases focus on expanding AI‑centric governance and tightening authentication controls across Microsoft’s security stack. Key highlights include native Purview integration for Foundry AI apps, a GA rollout of Data Security Investigations, and a new deprecation timeline for SMTP AUTH Basic Authentication in Exchange Online. The overarching theme is “AI‑driven compliance + stronger default security.”</p>
+<hr />
+<h3>Featured Updates</h3>
+<table>
+<thead>
+<tr>
+<th>Update</th>
+<th>What It Is</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Purview + Foundry AI App Integration</strong></td>
+<td>Feature toggle in Foundry to send all prompts, responses, and file accesses to Purview DSPM.</td>
+<td>Eliminates custom logging; instant DLP, audit, eDiscovery for AI apps.</td>
+</tr>
+<tr>
+<td><strong>Purview Data Security Investigations GA</strong></td>
+<td>Full‑feature release with pay‑as‑you‑go pricing, Sentinel graph integration, purge action.</td>
+<td>Accelerates data‑risk investigations and provides cost visibility.</td>
+</tr>
+<tr>
+<td><strong>SMTP AUTH Basic Authentication Deprecation</strong></td>
+<td>Extended timeline: remains active until Dec 2026; disabled by default thereafter.</td>
+<td>Requires migration to OAuth for all mail flow; impacts legacy clients/scripts.</td>
+</tr>
+<tr>
+<td><strong>Copilot Search Source Filters GA</strong></td>
+<td>Automatic connector‑aware filters in Copilot UI.</td>
+<td>Improves search precision without admin setup.</td>
+</tr>
+<tr>
+<td><strong>Security Copilot Partner Agents GA</strong></td>
+<td>Marketplace of partner agents (BlueVoyant, OneTrust, Tanium).</td>
+<td>Adds AI‑driven insights and automation to Defender/Entra/Intune environments.</td>
+</tr>
+<tr>
+<td><strong>Defender for Cloud Apps Runtime Protection Preview</strong></td>
+<td>Webhook‑based real‑time guardrail for Copilot Studio agents.</td>
+<td>Prevents prompt injection and unauthorized tool use; requires enablement.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>New Features &amp; Capabilities</h3>
+<ul>
+<li><strong>Purview DSPM for Foundry AI apps</strong> – visibility dashboards, DLP on prompts, eDiscovery location “Enterprise AI apps.”  </li>
+<li><strong>DSI Pay‑as‑You‑Go</strong> – Storage (GB) and Compute (CU) meters; cost estimator.  </li>
+<li><strong>Copilot Search Filters</strong> – Auto‑generated filters per connector (e.g., Area Path for ADO).  </li>
+<li><strong>Security Copilot Agents</strong> – Zero‑trust AI agents that run inside the Security Copilot environment.  </li>
+<li><strong>Runtime Protection Preview</strong> – Policy‑driven allow/deny decisions on every agent tool invocation.  </li>
+</ul>
+<hr />
+<h3>Product‑Specific Updates</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Key Update</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Entra ID</strong></td>
+<td>No new product changes; partner agents may leverage Entra for identity context.</td>
+</tr>
+<tr>
+<td><strong>Intune</strong></td>
+<td>No direct updates this week.</td>
+</tr>
+<tr>
+<td><strong>Purview</strong></td>
+<td>• DSPM integration with Foundry AI apps.<br>• Data Security Investigations GA (pricing, Sentinel graph).<br>• Retention policy support for Exchange Online public folders.</td>
+</tr>
+<tr>
+<td><strong>Office 365 Security</strong></td>
+<td>• Copilot Search source filters GA.<br>• Message Trace Graph API preview (replace Reporting Webservice).</td>
+</tr>
+<tr>
+<td><strong>Windows Security</strong></td>
+<td>No updates.</td>
+</tr>
+<tr>
+<td><strong>Microsoft Copilot</strong></td>
+<td>• Source‑specific filters in Copilot Search.<br>• Automated Readiness Assessment tool released on GitHub.<br>• Partner agents in Security Store.</td>
+</tr>
+<tr>
+<td><strong>Other Microsoft Security Products</strong></td>
+<td>• Defender for Cloud Apps runtime protection preview.<br>• Exchange Online SMTP AUTH deprecation timeline.<br>• Windows 365 Brazil South region availability (regional provisioning).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Performance &amp; Reliability Improvements</h3>
+<ul>
+<li><strong>Purview DSI</strong>: Improved AI search, vector search, and cost monitoring.  </li>
+<li><strong>Copilot Search</strong>: Faster filtering without query rewriting; no admin overhead.  </li>
+<li><strong>Message Trace Graph API</strong>: Unified authentication via service principal; consistent throttling (100 requests/5 min).  </li>
+</ul>
+<hr />
+<h3>Worth Exploring</h3>
+<ul>
+<li><strong>Enable Purview DSPM for Foundry AI apps</strong> if your organization is building AI agents—instant compliance and auditability.  </li>
+<li><strong>Activate DSI</strong> to leverage pay‑as‑you‑go investigations and Sentinel graph integration.  </li>
+<li><strong>Test Copilot Search filters</strong> in pilot environments; no configuration needed, but can improve user productivity.  </li>
+<li><strong>Deploy Security Copilot partner agents</strong> that align with your current Defender/Entra stack for enhanced threat context.  </li>
+<li><strong>Plan SMTP AUTH migration</strong> now to avoid disruption after Dec 2026; update scripts and connectors accordingly.</li>
+</ul>
+<hr />
+<h3>Upcoming Changes &amp; Deprecations</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Deprecation Date</th>
+<th>Migration Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SMTP AUTH Basic Authentication (Exchange Online)</strong></td>
+<td>Disabled by default for all tenants on 1‑Jan‑2027; fully removed after April 6, 2026.</td>
+<td>Migrate to OAuth/Modern Auth; update mail flow connectors and scripts.</td>
+</tr>
+<tr>
+<td><strong>Reporting Webservice Message Trace</strong></td>
+<td>Deprecated on 6‑Apr‑2026.</td>
+<td>Move to Graph API <code>exchangeMessageTrace</code> (beta) using service principal.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Key Metrics</h3>
+<ul>
+<li><strong>New Features Introduced:</strong> 5 (Purview DSPM integration, DSI GA, Copilot Search filters, Security Copilot agents, Defender runtime protection preview).  </li>
+<li><strong>Improvements/Fixes:</strong> 3 (DSI cost tools, Copilot filter performance, Message Trace API unification).  </li>
+<li><strong>Preview Releases:</strong> 1 (Defender for Cloud Apps runtime protection).  </li>
+<li><strong>Affected Product Areas:</strong> Purview, Exchange Online, Microsoft Copilot, Defender for Cloud Apps, Windows 365.  </li>
+</ul>
+<hr />
+            </div>
+            
+
+            <div class="section" id="all-updates">
+                <h2>Updates by Product</h2>
+
+                
+                    
+                    <div class="product-section" id="product-1">
+                        <h3>
+                            <span>Entra ID (0 updates)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+
+                        
+                            <p class="no-updates" style="padding: 20px; margin: 0;">No updates available for this product in the reporting period.</p>
+                        
+                    </div>
+                    
+                    <div class="product-section" id="product-2">
+                        <h3>
+                            <span>Microsoft Intune (0 updates)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+
+                        
+                            <p class="no-updates" style="padding: 20px; margin: 0;">No updates available for this product in the reporting period.</p>
+                        
+                    </div>
+                    
+                    <div class="product-section" id="product-3">
+                        <h3>
+                            <span>Microsoft Purview (0 updates)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+
+                        
+                            <p class="no-updates" style="padding: 20px; margin: 0;">No updates available for this product in the reporting period.</p>
+                        
+                    </div>
+                    
+                    <div class="product-section" id="product-4">
+                        <h3>
+                            <span>Office 365 Security (0 updates)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+
+                        
+                            <p class="no-updates" style="padding: 20px; margin: 0;">No updates available for this product in the reporting period.</p>
+                        
+                    </div>
+                    
+                    <div class="product-section" id="product-5">
+                        <h3>
+                            <span>Microsoft Teams (1 update)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+                        <div class="product-exec-summary">
+                            <p><strong>Microsoft Teams Executive Summary – Jan 22, 2026</strong></p>
+<hr />
+<h3>Key Updates</h3>
+<ul>
+<li><strong>Expanded Licensing:</strong> Advanced event and workspace features (Places, Shared Space, Town Hall/Webinar) are now available to all Enterprise users with calendar access, eliminating the need for Premium licenses.  </li>
+<li><strong>Enhanced Physical &amp; Virtual Collaboration:</strong> New desk‑booking analytics, third‑party API hooks, and immersive 3D event capabilities improve security oversight and attendee experience.</li>
+</ul>
+<h3>What Changed</h3>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>New Features / Enhancements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Microsoft Places</strong></td>
+<td>Accessible to any license with Outlook/Teams calendar; includes Places Finder, Explorer, map‑based reservations, and directory integration.</td>
+</tr>
+<tr>
+<td><strong>Teams Shared Space</strong></td>
+<td>Renamed from “Shared Devices”; supports up to four desks per license, desk‑booking, space‑management policies, utilization analytics, and third‑party API integration.</td>
+</tr>
+<tr>
+<td><strong>Teams Town Hall &amp; Webinar</strong></td>
+<td>Premium event features (streaming chat, reactions, real‑time insights, eCDN, immersive 3D) now available to all Enterprise users; attendee‑packs extend capacity up to 100 000.</td>
+</tr>
+<tr>
+<td><strong>Licensing Simplification</strong></td>
+<td>No deprecation of existing Premium features; new license benefits automatically apply from April 1 2026 for Shared Device holders.</td>
+</tr>
+</tbody>
+</table>
+<h3>Action Items</h3>
+<ul>
+<li><strong>Verify License Coverage:</strong> Ensure users have calendar‑enabled licenses (e.g., M365 E3/E5) in the Microsoft 365 Admin Center.  </li>
+<li><strong>Enable &amp; Configure Places:</strong> Add spaces via the Places admin portal, set booking policies, and integrate third‑party APIs as needed.  </li>
+<li><strong>Assign Shared Space Licenses:</strong> In TAC, allocate the new license to users requiring desk management; configure space properties and analytics dashboards.  </li>
+<li><strong>Configure Town Hall/Webinar Settings:</strong> Enable event features for Enterprise users in Teams Admin Center; purchase attendee‑packs through TAC if large audiences are anticipated.  </li>
+<li><strong>Monitor Event Health:</strong> Use real‑time insights during events to detect and address security or connectivity issues promptly.</li>
+</ul>
+<hr />
+                        </div>
+                        
+
+                        
+                            <div class="expand-collapse-controls">
+                                <button class="control-btn" onclick="expandAll()" title="Expand all articles (Keyboard: E)">
+                                    ⬇ Expand All
+                                </button>
+                                <button class="control-btn" onclick="collapseAll()" title="Collapse all articles (Keyboard: C)">
+                                    ⬆ Collapse All
+                                </button>
+                            </div>
+
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/microsoft-teams-blog/licensing-updates-extend-access-to-advanced-capabilities-in/ba-p/4488312" target="_blank">Licensing updates extend access to advanced capabilities in Microsoft Teams and Microsoft Places</a>
+                                            
+                                            <span class="availability-badge ga">GA</span>
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                6 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Microsoft Teams Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> Feature Update</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 22, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> KerryPerezHeffernan</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft has expanded licensing for three key collaboration areas that impact security administration:  </p>
+<ol>
+<li><strong>Microsoft Places</strong> – End‑user workplace coordination features (Places Finder, Places Explorer) are now available to any license that includes Outlook/Teams calendar access (e.g., M365 E3/E5, Business Basic/Standard/Premium, Outlook 365 E1/E3/E5, Exchange Online).  </li>
+<li><strong>Teams Shared Space</strong> – The former “Teams Shared Devices” license is renamed and enhanced to allow management of up to four desks per license, with added desk‑booking, space‑management, analytics, and third‑party API integration.  </li>
+<li><strong>Teams Town Hall &amp; Webinar</strong> – Advanced event features (streaming chat, reactions, real‑time insights, eCDN, immersive 3D events) that were previously Premium-only are now available to all Teams Enterprise users for up to 3 000 attendees (10 000 view‑only). Attendee‑pack add‑ons extend capacity to 100 000.</li>
+</ol>
+<p><strong>Key Details</strong><br />
+- <strong>Effective Date:</strong> April 1 2026.<br />
+- <strong>Licensing Scope:</strong><br />
+  - Places: All licenses with calendar access in Outlook/Teams.<br />
+  - Shared Space: New license (no cost for existing Shared Device holders; can add up to four desks).<br />
+  - Town Hall/Webinar: Teams Enterprise users gain full Premium features; attendee‑packs available via TAC post‑transaction.<br />
+- <strong>New Capabilities:</strong><br />
+  - Places Finder/Explorer with enriched context, map‑based reservations, and directory integration.<br />
+  - Desk booking, space‑management policies, utilization analytics, third‑party API hooks.<br />
+  - Event streaming enhancements (eCDN), immersive 3D environments, real‑time host insights.<br />
+- <strong>No deprecation:</strong> Existing Teams Premium features remain unchanged; Premium continues to provide advanced meeting protection, queues, intelligent recap, etc.</p>
+<p><strong>What This Means</strong><br />
+- <strong>Broader Security Visibility:</strong> Admins can now monitor and manage desk usage and space utilization across more users, improving physical security oversight.<br />
+- <strong>Event Scalability with Controls:</strong> Larger events can be hosted securely with built‑in streaming reliability (eCDN) and real‑time monitoring, reducing risk of broadcast failures or data leakage.<br />
+- <strong>License Simplification:</strong> Users who previously needed Premium for event features can now use Enterprise licenses, potentially lowering licensing costs while maintaining security controls.<br />
+- <strong>No immediate action required</strong> for existing Shared Device holders; they automatically receive the new license benefits once April 1 2026 arrives.</p>
+<p><strong>How to Use It</strong><br />
+1. <strong>Verify License Coverage:</strong> In the Microsoft 365 Admin Center, confirm users have calendar‑enabled licenses (e.g., M365 E3/E5).<br />
+2. <strong>Enable Places Features:</strong> Add spaces to the Places Directory; configure booking policies and third‑party integrations via the Places admin portal.<br />
+3. <strong>Assign Shared Space Licenses:</strong> In TAC, assign the new Teams Shared Space license to users who need desk management; set up space properties and analytics dashboards.<br />
+4. <strong>Configure Town Hall/Webinar Settings:</strong> In Teams Admin Center, enable event features for Enterprise users; purchase attendee‑packs as needed for large audiences.<br />
+5. <strong>Monitor Event Health:</strong> Use the real‑time insights pane during events to track performance and address any security or connectivity issues promptly.</p>
+<p><strong>Additional Notes</strong><br />
+- <strong>Documentation Links:</strong><br />
+  - <a href="https://adoption.microsoft.com/en-us/microsoft-places/">Microsoft Places</a><br />
+  - <a href="https://learn.microsoft.com/en-us/microsoftteams/overview-meetings-webinars-town-halls">Teams Town Hall &amp; Webinar Overview</a><br />
+  - <a href="https://learn.microsoft.com/en-us/microsoftteams/enhanced-teams-experience">Teams Premium Features</a><br />
+- <strong>Compliance:</strong> All new features continue to support existing Microsoft compliance frameworks; no changes to data residency or retention policies.<br />
+- <strong>Prerequisites:</strong> Users must have Outlook/Teams calendar access; Shared Space license requires at least one desk assignment to activate the four‑desk allotment.  </p>
+<p>These updates provide administrators with expanded control over physical workspace usage and large‑scale virtual events while maintaining robust security and compliance standards.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag feature">
+                                            Feature Update
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                        
+                    </div>
+                    
+                    <div class="product-section" id="product-6">
+                        <h3>
+                            <span>SharePoint (0 updates)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+
+                        
+                            <p class="no-updates" style="padding: 20px; margin: 0;">No updates available for this product in the reporting period.</p>
+                        
+                    </div>
+                    
+                    <div class="product-section" id="product-7">
+                        <h3>
+                            <span>Exchange (3 updates)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+                        <div class="product-exec-summary">
+                            <p><strong>Executive Summary – Exchange Updates (Jan 23‑27 2026)</strong>  </p>
+<table>
+<thead>
+<tr>
+<th>Update</th>
+<th>Key Highlights</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SMTP AUTH Basic Authentication Deprecation</strong></td>
+<td>Basic Auth will remain enabled until Dec 2026, then be disabled by default for all tenants. New tenants created after that date cannot use it at all.</td>
+</tr>
+<tr>
+<td><strong>Message Trace via Microsoft Graph (Public Preview)</strong></td>
+<td>Legacy Reporting Webservice calls are replaced by the <code>exchangeMessageTrace</code> beta endpoint. GA expected end‑Jan 2026; old API will be removed Apr 6 2026.</td>
+</tr>
+<tr>
+<td><strong>Retention Policies for Public Folders</strong></td>
+<td>Purview now supports retention policies on all public folders, enabling “retain/delete” actions based on creation or modification dates.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>What Changed</h3>
+<ul>
+<li><strong>SMTP AUTH Deprecation</strong></li>
+<li>Basic authentication disabled by default after Dec 2026; tenants must migrate to OAuth or re‑enable manually.</li>
+<li>
+<p>No new features—policy shift toward stronger security.</p>
+</li>
+<li>
+<p><strong>Message Trace Graph API</strong></p>
+</li>
+<li>New RESTful endpoint (<code>/v1.0/reports/microsoft.exchange/exchangeMessageTrace</code>) replaces Reporting Webservice.</li>
+<li>Requires service principal provisioning and adheres to a tenant‑level throttle of 100 requests per 5 min.</li>
+<li>
+<p>Old API will be retired Apr 6 2026.</p>
+</li>
+<li>
+<p><strong>Public Folder Retention</strong></p>
+</li>
+<li>New retention policy type in Purview for all public folders (static scope only).</li>
+<li>Supports “retain only”, “retain then delete after X days”, or “delete after X days”.</li>
+<li>Deleted items move to a dumpster and then to <code>DiscoveryHolds</code> until expiration.</li>
+</ul>
+<hr />
+<h3>Action Items</h3>
+<ul>
+<li><strong>SMTP AUTH</strong></li>
+<li>Audit current use of Basic Auth (<code>Exchange Online Modern Authentication</code> report).</li>
+<li>Update connectors, scripts, and third‑party clients to OAuth/app passwords.</li>
+<li>
+<p>Plan migration before Dec 2026; re‑enable only if absolutely necessary.</p>
+</li>
+<li>
+<p><strong>Message Trace Graph API</strong></p>
+</li>
+<li>Provision the first‑party service principal (<code>8bd644d1-64a1-4d4b-ae52-2e0cbf64e373</code>).</li>
+<li>Update all scripts, PowerShell cmdlets, and integrations to use <code>Get-MessageTraceV2/DetailV2</code>.</li>
+<li>Monitor throttling; implement batching or back‑off as needed.</li>
+<li>
+<p>Complete migration before Apr 6 2026.</p>
+</li>
+<li>
+<p><strong>Public Folder Retention</strong></p>
+</li>
+<li>Verify public‑folder mailboxes meet size requirements (≥10 MB).</li>
+<li>Create and enable a retention policy in Purview for “Exchange public folders”.</li>
+<li>Monitor propagation status; check mailbox quotas (<code>TotalDeletedItemSize</code>, <code>TotalItemSize</code>).</li>
+<li>Use content search or PowerShell to restore items if needed.</li>
+</ul>
+<hr />
+                        </div>
+                        
+
+                        
+                            <div class="expand-collapse-controls">
+                                <button class="control-btn" onclick="expandAll()" title="Expand all articles (Keyboard: E)">
+                                    ⬇ Expand All
+                                </button>
+                                <button class="control-btn" onclick="collapseAll()" title="Collapse all articles (Keyboard: C)">
+                                    ⬆ Collapse All
+                                </button>
+                            </div>
+
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/exchange-team-blog/updated-exchange-online-smtp-auth-basic-authentication/ba-p/4489835" target="_blank">Updated Exchange Online SMTP AUTH Basic Authentication Deprecation Timeline</a>
+                                            
+                                            
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                Yesterday
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Exchange Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> Deprecation</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 27, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> The_Exchange_Team</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+- <strong>Product/Component:</strong> Exchange Online (Microsoft 365 Messaging) – specifically the SMTP AUTH Basic Authentication mechanism used for client‑submission of email.<br />
+- <strong>Update Type:</strong> Deprecation timeline refinement, extending the period before basic authentication is disabled or removed.</p>
+<p><strong>Key Details</strong><br />
+| Milestone | Status | Impact |<br />
+|-----------|--------|--------|<br />
+| <strong>Now to December 2026</strong> | SMTP AUTH Basic Authentication remains fully functional and unchanged. | No action required; existing configurations continue to work. |<br />
+| <strong>End of December 2026</strong> | Default: SMTP AUTH Basic Authentication is disabled for all existing tenants. Administrators retain the ability to re‑enable it manually if needed. | Tenants must review their mail flow and authentication settings before this date. |<br />
+| <strong>New tenants created after December 2026</strong> | SMTP AUTH Basic Authentication is unavailable by default; OAuth (modern authentication) is the only supported method for client submission. | New deployments will automatically use modern auth; legacy clients must be updated or re‑configured. |<br />
+| <strong>Second half of 2027</strong> | Microsoft will announce a final removal date for SMTP AUTH Basic Authentication. | Final deprecation will occur after this announcement; tenants must plan accordingly. |</p>
+<ul>
+<li>No new feature releases are introduced; the change is purely a policy shift toward stronger default security.</li>
+<li>The timeline gives customers an additional ~18 months from now to migrate away from basic authentication.</li>
+</ul>
+<p><strong>What This Means</strong><br />
+- <strong>Audience:</strong> All Exchange Online tenants, regardless of licensing tier (E3/E5/Business Premium).<br />
+- <strong>Availability:</strong> Automatic rollout – the change is enforced by Microsoft without user action.<br />
+- <strong>Breaking Changes:</strong> Existing mail flow that relies on SMTP AUTH Basic Authentication will fail after December 2026 unless re‑enabled manually or migrated to OAuth.<br />
+- <strong>Benefits:</strong> Eliminates a weak authentication method, reducing exposure to credential theft and phishing attacks. Strengthens overall security posture by enforcing modern authentication (OAuth 2.0).<br />
+- <strong>Impact:</strong> Requires review of any third‑party mail clients, scripts, or services that use basic auth for SMTP submission. May necessitate updates to connectors, transport rules, or custom applications.</p>
+<p><strong>How to Use It</strong><br />
+1. <strong>Audit Current Usage</strong> – Run the “Exchange Online Modern Authentication” report (in Security &amp; Compliance Center) to identify any mail flow paths still using Basic Auth.<br />
+2. <strong>Enable OAuth for Legacy Clients</strong> – Update client configurations (Outlook, mobile devices, third‑party senders) to use OAuth 2.0 or app passwords where supported.<br />
+3. <strong>Re‑enable Basic Auth if Needed</strong> – If immediate migration is not possible, temporarily re‑enable basic auth via the Exchange admin center: <em>Mail flow → Connectors → Edit connector → Authentication methods → Enable SMTP AUTH</em>.<br />
+4. <strong>Plan Migration Timeline</strong> – Set internal deadlines to complete migration before December 2026; schedule testing and validation phases.<br />
+5. <strong>Monitor Post‑Removal</strong> – After the final removal date in 2027, verify that all mail flows are functioning with OAuth and that no legacy connectors remain.</p>
+<p><strong>Additional Notes</strong><br />
+- <strong>Documentation:</strong> See Microsoft’s blog post on “Exchange Online to retire Basic Auth for client submission SMTP AUTH” (link provided in announcement).<br />
+- <strong>Prerequisites:</strong> Modern authentication must be enabled tenant‑wide; ensure Azure AD Conditional Access policies allow OAuth flows.<br />
+- <strong>Compliance:</strong> Removing basic auth aligns with NIST SP 800‑63B and ISO/IEC 27001 requirements for strong authentication controls.<br />
+- <strong>Related Updates:</strong> This deprecation complements the broader retirement of Basic Auth across Microsoft 365 services (e.g., Office 365 APIs, SharePoint).  </p>
+<p>By proactively auditing and updating mail flow configurations now, administrators can avoid service disruptions when basic authentication is disabled or removed in late 2026 and early 2027.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            Deprecation
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/exchange-team-blog/message-trace-support-using-graph-api-is-now-in-public-preview/ba-p/4488587" target="_blank">Message Trace Support Using Graph API is now in Public Preview</a>
+                                            
+                                            <span class="availability-badge deprecated">Deprecated</span>
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                5 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Exchange Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> Deprecation, Preview</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 23, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> The_Exchange_Team</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft has moved <strong>Message Trace</strong> from the legacy Reporting Webservice API to a new RESTful endpoint exposed through Microsoft Graph (beta). The change applies to Exchange Online’s message‑tracking capabilities and will replace all existing Message Trace calls that use the Reporting Webservice.  </p>
+<p><strong>Key Details</strong><br />
+- <strong>Public Preview</strong>: Available now; GA expected by end‑January 2026, with full rollout in early February 2026.<br />
+- <strong>API Resource</strong>: <code>exchangeMessageTrace</code> (beta) – see <a href="https://learn.microsoft.com/en-us/graph/api/resources/exchangemessagetrace?view=graph-rest-beta">https://learn.microsoft.com/en-us/graph/api/resources/exchangemessagetrace?view=graph-rest-beta</a>.<br />
+- <strong>Authentication</strong>: Requires a service principal for the first‑party app ID <code>8bd644d1-64a1-4d4b-ae52-2e0cbf64e373</code>. Provisioning follows Microsoft Entra ID guidelines; 401 errors may occur until provisioning completes (several hours).<br />
+- <strong>Deprecation</strong>: Reporting Webservice‑based Message Trace and Detail will be deprecated on <strong>April 6, 2026</strong>. New tenants already lack access to the old API.<br />
+- <strong>Throttling</strong>: Tenant‑level limit of 100 message‑trace requests per 5‑minute window (shared across trace and detail). Each request can return up to 5,000 results; thus a tenant can retrieve up to 500,000 results in 5 minutes or ~144 million daily.<br />
+- <strong>PowerShell Equivalents</strong>: <code>Get-MessageTraceV2</code> and <code>Get-MessageTraceDetailV2</code> share the same throttling limits.</p>
+<p><strong>What This Means</strong><br />
+- <strong>Audience</strong>: All Exchange Online tenants that require message‑tracking, regardless of licensing tier (Exchange Online Plan 1/2).<br />
+- <strong>Availability</strong>: Preview now; GA rollout automatic by end‑January 2026. Administrators must migrate before the April 6 deprecation date to avoid service interruption.<br />
+- <strong>Breaking Changes</strong>: The old Reporting Webservice endpoints will no longer be available after deprecation, so scripts or integrations that rely on them must be updated to use Graph.<br />
+- <strong>Benefits</strong>: Unified API surface with other Microsoft services; improved authentication model (service principal); consistent throttling and result limits; easier integration with Azure AD and PowerShell.<br />
+- <strong>Security Impact</strong>: Centralizes message‑trace data access under a single, auditable service principal, enhancing control over permissions and audit logs.</p>
+<p><strong>How to Use It</strong><br />
+1. <strong>Provision Service Principal</strong> – Create an enterprise application for the first‑party app ID per Microsoft Entra ID guidance; wait until provisioning completes.<br />
+2. <strong>Update Scripts/Integrations</strong> – Replace Reporting Webservice calls with Graph endpoints (<code>GET /v1.0/reports/microsoft.exchange/exchangeMessageTrace</code>).<br />
+3. <strong>Adjust Throttling</strong> – Ensure automation does not exceed 100 requests per 5 minutes; implement exponential back‑off or batching if needed.<br />
+4. <strong>Test in Preview</strong> – Validate query results, pagination, and error handling before GA.<br />
+5. <strong>Schedule Migration</strong> – Plan migration activities well before April 6, 2026; update documentation and training materials.</p>
+<p><strong>Additional Notes</strong><br />
+- <strong>Documentation</strong>: Graph API reference for Message Trace (beta) and PowerShell cmdlet docs are available on Microsoft Learn.<br />
+- <strong>Compliance</strong>: All data remains within Exchange Online; no new compliance requirements beyond existing E3/E5 policies.<br />
+- <strong>Related Updates</strong>: Service‑principal‑less authentication retirement is in effect; ensure all integrations use service principals.<br />
+- <strong>Limitations</strong>: Graph API is currently beta; monitor for breaking changes and update scripts accordingly.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            Deprecation
+                                        </span>
+                                        
+                                        <span class="tag ">
+                                            Preview
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/exchange-team-blog/exchange-online-public-folder-data-and-retention-questions/ba-p/4488872" target="_blank">Exchange Online Public Folder Data and Retention Questions</a>
+                                            
+                                            
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                5 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Exchange Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> Configuration Update, Known Issue</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 23, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> The_Exchange_Team</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft Purview (formerly Microsoft 365 Compliance) now supports <strong>retention policies for Exchange Online public folders</strong>. The update introduces a new policy type that can be created and managed in the Purview portal, allowing administrators to retain or delete public‑folder content based on creation or last‑modified dates. Public‑folder messages do not support retention labels; instead, they rely on this policy mechanism.</p>
+<p><strong>Key Details</strong><br />
+- <strong>Policy Creation</strong>: Use the Purview portal → Solutions → Data Lifecycle Management → Policies → Retention policies → New retention policy.<br />
+- <strong>Scope &amp; Exclusions</strong>: Only static scopes are supported; adaptive scopes and exclusions are not available for public‑folder locations. The policy applies to all public folders in a tenant.<br />
+- <strong>Retention Actions</strong>: Configure “retain only”, “retain then delete after X days”, or “delete after X days”. Duration can be based on <code>CreationTime</code> or <code>LastModificationTime</code>.<br />
+- <strong>Propagation</strong>: Policy changes are applied quickly but may take several days to fully propagate; status moves from <em>Enabled (Pending)</em> to <em>Enabled (Success)</em>.<br />
+- <strong>Retention Mechanics</strong>: Deleted items move to the public‑folder dumpster for 1 day, then to a <code>DiscoveryHolds</code> folder in the owning mailbox’s content store where they are preserved until the policy’s retention period expires. The <code>PublicFolderDiscoveryHoldsProcessor</code> runs daily to enforce expiration.<br />
+- <strong>Quota Monitoring</strong>: Administrators should monitor each content‑mailbox’s <code>TotalDeletedItemSize</code> and <code>TotalItemSize</code>. Exceeding <code>RecoverableItemsQuota</code> or <code>ProhibitSendReceiveQuota</code> can cause deletion/hold issues. Scripts are available for quota checks.<br />
+- <strong>Restoration</strong>: Purged items under retention hold can be recovered via Purview content search → export to PST → import into Outlook and copy back, or via PowerShell (<code>Restore-PublicFolder</code>).<br />
+- <strong>Known Issues &amp; Fixes</strong>:<br />
+  - <code>DiscoveryHolds</code> may not sync; resolve with <code>Update-publicFolderMailbox –InvokeSynchronizer –ForceOnlineSync –FullSync</code>.<br />
+  - Retained folders that were favorites in OWA may linger under the new name until expiration; users should remove them from favorites.</p>
+<p><strong>What This Means</strong><br />
+- <strong>Audience</strong>: All Exchange Online tenants with public‑folder usage. No licensing tier restriction beyond having Purview/Compliance Center access.<br />
+- <strong>Availability</strong>: GA, available immediately via the Purview portal. No opt‑in required.<br />
+- <strong>Benefits</strong>: Enables compliance‑ready retention for public‑folder data, reducing risk of accidental loss and supporting legal hold scenarios. Provides a single point of configuration across all public folders.<br />
+- <strong>Impact on Security Posture</strong>: Strengthens data governance by ensuring deleted content is preserved per policy, aiding e‑Discovery and regulatory compliance.  </p>
+<p><strong>How to Use It</strong><br />
+1. Verify each public‑folder mailbox has ≥10 MB of data (<code>Get-MailboxStatistics</code>).<br />
+2. Create a new retention policy in Purview, selecting the static scope “Exchange public folders”.<br />
+3. Configure desired retain/delete actions and duration (based on creation or modification date).<br />
+4. Save; monitor status until <em>Enabled (Success)</em>.<br />
+5. For restoration needs, run a content search targeting <code>Exchange public folders</code>, export results to PST, and re‑import into the target folder.<br />
+6. Periodically check mailbox quotas (<code>TotalDeletedItemSize</code>, <code>TotalItemSize</code>) and run the provided quota‑check script if thresholds are approached.</p>
+<p><strong>Additional Notes</strong><br />
+- Public‑folder messages cannot use retention labels; only policy‑based retention applies.<br />
+- Documentation links:<br />
+  - <a href="https://learn.microsoft.com/purview/create-retention-policies?tabs=other-retention#create-and-configure-a-retention-policy">Create a retention policy</a><br />
+  - <a href="https://learn.microsoft.com/purview/retention-settings#configuration-information-for-exchange-mailboxes-and-exchange-public-folders">Retention settings for public folders</a><br />
+  - <a href="https://learn.microsoft.com/purview/ediscovery-content-search">Content search &amp; export</a><br />
+- Ensure the <code>PublicFolderDiscoveryHoldsProcessor</code> is running; if not, trigger a sync as described.<br />
+- Compliance implications: Retention periods must align with organizational data‑retention policies and legal hold requirements.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            Configuration Update
+                                        </span>
+                                        
+                                        <span class="tag ">
+                                            Known Issue
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                        
+                    </div>
+                    
+                    <div class="product-section" id="product-8">
+                        <h3>
+                            <span>Windows Security (1 update)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+                        <div class="product-exec-summary">
+                            <p><strong>Executive Summary – Windows Security Update (Jan 26 2026)</strong>  </p>
+<h3>Key Updates</h3>
+<ul>
+<li><strong>Regional Data Residency Expansion:</strong> Windows 365 Cloud PCs can now be provisioned in Brazil South, ensuring user data remains within a designated geographic boundary.  </li>
+<li><strong>Enhanced Resiliency &amp; Latency Reduction:</strong> Multi‑Region Selection (MRS) allows administrators to target the optimal region within South America, improving performance and reducing exposure to cross‑border traffic risks.</li>
+</ul>
+<h3>What Changed</h3>
+<ul>
+<li><strong>New Feature:</strong> Availability of Brazil South as a fully supported Azure region for Windows 365 Cloud PC provisioning.  </li>
+<li><strong>Security &amp; Compliance Impact:</strong> Keeps data within local jurisdiction, aiding compliance with GDPR‑style data sovereignty regulations and mitigating cross‑border data transfer risks.  </li>
+<li><strong>Operational Enhancements:</strong> No new licensing or tooling required; administrators can simply set the geography in provisioning policies (MHN) or validate ANC support for Brazil South.</li>
+</ul>
+<h3>Action Items</h3>
+<ul>
+<li><strong>Review Provisioning Policies:</strong> Update Windows 365 admin center to set geography to “South America” or specifically “Brazil South” where appropriate.  </li>
+<li><strong>Validate ANC Support:</strong> If using Azure Network Connection, confirm virtual network and endpoint availability in Brazil South before updating policies.  </li>
+<li><strong>Monitor Compliance &amp; Performance:</strong> Track latency metrics and ensure data residency requirements are met; adjust policies as needed for optimal resiliency.</li>
+</ul>
+<hr />
+                        </div>
+                        
+
+                        
+                            <div class="expand-collapse-controls">
+                                <button class="control-btn" onclick="expandAll()" title="Expand all articles (Keyboard: E)">
+                                    ⬇ Expand All
+                                </button>
+                                <button class="control-btn" onclick="collapseAll()" title="Collapse all articles (Keyboard: C)">
+                                    ⬆ Collapse All
+                                </button>
+                            </div>
+
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/windows-it-pro-blog/windows-365-now-supported-in-brazil-south/ba-p/4488305" target="_blank">Windows 365 now supported in Brazil South</a>
+                                            
+                                            <span class="availability-badge ga">GA</span>
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                2 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Windows IT Pro Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> Configuration Update, Feature Update</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 26, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> Ron_Coleman</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+- <strong>Product/Component:</strong> Windows 365 Cloud PC provisioning<br />
+- <strong>Region Expansion:</strong> Brazil South (São Paulo) is now a fully available Azure region for Windows 365, replacing the previous exception‑only access.  </p>
+<p><strong>Key Details</strong><br />
+- <strong>Availability Date:</strong> Announced today; GA for all customers immediately.<br />
+- <strong>New Capability:</strong> Provision Cloud PCs in Brazil South to reduce latency and meet regional data residency requirements.<br />
+- <strong>Multi‑Region Selection (MRS):</strong> Administrators can configure provisioning policies at the geography level (e.g., “South America”) so that Microsoft Hosted Network automatically places Cloud PCs in the best available region within that geography, enhancing resiliency.<br />
+- <strong>Networking Models:</strong><br />
+  - <em>Microsoft Hosted Network (MHN)</em> – no changes to network configuration; simply set geography in provisioning policy.<br />
+  - <em>Azure Network Connection (ANC)</em> – requires validation that ANC supports Brazil South (virtual network availability and required endpoints). After validation, update provisioning policies to select Brazil South or a broader region group.  </p>
+<p><strong>What This Means</strong><br />
+- <strong>Who Can Use It:</strong> All Windows 365 Enterprise customers with Cloud PC licensing; no additional licenses needed.<br />
+- <strong>Rollout:</strong> Automatic GA—no opt‑in required.<br />
+- <strong>Benefits:</strong><br />
+  - Lower latency for users in Brazil and South America.<br />
+  - Compliance with local data residency regulations.<br />
+  - Greater flexibility to scale Cloud PCs across regions.<br />
+  - Improved resiliency via MRS, ensuring users land on optimal regional capacity.<br />
+- <strong>Impact on Security Posture:</strong> By keeping user data within a designated geographic boundary, organizations can better satisfy GDPR‑style data sovereignty requirements and reduce exposure to cross‑border traffic risks.</p>
+<p><strong>How to Use It</strong><br />
+1. <strong>MHN Users:</strong><br />
+   - Review the <em>Enhanced Resiliency with Microsoft Hosted Network</em> docs.<br />
+   - In the Windows 365 admin center, set provisioning policy geography (e.g., “South America”).<br />
+2. <strong>ANC Users:</strong><br />
+   - Verify ANC supports Brazil South (check virtual network and endpoints).<br />
+   - Update provisioning policies to target Brazil South or a broader region group once validated.<br />
+3. <strong>General Steps:</strong><br />
+   - Use existing provisioning workflows; no new tooling required.<br />
+   - Monitor Cloud PC performance and latency metrics in the admin center.<br />
+4. <strong>Future Expansion:</strong> Keep an eye on additional regional releases via the Windows 365 documentation portal.</p>
+<p><strong>Additional Notes</strong><br />
+- <strong>Prerequisites:</strong> Existing Windows 365 Enterprise subscription, valid Azure region support for ANC if used.<br />
+- <strong>Documentation Links:</strong><br />
+  - <a href="https://learn.microsoft.com/en-us/windows-365/enterprise/requirements?tabs=enterprise%2Cent">Windows 365 Region Requirements</a><br />
+  - <a href="https://learn.microsoft.com/en-us/windows-365/enterprise/enhanced-resiliency-mhn#microsoft-hosted-network-with-multi-region-selection-makes-your-estate-of-cloud-pcs-more-resilient-in-three-ways">Multi‑Region Selection</a><br />
+  - <a href="https://learn.microsoft.com/en-us/windows-365/enterprise/create-azure-network-connection">Azure Network Connection Setup</a><br />
+- <strong>Compliance:</strong> Supports Brazil’s data residency laws; consult local legal counsel for specific regulatory alignment.  </p>
+<p>This update enables administrators to deploy Cloud PCs closer to users in Brazil, improving performance and compliance without additional licensing or complex configuration changes.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            Configuration Update
+                                        </span>
+                                        
+                                        <span class="tag feature">
+                                            Feature Update
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                        
+                    </div>
+                    
+                    <div class="product-section" id="product-9">
+                        <h3>
+                            <span>Copilot (5 updates)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+                        <div class="product-exec-summary">
+                            <p><strong>Executive Summary – Microsoft Copilot Updates (Jan 26‑28 2026)</strong>  </p>
+<hr />
+<h3>1. Key Updates</h3>
+<ul>
+<li><strong>Source‑specific filters in Copilot Search</strong> are now GA worldwide, enabling instant, connector‑aware filtering without admin setup.  </li>
+<li><strong>Partner‑built Security Copilot agents</strong> appear in the Microsoft Security Store, adding AI‑driven context and automation for Defender, Entra, Intune, etc.  </li>
+<li><strong>Purview DSPM integration with Foundry</strong> provides automatic audit, classification, DLP, and eDiscovery of AI app interactions.  </li>
+</ul>
+<hr />
+<h3>2. What Changed</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>New Capabilities / Enhancements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Copilot Search Filters</strong></td>
+<td>Automatic display of relevant filters (e.g., Area Path, Assigned To, Site Name) when a supported connector is selected; instant refinement without query rewriting.</td>
+</tr>
+<tr>
+<td><strong>Security Copilot Agents</strong></td>
+<td>Marketplace surface for third‑party agents (BlueVoyant, OneTrust, Tanium); certified, zero‑trust deployment; add proactive monitoring, privacy breach response, and alert triage.</td>
+</tr>
+<tr>
+<td><strong>Purview + Foundry Integration</strong></td>
+<td>Toggle in Foundry portal to send all prompts, responses, file accesses, and sensitivity labels to Purview DSPM within 24 h; enables visibility dashboards, DLP enforcement on prompts, eDiscovery across AI interactions.</td>
+</tr>
+<tr>
+<td><strong>Sentinel Data Lake &amp; Graph (AI‑ready)</strong></td>
+<td>Decoupled compute/storage for multi‑year retention; incident graph visualizes alert/entity relationships; supports advanced hunting and Security Copilot integration.</td>
+</tr>
+<tr>
+<td><strong>Purview Data Security Investigations GA</strong></td>
+<td>Pay‑as‑you‑go pricing, AI‑powered search, vector search, purge mitigation, Sentinel graph integration; launched from Defender XDR incidents and Insider Risk cases.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>3. Action Items</h3>
+<ul>
+<li><strong>Copilot Search</strong>  </li>
+<li>Verify connectors (Azure DevOps, SharePoint, etc.) are indexed in Copilot Search.  </li>
+<li>
+<p>No admin configuration required; monitor usage via existing analytics.</p>
+</li>
+<li>
+<p><strong>Security Copilot Agents</strong>  </p>
+</li>
+<li>Explore the Security Store for partner agents that align with your security stack.  </li>
+<li>Follow guided deployment flow; configure any agent‑specific settings (retention, scope).  </li>
+<li>
+<p>Integrate new alerts/insights into existing playbooks or SOAR workflows.</p>
+</li>
+<li>
+<p><strong>Purview + Foundry</strong>  </p>
+</li>
+<li>Enable the “Microsoft Purview” toggle in Foundry → Operate → Compliance.  </li>
+<li>In Purview DSPM, configure DLP policies, retention rules, and insider risk scoring for AI interactions.  </li>
+<li>
+<p>Review audit logs and eDiscovery locations to ensure compliance coverage.</p>
+</li>
+<li>
+<p><strong>Sentinel Data Lake &amp; Graph</strong>  </p>
+</li>
+<li>Adjust data‑retention settings in Sentinel to 12–24 months if not already set.  </li>
+<li>Create search jobs against the data lake for long‑term investigations.  </li>
+<li>
+<p>Leverage Incident Graph for rapid attack chain visualization; add graph functions to hunting queries.</p>
+</li>
+<li>
+<p><strong>Purview DSI GA</strong>  </p>
+</li>
+<li>Enable DSI in Purview and link it to Defender XDR incidents or Insider Risk cases.  </li>
+<li>Use AI search and purge actions to remediate exposed data quickly.  </li>
+<li>Monitor storage and compute usage via the built‑in cost estimator; adjust thresholds as needed.</li>
+</ul>
+<hr />
+<p><em>All updates are GA; no deprecations or breaking changes reported.</em></p>
+                        </div>
+                        
+
+                        
+                            <div class="expand-collapse-controls">
+                                <button class="control-btn" onclick="expandAll()" title="Expand all articles (Keyboard: E)">
+                                    ⬇ Expand All
+                                </button>
+                                <button class="control-btn" onclick="collapseAll()" title="Collapse all articles (Keyboard: C)">
+                                    ⬆ Collapse All
+                                </button>
+                            </div>
+
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/microsoft-security-community/making-ai-apps-enterprise-ready-with-microsoft-purview-and/ba-p/4489887" target="_blank">Making AI Apps Enterprise-Ready with Microsoft Purview and Microsoft Foundry</a>
+                                            
+                                            <span class="availability-badge ga">GA</span>
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge today">
+                                                
+                                                Today
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> Integration</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 28, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> Arpitha_Dhanapathi</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft Purview has added native integration with Microsoft Foundry, enabling AI‑app interactions to flow automatically into Purview’s Data Security Posture Management (DSPM) framework. The change is a feature toggle in the Foundry portal; no SDK or middleware modifications are required.</p>
+<p><strong>Key Details</strong>  </p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Product/Component</strong></td>
+<td>Microsoft Purview DSPM + Microsoft Foundry</td>
+</tr>
+<tr>
+<td><strong>Toggle Location</strong></td>
+<td>Foundry → Operate → Compliance → Security posture → Azure Subscription → Enable “Microsoft Purview”</td>
+</tr>
+<tr>
+<td><strong>Activation Prerequisite</strong></td>
+<td>User must have the “Azure AI Account Owner” role in the subscription.</td>
+</tr>
+<tr>
+<td><strong>Data Flow</strong></td>
+<td>All prompts, responses, file accesses, and sensitivity labels from Foundry apps/agents are sent to Purview’s unified audit log within 24 hours.</td>
+</tr>
+<tr>
+<td><strong>DSPM Features Enabled</strong></td>
+<td>• Visibility dashboard (total interactions, sensitive data detected, insider risk scoring) <br>• Automatic classification using the same engine that scans M365 tenant data <br>• Audit logs with timestamps, user identity, app name, files accessed, sensitivity labels <br>• DLP policy enforcement on prompts before they reach the model <br>• eDiscovery, retention, and communication compliance (search across AI interactions, set “Enterprise AI apps” as a location)</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Integration is free; Audit Standard included for Foundry apps. Charges only apply to data‑security policies configured for governing Foundry data.</td>
+</tr>
+<tr>
+<td><strong>Release Status</strong></td>
+<td>General Availability (no preview flag mentioned).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What This Means</strong>  </p>
+<ul>
+<li><strong>Audience</strong> – Any organization using Microsoft Foundry to build AI agents can enable the toggle; no additional licensing beyond existing Purview and Foundry subscriptions is required.  </li>
+<li><strong>Availability</strong> – Opt‑in via the Foundry portal; once enabled, data appears in Purview within 24 hours. No automatic rollout.  </li>
+<li><strong>Benefits</strong> – Eliminates the need to build custom logging, classification, or DLP pipelines for AI apps. Provides instant compliance visibility, auditability, and policy enforcement using existing Purview controls. Enhances security posture by detecting PII/PHI in prompts, enforcing retention, and enabling eDiscovery across AI interactions.  </li>
+<li><strong>Impact</strong> – Reduces time‑to‑ship for AI projects from months to days, lowers operational overhead, and aligns AI app governance with enterprise data protection standards.</li>
+</ul>
+<p><strong>How to Use It</strong>  </p>
+<ol>
+<li><strong>Enable the Toggle</strong> – Follow the 5‑step process in the Foundry portal (Operate → Compliance → Security posture).  </li>
+<li><strong>Configure DSPM</strong> – In Purview, open DSPM → “Secure interactions from enterprise AI apps” recommendation; set up DLP policies, retention rules, and insider risk scoring as needed.  </li>
+<li><strong>Monitor Activity</strong> – Use DSPM dashboards: <em>Discover → Apps &amp; Agents</em> for inventory, <em>Activity Explorer</em> for detailed interaction logs.  </li>
+<li><strong>Leverage eDiscovery</strong> – Search AI interactions alongside Teams/Email; apply “Enterprise AI apps” retention location in compliance policies.  </li>
+<li><strong>Review Audit Logs</strong> – Purview’s unified audit log contains all AI interaction metadata; use it for legal or regulatory investigations.</li>
+</ol>
+<p><strong>Additional Notes</strong>  </p>
+<ul>
+<li>No SDK changes or middleware required.  </li>
+<li>The integration uses the same classification engine that scans Microsoft 365, so custom sensitive information types already defined in Purview will be detected automatically.  </li>
+<li>Documentation: <a href="https://learn.microsoft.com/en-us/purview/ai-azure-foundry">https://learn.microsoft.com/en-us/purview/ai-azure-foundry</a>  </li>
+<li>Compliance considerations: Automatic detection of credit card numbers, SSNs, health data, and custom SII types supports HIPAA, GDPR, CCPA, etc., by enforcing DLP and retention policies.  </li>
+</ul>
+<p>This update streamlines AI app governance, allowing security teams to rely on Purview’s proven controls while accelerating AI innovation across the enterprise.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            Integration
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/microsoft-365-copilot-blog/general-availability-of-source-specific-filters-in-copilot/ba-p/4489455" target="_blank">General availability of source specific filters in Copilot Search</a>
+                                            
+                                            <span class="availability-badge ga">GA</span>
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                Yesterday
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Microsoft 365 Copilot Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> General Update</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 27, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> wbaer</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft Copilot Search has released <strong>source‑specific filters</strong> as a general availability feature worldwide. The update adds connector‑aware, zero‑setup filtering directly within the Copilot Search UI for supported data sources (e.g., Azure DevOps, SharePoint).</p>
+<p><strong>Key Details</strong><br />
+- <strong>Feature</strong>: Automatic display of relevant filter options when a user drills into results from a specific connector.<br />
+- <strong>Connector Awareness</strong>: Filters adapt to the underlying source (e.g., Area Path &amp; Assigned To for ADO; Site Name for SharePoint).<br />
+- <strong>Contextual Relevance</strong>: Filter values are derived from actual result data, ensuring only applicable options appear.<br />
+- <strong>Instant Application</strong>: Selecting a filter refines results immediately without query rewriting.<br />
+- <strong>No Admin Setup</strong>: Filters appear automatically when a supported connector is selected; no additional configuration required.<br />
+- <strong>Release Status</strong>: General Availability (GA) worldwide; no version or build numbers specified.</p>
+<p><strong>What This Means</strong><br />
+- <strong>Audience</strong>: All users with access to Copilot Search and the relevant connectors (Azure DevOps, SharePoint, etc.).<br />
+- <strong>Availability</strong>: Automatic rollout as part of GA; no opt‑in required.<br />
+- <strong>Benefits</strong>: Reduces noise and friction in enterprise search, enabling faster transition from broad discovery to precise results. Improves productivity by eliminating the need to rewrite queries or scroll through long lists.<br />
+- <strong>Security Impact</strong>: Enhances data discoverability while maintaining existing access controls; no change to underlying permission models.</p>
+<p><strong>How to Use It</strong><br />
+1. Open Copilot Search and run a query.<br />
+2. In the right rail, select a supported data source (e.g., Azure DevOps).<br />
+3. Filters for that source will appear automatically beneath the source selector.<br />
+4. Click any filter value (e.g., “Area Path” or “Assigned To”) to instantly refine results.<br />
+5. No additional configuration is needed; admins can monitor usage via existing Copilot analytics.</p>
+<p><strong>Additional Notes</strong><br />
+- <strong>Prerequisites</strong>: The connector must be enabled and data indexed in Copilot Search.<br />
+- <strong>Limitations</strong>: Filters are only available for connectors that support them; other sources will not display these options.<br />
+- <strong>Documentation</strong>: Refer to the Microsoft Copilot Search documentation for detailed guidance on supported connectors and filter behavior.<br />
+- <strong>Compliance</strong>: No changes to data residency or compliance settings; filtering respects existing access controls.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            General Update
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/microsoft-security-community/advance-your-soc-skills-with-the-power-of-microsoft-sentinel/ba-p/4489349" target="_blank">Advance Your SOC Skills with the Power of Microsoft Sentinel data lake and graph</a>
+                                            
+                                            
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                Yesterday
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> General Update</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 27, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> ShirleyseHaley</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft Sentinel has been re‑positioned as an AI‑ready security platform with two core architectural enhancements:<br />
+1. <strong>Sentinel Data Lake</strong> – a decoupled compute‑and‑storage layer that allows long‑term retention (multi‑year) and high‑scale analytics.<br />
+2. <strong>Sentinel Graph</strong> – an entity‑relationship graph engine that visualizes connections between alerts, identities, devices, SaaS apps, and cloud resources to accelerate investigations.</p>
+<p>The Microsoft Learn curriculum has been updated to reflect these changes with five new units covering data‑lake search jobs, hunting, cross‑tier querying, incident investigation via the Incident Graph, and advanced hunting with graph intelligence.</p>
+<p><strong>Key Details</strong><br />
+- <strong>Data Lake Search Jobs</strong>: Scheduled or ad‑hoc KQL queries that run against long‑term logs (up to 24 months) without impacting real‑time analytics.<br />
+- <strong>Graph‑Enhanced Investigations</strong>: The Incident Graph automatically maps alerts and entities into a visual attack chain; graph‑powered advanced hunting allows pivoting across identities, endpoints, SaaS, and cloud signals.<br />
+- <strong>Learning Modules</strong>:<br />
+  - <em>Use Search Jobs in Microsoft Sentinel</em> (https://learn.microsoft.com/en-us/training/modules/use-search-jobs-microsoft-sentinel/)<br />
+  - <em>Hunt with Search Jobs</em> (Defender portal) (https://learn.microsoft.com/en-us/training/modules/use-search-jobs-microsoft-sentinel/2-hunt-search-job?tabs=defender-portal)<br />
+  - <em>Query logs in Microsoft Sentinel</em> (https://learn.microsoft.com/en-us/training/modules/query-logs-microsoft-sentinel/)<br />
+  - <em>Investigate incidents</em> (Incident Graph) (https://learn.microsoft.com/en-us/training/modules/mitigate-incidents-microsoft-365-defender/4-investigate-incidents)<br />
+  - <em>Explore Advanced Hunting</em> (Graph pivots) (https://learn.microsoft.com/en-us/training/modules/mitigate-incidents-microsoft-365-defender/8-explore-advanced-hunting)  </p>
+<p>No version numbers are specified; the updates are part of Sentinel’s ongoing GA roadmap.</p>
+<p><strong>What This Means</strong><br />
+- <strong>Audience</strong>: All Sentinel customers with a supported license (Standard or above). Data‑lake and graph features are available in all regions where Sentinel is GA.<br />
+- <strong>Availability</strong>: Features roll out automatically as part of Sentinel; no separate opt‑in required.<br />
+- <strong>Benefits</strong>:<br />
+  - Enables multi‑year, high‑volume investigations that were impossible with legacy SIEM retention limits.<br />
+  - Reduces investigation time from hours to minutes by visualizing attack chains.<br />
+  - Provides AI‑ready data for Security Copilot and other analytics tools.<br />
+- <strong>Impact on Posture</strong>: Improves detection of low‑and‑slow APTs, long‑term account compromise, and complex lateral movement patterns.</p>
+<p><strong>How to Use It</strong><br />
+1. <strong>Enable Data Lake</strong> – In the Sentinel portal, configure “Data retention” settings to retain logs for 12–24 months (or longer if needed).<br />
+2. <strong>Create Search Jobs</strong> – Use the new “Search jobs” blade to schedule KQL queries against the data lake; monitor job status and export results.<br />
+3. <strong>Leverage Incident Graph</strong> – When an incident is created, click the graph icon to view connected entities; use filters to drill down by identity, device, or cloud app.<br />
+4. <strong>Advanced Hunting with Graph</strong> – In the “Hunting” pane, add <code>graph</code> functions (e.g., <code>entityGraph()</code>) to pivot across related alerts and entities.<br />
+5. <strong>Integrate with Security Copilot</strong> – Feed data lake logs and graph insights into Copilot for AI‑assisted investigation prompts.</p>
+<p><strong>Additional Notes</strong><br />
+- <strong>Prerequisites</strong>: Sentinel must be connected to all relevant data sources (Azure AD, Microsoft 365 Defender, Azure Monitor, etc.) to populate the graph.<br />
+- <strong>Documentation Links</strong>: All modules are hosted on Microsoft Learn; refer to each URL for step‑by‑step guidance.<br />
+- <strong>Compliance</strong>: Long‑term retention aligns with GDPR and other regulatory requirements for audit logs.<br />
+- <strong>Limitations</strong>: Data lake queries incur additional storage costs; monitor usage in the Azure Cost Management portal.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            General Update
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/microsoft-security-copilot-blog/where-partners-build-and-scale-partner-built-security-copilot/ba-p/4488589" target="_blank">Where Partners Build and Scale: Partner-Built Security Copilot Agents in Security Store</a>
+                                            
+                                            <span class="availability-badge ga">GA</span>
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                2 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Security Copilot Blog<span class="source-type-badge announcement">Tech Community</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> General Update</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 26, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> Vikram_2026</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft has launched partner‑built Security Copilot agents in the Microsoft Security Store. The update introduces a new marketplace surface where third‑party partners (BlueVoyant, OneTrust, Tanium) can publish AI‑powered agents that integrate directly with Defender, Entra, Intune, and other Security Copilot components.</p>
+<p><strong>Key Details</strong><br />
+- <strong>Platform:</strong> Microsoft Security Store (https://securitystore.microsoft.com/) – a certified, secure deployment hub for partner agents.<br />
+- <strong>Agents Highlighted:</strong><br />
+  - <em>BlueVoyant Watchtower Agent</em> – continuously reviews Sentinel/Defender environments and recommends rule/configuration updates.<br />
+  - <em>OneTrust Privacy Breach Response Agent</em> – automates privacy risk assessments using Copilot’s generative AI, enhancing accuracy for data‑privacy workflows.<br />
+  - <em>Tanium Security Triage Agent</em> – accelerates alert triage by providing context from Tanium Threat Response within Defender and Entra.<br />
+- <strong>Certification &amp; Deployment:</strong> Agents receive Microsoft‑validated certification, standardized metadata, secure authentication/transactions, and in‑product visibility. They run inside the zero‑trust Security Copilot environment.<br />
+- <strong>Capabilities Added:</strong> Proactive sensor health monitoring, actionable insights generation, accelerated investigations, automated incident response, policy optimization, and privacy/compliance automation.</p>
+<p><strong>What This Means</strong><br />
+- <strong>Audience:</strong> All organizations using Microsoft Security Copilot (Defender for Cloud Apps, Defender for Endpoint, Entra ID, Intune, etc.) can discover and install partner agents. No licensing tier restriction is mentioned; availability is GA through the Security Store.<br />
+- <strong>Impact on Posture:</strong> Enables richer, AI‑driven context for alerts, faster triage, automated privacy compliance checks, and continuous policy tuning—leading to quicker threat detection and remediation.<br />
+- <strong>No Breaking Changes:</strong> Existing Copilot functionality remains unchanged; agents augment rather than replace native capabilities.</p>
+<p><strong>How to Use It</strong><br />
+1. Visit the Microsoft Security Store or Security Store Learn page.<br />
+2. Browse partner‑built agents (BlueVoyant, OneTrust, Tanium).<br />
+3. Install an agent via the guided deployment flow; it will appear in Defender/Entra/Security Copilot dashboards.<br />
+4. Configure any agent‑specific settings (e.g., data retention, privacy scope) through the Security Copilot console.<br />
+5. Monitor new insights and alerts generated by the agents; integrate them into existing playbooks or SOAR workflows.</p>
+<p><strong>Additional Notes</strong><br />
+- Agents are delivered as secure, zero‑trust extensions; no additional infrastructure is required beyond standard Copilot licensing.<br />
+- Documentation links:<br />
+  - Security Store Learn (https://learn.microsoft.com/en-us/security/store/)<br />
+  - Security Copilot agents overview (https://learn.microsoft.com/copilot/security/agents-overview)<br />
+- No known limitations reported; however, ensure your environment meets the baseline requirements for Security Copilot (Azure AD Premium P2, Defender for Cloud Apps, etc.).<br />
+- This update aligns with Microsoft’s broader strategy to make the Security Store a launchpad for partner innovation, expanding scenarios such as phishing triage, incident enrichment, and automated remediation.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            General Update
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://techcommunity.microsoft.com/t5/microsoft-security-community/microsoft-purview-data-security-investigations-is-now-generally/ba-p/4489363" target="_blank">Microsoft Purview Data Security Investigations is now generally available</a>
+                                            
+                                            <span class="availability-badge ga">GA</span>
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                2 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Tech Community - Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> Feature Update, Integration, Preview</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 26, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> Katerina_Athanasiou</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft Purview Data Security Investigations (DSI) has moved from public preview to <strong>General Availability (GA)</strong>. The GA release introduces a new pay‑as‑you‑go business model, expanded AI‑powered investigation capabilities, and tighter integration with other Microsoft security services.</p>
+<ul>
+<li><strong>Product/Component:</strong> Microsoft Purview – Data Security Investigations  </li>
+<li><strong>Key Enhancements:</strong>  </li>
+<li>New integrations: launch DSI from Microsoft Defender XDR incidents, Insider Risk Management cases, and now <strong>Purview Data Security Posture Management</strong>.  </li>
+<li>AI‑search, vector search, categorization, risk examination, and AI context input for deeper content analysis across 95+ languages.  </li>
+<li>Sentinel graph integration (data risk graph) for visual correlation of investigation data with audit logs and threat intel.  </li>
+<li>New <strong>purge</strong> mitigation action to delete sensitive or overshared content directly within the DSI workflow.  </li>
+<li>Built‑in cost management tools: lightweight cost estimator and usage dashboard.</li>
+</ul>
+<p><strong>Key Details</strong>  </p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GA Release Date</td>
+<td>Not explicitly stated; announced in this blog post (Feb 2026).</td>
+</tr>
+<tr>
+<td>Pricing Model</td>
+<td>Two consumptive meters: <strong>Storage Meter</strong> (GB) and <strong>Compute Meter</strong> (Compute Units, CUs). Monthly charges based on stored data and CU consumption.</td>
+</tr>
+<tr>
+<td>AI Capabilities</td>
+<td>Natural‑language search, semantic embeddings, vector search, risk scoring with mitigation recommendations, AI‑generated rationale.</td>
+</tr>
+<tr>
+<td>Integration Points</td>
+<td>Microsoft Defender XDR, Purview Insider Risk Management, Purview Data Security Posture Management, Sentinel graph (data risk graph).</td>
+</tr>
+<tr>
+<td>Mitigation Action</td>
+<td><strong>Purge</strong> – immediate deletion of identified content within DSI interface.</td>
+</tr>
+<tr>
+<td>Cost Tools</td>
+<td>In‑product cost estimator; usage dashboard with granular billing breakdowns.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What This Means</strong>  </p>
+<ul>
+<li><strong>Audience:</strong> All organizations with a Purview subscription that includes Data Security Investigations (requires appropriate licensing tier).  </li>
+<li><strong>Availability:</strong> GA rollout is automatic for eligible customers; no opt‑in required beyond enabling the feature in Purview.  </li>
+<li><strong>Benefits:</strong>  </li>
+<li>Accelerated investigations from weeks to hours by automating data discovery, risk analysis, and mitigation.  </li>
+<li>Unified view of reactive incidents (breaches, credential exposure) and proactive risk assessments.  </li>
+<li>Transparent cost control with pay‑as‑you‑go pricing and real‑time usage monitoring.  </li>
+<li><strong>Impact on Security Posture:</strong> Faster detection and remediation of data leaks, credential exposures, internal fraud, and inappropriate content; improved visibility into data risk across Microsoft 365 estates.</li>
+</ul>
+<p><strong>How to Use It</strong>  </p>
+<ol>
+<li><strong>Enable DSI</strong> in the Purview portal (if not already enabled).  </li>
+<li><strong>Launch an investigation</strong> from a Defender XDR incident, Insider Risk case, or Posture Management objective.  </li>
+<li><strong>Use AI search and vector search</strong> to locate relevant content; apply categorization for quick severity assessment.  </li>
+<li><strong>Review risk scores</strong> and mitigation recommendations; use the <strong>purge</strong> action to delete exposed data immediately.  </li>
+<li><strong>Visualize correlations</strong> via the Sentinel graph integration to understand user activity context.  </li>
+<li><strong>Monitor costs</strong> using the in‑product estimator before scaling investigations, and review the usage dashboard for optimization opportunities.  </li>
+</ol>
+<p><strong>Additional Notes</strong>  </p>
+<ul>
+<li><strong>Prerequisites:</strong> Purview subscription with DSI enabled; appropriate permissions (Data Security Admin role).  </li>
+<li><strong>Documentation &amp; Resources:</strong>  </li>
+<li><a href="https://aka.ms/DSIdocs">DSI Docs</a>  </li>
+<li><a href="https://aka.ms/purviewpricing">Pricing Details</a>  </li>
+<li><a href="https://aka.ms/DSIcostmanagementtips">Cost Management Tips</a>  </li>
+<li>Live AMA on Feb 5th: https://aka.ms/PurviewDSIAMA2  </li>
+<li><strong>Compliance:</strong> DSI supports GDPR, CCPA, and other data protection regulations by providing risk scoring and mitigation workflows.  </li>
+<li><strong>Limitations:</strong> Current AI analysis is limited to content within Microsoft 365; external data sources require additional connectors.  </li>
+</ul>
+<p>This GA release equips security teams with a scalable, AI‑driven platform to uncover hidden risks and act decisively across the entire Microsoft 365 data estate.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag feature">
+                                            Feature Update
+                                        </span>
+                                        
+                                        <span class="tag ">
+                                            Integration
+                                        </span>
+                                        
+                                        <span class="tag ">
+                                            Preview
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                        
+                    </div>
+                    
+                    <div class="product-section" id="product-10">
+                        <h3>
+                            <span>Other Security Updates (5 updates)</span>
+                            <a href="#top" class="back-link">↑ Back to Top</a>
+                        </h3>
+
+                        
+                        <div class="product-exec-summary">
+                            <p><strong>Other Security Updates – Executive Summary (Jan 22‑27, 2026)</strong>  </p>
+<table>
+<thead>
+<tr>
+<th>Update</th>
+<th>Key Highlights</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Defender for Cloud Apps – AI Agent Runtime Protection (Preview)</strong></td>
+<td>Adds real‑time webhook inspection for Copilot Studio agents, enabling policy‑driven allow/deny decisions on tool invocations.</td>
+</tr>
+<tr>
+<td><strong>Defender XDR – AiTM Phishing &amp; BEC Enhancements</strong></td>
+<td>GA release of automated detection, Zero‑Hour Auto Purge (ZAP), new alerts and hunting queries for multi‑stage SharePoint‑based phishing campaigns.</td>
+</tr>
+<tr>
+<td><strong>Security Excellence Awards 2026 Announcement</strong></td>
+<td>Recognition of partner leaders; no product changes or configuration impact.</td>
+</tr>
+<tr>
+<td><strong>Government Data Security Strategy Blog</strong></td>
+<td>Strategic guidance on “defend forward” and secure‑by‑design practices; no actionable product updates.</td>
+</tr>
+<tr>
+<td><strong>Integrated Security Success Stories</strong></td>
+<td>Case studies illustrating end‑to‑end security stack adoption; no new features introduced.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Key Updates</h3>
+<ul>
+<li>Defender for Cloud Apps now offers preview real‑time runtime protection for Copilot Studio agents, intercepting every tool call via webhook and enforcing policy rules.  </li>
+<li>Defender XDR delivers GA capabilities to detect, disrupt, and auto‑purge AiTM phishing attacks that abuse SharePoint, with new alerts, hunting queries, and Sentinel templates.  </li>
+</ul>
+<h3>What Changed</h3>
+<ul>
+<li><strong>Defender for Cloud Apps</strong>:  </li>
+<li>Webhook‑based runtime inspection of Copilot agent actions.  </li>
+<li>Policy engine evaluates intent/destination before execution.  </li>
+<li>Logs blocked events in Activity History; XDR alerts generated.  </li>
+<li><strong>Defender XDR</strong>:  </li>
+<li>Automatic correlation of stolen session cookies, inbox rule manipulation, and phishing emails.  </li>
+<li>Zero‑Hour Auto Purge deletes malicious messages immediately.  </li>
+<li>New Sentinel analytic templates (AHQ#1–2) for BEC/AiTM indicators.  </li>
+</ul>
+<h3>Action Items</h3>
+<ul>
+<li><strong>Defender for Cloud Apps</strong>:  </li>
+<li>Enable <em>AI Agent Protection → Runtime protection</em> in the Defender portal.  </li>
+<li>Define or update policies to allow only approved tools and destinations.  </li>
+<li>Monitor Activity History and XDR alerts; adjust thresholds as needed.  </li>
+<li><strong>Defender XDR</strong>:  </li>
+<li>Verify that Cloud Apps connectors for Microsoft 365, Azure, and Okta are active.  </li>
+<li>Configure Zero‑Hour Auto Purge settings to auto‑delete flagged emails.  </li>
+<li>Import the new Sentinel templates and hunting queries; review existing inbox rule policies to mitigate false positives.  </li>
+</ul>
+<p>No deprecations or breaking changes were announced in these updates.</p>
+                        </div>
+                        
+
+                        
+                            <div class="expand-collapse-controls">
+                                <button class="control-btn" onclick="expandAll()" title="Expand all articles (Keyboard: E)">
+                                    ⬇ Expand All
+                                </button>
+                                <button class="control-btn" onclick="collapseAll()" title="Collapse all articles (Keyboard: C)">
+                                    ⬆ Collapse All
+                                </button>
+                            </div>
+
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://www.microsoft.com/en-us/security/blog/2026/01/27/microsoft-announces-the-2026-security-excellence-awards-winners/" target="_blank">Microsoft announces the 2026 Security Excellence Awards winners</a>
+                                            
+                                            
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                Yesterday
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> General Update</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 27, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> Maria Thomson</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft announced the 2026 Security Excellence Awards winners. The post does not introduce new security products, features, or configuration changes; it is an award‑recognition announcement celebrating partners and individuals who have advanced Microsoft’s security portfolio.</p>
+<p><strong>Key Details</strong><br />
+- <strong>Event Date &amp; Venue:</strong> January 26, 2026, Redmond, Washington.<br />
+- <strong>Association Involved:</strong> Microsoft Intelligent Security Association (MISA).<br />
+- <strong>Award Categories &amp; Winners:</strong><br />
+  - <em>Security Trailblazer</em> – Avertium (Winner)<br />
+  - <em>Data Security and Compliance Trailblazer</em> – BlueVoyant (Winner)<br />
+  - <em>Secure Access Trailblazer</em> – Tata Consultancy Services (Winner)<br />
+  - <em>Security Changemaker</em> – Anna Bordioug, Protiviti (Winner)<br />
+  - <em>Security Software Development Company of the Year</em> – Illumio (Winner)<br />
+  - <em>Security Services Partner of the Year</em> – Invoke LLC (Winner)<br />
+- <strong>Focus Areas Highlighted:</strong> AI‑powered threat intelligence, Zero Trust strategies, Microsoft Purview data protection, Microsoft Entra ID &amp; Intune identity/endpoint management, and generative‑AI security solutions.</p>
+<p><strong>What This Means</strong><br />
+- No direct impact on your existing security environment or configurations.<br />
+- The announcement reinforces the importance of collaboration between Microsoft, partners, and the broader security community in advancing AI‑driven defenses and Zero Trust adoption.<br />
+- It may influence partner selection decisions for future engagements, as the winners are recognized leaders in integrating Microsoft security products.</p>
+<p><strong>How to Use It</strong><br />
+- <strong>Partner Evaluation:</strong> Consider engaging with the award winners if you need advanced solutions in their respective focus areas (e.g., AI threat intelligence from Avertium or data protection via BlueVoyant).<br />
+- <strong>Community Engagement:</strong> Explore MISA resources and events for networking, best‑practice sharing, and staying current on emerging security trends.<br />
+- <strong>Stay Informed:</strong> Follow Microsoft Security on LinkedIn and X, and subscribe to the Security Blog for updates that may build on the innovations highlighted by these partners.</p>
+<p><strong>Additional Notes</strong><br />
+- No new product releases or feature rollouts are announced in this post.<br />
+- For detailed information about each partner’s solutions, visit their respective websites or the MISA portal (https://aka.ms/MISA).<br />
+- This announcement is purely celebratory and does not require any administrative action from security teams.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            General Update
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://www.microsoft.com/en-us/security/blog/2026/01/26/security-strategies-for-safeguarding-governmental-data/" target="_blank">Security strategies for safeguarding governmental data</a>
+                                            
+                                            
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                2 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> General Update</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 26, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> Tim Langan</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+- The post does <strong>not</strong> announce any new version, feature, or configuration for a Microsoft security product. It is an informational blog entry from Deputy CISO Tim Langan outlining strategic priorities and governance practices for protecting government data.</p>
+<p><strong>Key Details</strong><br />
+- Focus on the <em>“Secure Future Initiative”</em> and the <em>Cybersecurity Governance Council</em>.<br />
+- Emphasis on shifting from reactive to proactive (“defend forward”) threat detection, continuous communication with customers, and embedding security into development lifecycles.<br />
+- No version numbers, build identifiers, or specific product releases are referenced.</p>
+<p><strong>What This Means</strong><br />
+- Administrators receive a high‑level view of Microsoft’s strategic direction for government cybersecurity rather than actionable changes to existing tools.<br />
+- The content reinforces that security best practices (e.g., secure‑by‑design, early compliance integration) should be applied across all Microsoft solutions used by government entities.<br />
+- No immediate operational impact or configuration change is required; the post serves as guidance and context for ongoing security initiatives.</p>
+<p><strong>How to Use It</strong><br />
+1. <strong>Review Governance Practices</strong> – Align your organization’s threat‑detection and response processes with the “defend forward” model highlighted.<br />
+2. <strong>Integrate Secure‑by‑Design Principles</strong> – Ensure that any new development or deployment in Microsoft environments incorporates compliance checks early, as advocated by the Secure Future Initiative.<br />
+3. <strong>Engage with Microsoft Channels</strong> – Subscribe to the CISO Digest and follow the OCISO blog series for deeper insights and potential future product updates tied to these strategic themes.</p>
+<p><strong>Additional Notes</strong><br />
+- No technical prerequisites or configuration changes are required.<br />
+- For detailed guidance on the Secure Future Initiative, see the linked page: https://www.microsoft.com/en-us/trust-center/security/secure-future-initiative.<br />
+- The post is a general update; no deprecated features or breaking changes are mentioned.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            General Update
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://www.microsoft.com/en-us/security/blog/2026/01/23/runtime-risk-realtime-defense-securing-ai-agents/" target="_blank">From runtime risk to real‑time defense: Securing AI agents</a>
+                                            
+                                            <span class="availability-badge preview">Preview</span>
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                5 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> Integration</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 23, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> Microsoft Defender Security Research Team</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+Microsoft Defender for Cloud Apps (Defender for Apps) now adds <em>real‑time runtime protection</em> for Microsoft Copilot Studio agents. The update introduces a webhook‑based inspection flow that intercepts every tool, topic, or knowledge‑source invocation before execution and evaluates intent and destination against policy rules.</p>
+<ul>
+<li>Product: Microsoft Defender for Cloud Apps (Defender for Apps) – AI Agent Protection  </li>
+<li>Component: Copilot Studio agent runtime protection (preview)  </li>
+</ul>
+<p><strong>Key Details</strong><br />
+- <strong>Mechanism:</strong> The Copilot orchestrator sends a webhook to Defender with context (action type, parameters, prior outputs, user and trigger data). Defender analyzes intent/destination in real time and returns an allow/deny decision.<br />
+- <strong>Scope:</strong> All tool invocations (CRM connectors, email senders, SharePoint access, generative answers) are treated as high‑risk events.<br />
+- <strong>Scenarios Demonstrated:</strong><br />
+  1. Malicious instruction injection via event‑triggered workflow that would have caused a knowledge search and exfiltration.<br />
+  2. Prompt injection in a shared document leading to email exfiltration of a protected PDF.<br />
+  3. Reconnaissance probing of a public chatbot’s capabilities.<br />
+- <strong>Logging &amp; Alerts:</strong> Blocked actions are recorded in Activity History; XDR informational alerts are generated for security teams.<br />
+- <strong>Availability:</strong> Preview (as of Jan 2026). Requires enabling the feature in Defender portal and configuring policy rules. No version number is specified, but the feature is part of the latest Defender for Cloud Apps release.</p>
+<p><strong>What This Means</strong><br />
+- <strong>Audience:</strong> All organizations using Copilot Studio agents that are integrated with Defender for Cloud Apps. Licensing: requires a Defender for Cloud Apps subscription (Enterprise Mobility + Security or Microsoft 365 E5).<br />
+- <strong>Rollout:</strong> Opt‑in preview; administrators must enable the runtime protection feature and define policies. No breaking changes to existing agent logic—only an additional webhook call.<br />
+- <strong>Benefits:</strong> Adds a dynamic, policy‑driven guardrail that prevents unintended privileged actions (e.g., data exfiltration, unauthorized tool use) without modifying agent code. Enhances compliance by ensuring only approved actions are executed and provides auditability.<br />
+- <strong>Impact on Security Posture:</strong> Reduces risk of prompt injection, reprogramming failures, and covert data leakage from AI agents; improves visibility into agent behavior.</p>
+<p><strong>How to Use It</strong><br />
+1. <strong>Enable Runtime Protection</strong> – In Defender for Cloud Apps portal, navigate to <em>AI Agent Protection</em> → <em>Runtime protection</em> and toggle on.<br />
+2. <strong>Define Policies</strong> – Create or edit policies that specify allowed tools, destinations, and intent patterns (e.g., block knowledge searches that target sensitive files).<br />
+3. <strong>Monitor Activity</strong> – Review the <em>Activity History</em> for blocked events; configure XDR alerts to notify SOC teams of attempted malicious actions.<br />
+4. <strong>Iterate</strong> – Adjust policy thresholds based on false positives/negatives observed in your environment.<br />
+5. <strong>Integrate with Existing Controls</strong> – Combine with Defender’s threat intelligence feeds and Microsoft Purview data classification to refine intent/destination checks.</p>
+<p><strong>Additional Notes</strong><br />
+- <strong>Prerequisites:</strong> Copilot Studio agents must be built using the latest SDK that supports webhook integration; ensure network connectivity for outbound webhook calls.<br />
+- <strong>Documentation Links:</strong><br />
+  - <a href="https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection">Securing Copilot Studio agents with Microsoft Defender</a><br />
+  - <a href="https://learn.microsoft.com/en-us/defender-cloud-apps/real-time-agent-protection-during-runtime">Protect your agents in real‑time during runtime (Preview)</a><br />
+- <strong>Compliance:</strong> The feature supports data residency and classification controls by evaluating destination metadata.<br />
+- <strong>Limitations:</strong> Currently preview; may not cover all custom tool types until future updates. No automatic rollout—requires manual enablement.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            Integration
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://www.microsoft.com/en-us/security/blog/2026/01/21/multistage-aitm-phishing-bec-campaign-abusing-sharepoint/" target="_blank">Resurgence of a multi‑stage AiTM phishing and BEC campaign abusing SharePoint</a>
+                                            
+                                            <span class="availability-badge preview">Preview</span>
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                6 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> Configuration Update, Integration</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 22, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> Microsoft Defender Security Research Team</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>1. What Changed</strong><br />
+Microsoft Defender XDR now includes enhanced detection and automated response capabilities for multi‑stage Adversary‑in‑the‑Middle (AiTM) phishing campaigns that abuse SharePoint file‑sharing. The update expands the product’s cross‑domain visibility to flag:<br />
+- <strong>Stolen session cookie usage</strong><br />
+- <strong>Possible AiTM phishing attempts</strong> (including in Okta environments)<br />
+- <strong>Suspicious inbox rule creation and email deletion</strong>  </p>
+<p>The update also adds new hunting queries, Sentinel analytic templates, and Zero‑Hour Auto Purge (ZAP) automation for rapid containment of phishing emails.</p>
+<p><strong>2. Key Details</strong><br />
+- <strong>Product:</strong> Microsoft Defender XDR (cross‑domain integration with Defender for Cloud Apps, Office 365, Endpoint, Entra ID Protection).<br />
+- <strong>New Features:</strong><br />
+  - Automatic disruption of AiTM attacks via signal correlation.<br />
+  - ZAP to purge phishing emails immediately after detection.<br />
+  - New alerts: “Stolen session cookie was used”, “Possible AiTM phishing attempt”, “Suspicious inbox manipulation rule”.<br />
+  - Updated hunting queries (AHQ#1–2) and Sentinel templates for BEC/AiTM indicators.<br />
+- <strong>Detection Enhancements:</strong> Leveraging Defender for Cloud Apps connectors for Microsoft 365, Azure, Okta; integration with Defender for Endpoint network protection to flag malicious IPs (178.130.46.8, 193.36.221.10).<br />
+- <strong>Remediation Guidance:</strong> Revoking session cookies, resetting MFA settings, deleting malicious inbox rules, and enabling Conditional Access + Continuous Access Evaluation.</p>
+<p><strong>3. What This Means</strong><br />
+- <strong>Audience:</strong> All organizations using Microsoft Defender XDR with Office 365, Azure AD, or Okta integration; applies to any licensing tier that includes XDR.<br />
+- <strong>Availability:</strong> GA rollout; no opt‑in required—features are enabled automatically once the product is in use.<br />
+- <strong>Impact on Security Posture:</strong> Provides earlier detection of AiTM attacks that bypass MFA by stealing session cookies, reduces dwell time through ZAP, and enforces stricter mailbox hygiene (rule deletion).<br />
+- <strong>Breaking Changes:</strong> None reported; however, administrators should review existing inbox rule policies to avoid false positives.</p>
+<p><strong>4. How to Use It</strong><br />
+1. <strong>Verify Integration:</strong> Ensure Defender for Cloud Apps connectors are enabled for Microsoft 365, Azure, and Okta.<br />
+2. <strong>Enable ZAP:</strong> In the XDR portal, configure Zero‑Hour Auto Purge settings to automatically delete emails flagged by the new AiTM alerts.<br />
+3. <strong>Review Alerts:</strong> Monitor the “Stolen session cookie was used” and “Possible AiTM phishing attempt” alerts in the XDR dashboard.<br />
+4. <strong>Apply Remediation Playbooks:</strong> Use the provided playbook steps—revoke session cookies, reset MFA, delete malicious inbox rules—to contain compromised accounts.<br />
+5. <strong>Update Conditional Access Policies:</strong> Add risk‑based or location‑based controls to block suspicious sign‑ins from the identified IP ranges (178.130.46.x / 193.36.221.x).<br />
+6. <strong>Deploy Sentinel Templates:</strong> Import the listed analytic templates and hunting queries into Microsoft Sentinel for continuous monitoring.</p>
+<p><strong>5. Additional Notes</strong><br />
+- <strong>Documentation Links:</strong><br />
+  - <a href="https://learn.microsoft.com/microsoft-365/security/office-365-security/zero-hour-auto-purge">Zero‑Hour Auto Purge</a><br />
+  - <a href="https://techcommunity.microsoft.com/t5/microsoft-365-defender-blog/automatically-disrupt-adversary-in-the-middle-aitm-attacks-with/ba-p/3821751">Defender XDR AiTM Detection</a><br />
+  - <a href="https://github.com/Azure/Azure-Sentinel/tree/master/Solutions/Microsoft%20365">Sentinel Analytic Templates</a>.<br />
+- <strong>Prerequisites:</strong> Defender for Cloud Apps connectors must be active; Azure AD Premium P2 or equivalent for Conditional Access.<br />
+- <strong>Compliance Considerations:</strong> The update supports SOC 2, ISO 27001, and GDPR by reducing phishing dwell time and enforcing MFA integrity.  </p>
+<p>This update equips security teams with automated detection, rapid containment, and actionable remediation steps to counter sophisticated AiTM phishing campaigns that exploit SharePoint.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            Configuration Update
+                                        </span>
+                                        
+                                        <span class="tag ">
+                                            Integration
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                            <details class="article-details">
+                                <summary>
+                                    <div class="article-summary-header">
+                                        <h4>
+                                            
+                                            <a href="https://www.microsoft.com/en-us/security/blog/2026/01/22/microsoft-security-success-stories-why-integrated-security-is-the-foundation-of-ai-transformation/" target="_blank">Microsoft Security success stories: Why integrated security is the foundation of AI transformation</a>
+                                            
+                                            
+                                        </h4>
+                                        <div class="meta-preview">
+                                            
+                                            <span class="date-badge new">
+                                                
+                                                6 days ago
+                                                
+                                            </span>
+                                            
+                                            
+                                            <span><strong>Source:</strong> Microsoft Security Blog<span class="source-type-badge blog">MS Security Blog</span></span>
+                                            
+                                            
+                                            <span><strong>Type:</strong> General Update</span>
+                                            
+                                        </div>
+                                    </div>
+                                </summary>
+                                <div class="article-content">
+                                    <div class="article-meta">
+                                        
+                                        <span class="date-text">Jan 22, 2026</span>
+                                        
+                                        
+                                        <span><strong>Author:</strong> Steve Dispensa</span>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="article-summary">
+                                        <p><strong>What Changed</strong><br />
+This blog post does not announce a new version or feature release for any Microsoft security product. Instead it showcases how three organizations—Ford, Icertis, and TriNet—have adopted Microsoft’s integrated security stack (Defender for Endpoint, Defender for Cloud, Sentinel, Purview, Entra, Security Copilot, and Microsoft 365 E5) to support their AI‑driven transformations.</p>
+<p><strong>Key Details</strong><br />
+- <strong>Products Highlighted:</strong><br />
+  - <em>Microsoft Defender</em> (Endpoint &amp; Cloud)<br />
+  - <em>Microsoft Sentinel</em> (SIEM/XDR)<br />
+  - <em>Microsoft Purview</em> (data governance)<br />
+  - <em>Microsoft Entra</em> (identity &amp; access)<br />
+  - <em>Security Copilot</em> (AI‑powered insights)<br />
+  - <em>Microsoft 365 E5</em> (comprehensive security suite)<br />
+- <strong>Benefits Demonstrated:</strong><br />
+  - Unified threat detection and response across hybrid environments.<br />
+  - AI‑driven telemetry, automation, and incident triage reductions (up to 80% alert triage time).<br />
+  - 50 % reduction in SOC incidents for Icertis; 25‑minute mean time to resolution.<br />
+  - Cost savings through tool consolidation for TriNet.<br />
+- <strong>Zero Trust Foundation:</strong> All three organizations built their security strategy around Zero Trust principles, embedding protection at every layer of the stack.</p>
+<p><strong>What This Means</strong><br />
+- No new product releases or configuration changes are required; the post serves as a use‑case reference.<br />
+- Administrators can review these scenarios to benchmark their own maturity and identify gaps in integration, automation, or AI usage.<br />
+- The highlighted solutions remain available under their current licensing models (e.g., Defender for Endpoint requires E3/E5, Sentinel is part of Microsoft 365 E5 or standalone).  </p>
+<p><strong>How to Use It</strong><br />
+1. <strong>Assess Current Stack:</strong> Compare your organization’s security tooling against the integrated stack described.<br />
+2. <strong>Identify Gaps:</strong> Look for fragmented tools, lack of AI automation, or insufficient data governance that could be addressed by adding Defender, Sentinel, Purview, Entra, or Security Copilot.<br />
+3. <strong>Plan Zero Trust Adoption:</strong> Use the blog as a framework to align your security roadmap with Zero Trust principles and integrated monitoring.<br />
+4. <strong>Leverage Documentation:</strong> Refer to Microsoft’s official docs for each product (e.g., Defender for Endpoint, Sentinel, Purview) to understand deployment prerequisites and best‑practice configurations.</p>
+<p><strong>Additional Notes</strong><br />
+- The post is purely informational; no new features or policy changes are introduced.<br />
+- For detailed implementation guidance, consult the product documentation linked in the blog:<br />
+  - <a href="https://learn.microsoft.com/microsoft-defender/">Microsoft Defender</a><br />
+  - <a href="https://learn.microsoft.com/azure/sentinel/">Microsoft Sentinel</a><br />
+  - <a href="https://learn.microsoft.com/purview/">Microsoft Purview</a><br />
+  - <a href="https://learn.microsoft.com/en-us/entra/">Microsoft Entra</a><br />
+  - <a href="https://learn.microsoft.com/securitycopilot/">Security Copilot</a><br />
+- No known limitations or prerequisites are mentioned beyond standard licensing requirements.</p>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="tags">
+                                        
+                                        <span class="tag ">
+                                            General Update
+                                        </span>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </details>
+                            
+                        
+                    </div>
+                    
+                
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>SecIntel AI - Security Intelligence Tracker</strong></p>
+            <p>Microsoft Security Product Tracker</p>
+            <p>Generated on January 28, 2026 at 08:52 PM</p>
+            
+            <p>AI Model: local-model (Local - LM Studio)</p>
+            
+        </div>
+    </div>
+
+    <a href="#top" class="back-to-top" title="Back to top">↑</a>
+
+    <script>
+        // Expand/Collapse All functionality
+        function expandAll() {
+            const details = document.querySelectorAll('.article-details');
+            details.forEach(detail => {
+                detail.open = true;
+            });
+        }
+
+        function collapseAll() {
+            const details = document.querySelectorAll('.article-details');
+            details.forEach(detail => {
+                detail.open = false;
+            });
+        }
+
+        // Optional keyboard shortcuts (E to expand all, C to collapse all)
+        document.addEventListener('keydown', function(e) {
+            // Only trigger if not typing in an input field
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                if (e.key === 'e' || e.key === 'E') {
+                    expandAll();
+                } else if (e.key === 'c' || e.key === 'C') {
+                    collapseAll();
+                }
+            }
+        });
+
+        // Prevent link clicks in summary from toggling details
+        document.addEventListener('DOMContentLoaded', function() {
+            const summaryLinks = document.querySelectorAll('.article-details summary a');
+            summaryLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

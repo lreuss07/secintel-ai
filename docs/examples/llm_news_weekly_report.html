@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM News & Updates Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; font-weight: 300; }
+        .header .subtitle { font-size: 1.1em; opacity: 0.9; }
+        .header .ai-model { margin-top: 15px; padding: 10px 20px; background: rgba(255, 255, 255, 0.15); border-radius: 6px; font-size: 0.9em; display: inline-block; border: 1px solid rgba(255, 255, 255, 0.3); }
+        .header .ai-model .badge { background: rgba(255, 255, 255, 0.25); padding: 3px 10px; border-radius: 4px; margin-left: 8px; font-weight: 600; font-size: 0.95em; }
+
+        /* Stats Grid */
+        .summary-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 40px; background: #f9f9f9; border-bottom: 1px solid #e0e0e0; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #667eea; }
+        .stat-card.models { border-left-color: #10a37f; }
+        .stat-card.apis { border-left-color: #4285f4; }
+        .stat-card.features { border-left-color: #ff7000; }
+        .stat-number { font-size: 2.5em; font-weight: bold; color: #667eea; margin-bottom: 5px; }
+        .stat-card.models .stat-number { color: #10a37f; }
+        .stat-card.apis .stat-number { color: #4285f4; }
+        .stat-card.features .stat-number { color: #ff7000; }
+        .stat-label { font-size: 0.9em; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Provider Summary Grid */
+        .provider-summary { padding: 30px 40px; background: white; border-bottom: 1px solid #e0e0e0; }
+        .provider-summary h2 { color: #667eea; font-size: 1.5em; margin-bottom: 20px; text-align: center; }
+        .provider-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .provider-item { background: #f9f9f9; padding: 15px 20px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #667eea; transition: all 0.2s ease; cursor: pointer; text-decoration: none; color: inherit; }
+        .provider-item:hover { background: #f0f4ff; transform: translateX(5px); box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2); }
+        .provider-name { font-weight: 600; color: #333; font-size: 0.95em; }
+        .provider-count { background: #667eea; color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 0.9em; min-width: 30px; text-align: center; }
+        .provider-count.zero { background: #d0d0d0; color: #666; }
+
+        /* What's New Section */
+        .whats-new-section { padding: 30px 40px; background: linear-gradient(135deg, #fff4e6 0%, #ffe8cc 100%); border-bottom: 3px solid #ff8800; }
+        .whats-new-section h2 { color: #ff6600; font-size: 1.8em; margin-bottom: 15px; text-align: center; }
+        .whats-new-summary { text-align: center; font-size: 1.1em; color: #555; margin-bottom: 25px; padding: 15px; background: white; border-radius: 8px; border: 2px solid #ff8800; }
+        .whats-new-summary strong { color: #ff6600; font-size: 1.3em; }
+        .whats-new-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 15px; }
+        .whats-new-item { background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #ff8800; box-shadow: 0 2px 5px rgba(255, 136, 0, 0.15); transition: all 0.2s ease; }
+        .whats-new-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3); }
+        .whats-new-item h4 { font-size: 1.1em; margin-bottom: 8px; }
+        .whats-new-item h4 a { color: #667eea; text-decoration: none; }
+        .whats-new-item h4 a:hover { text-decoration: underline; }
+        .whats-new-item .meta { font-size: 0.85em; color: #666; }
+        .new-badge { display: inline-block; background: #ff6600; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; margin-left: 8px; }
+
+        /* Content Area */
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; }
+        .section h2 { color: #667eea; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+
+        /* Executive Summary */
+        .executive-summary { background: #f0f4ff; padding: 40px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 30px; }
+        .executive-summary h3 { color: #667eea; margin-bottom: 25px; font-size: 1.8em; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .executive-summary h4, .executive-summary h5 { color: #5a67d8; margin-top: 20px; margin-bottom: 10px; }
+        .executive-summary > p { margin-bottom: 18px; line-height: 1.8; }
+        .executive-summary > p:first-of-type { font-size: 1.15em; font-weight: 600; color: #667eea; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #cce0ff; }
+        .executive-summary > hr { margin: 25px 0; border: none; border-top: 2px solid #cce0ff; }
+        .executive-summary table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .executive-summary table th { background: #667eea; color: white; padding: 12px; text-align: left; font-weight: 600; border: 1px solid #5a67d8; }
+        .executive-summary table td { padding: 12px; border: 1px solid #ddd; vertical-align: top; }
+        .executive-summary table tr:nth-child(even) { background: #f9f9f9; }
+        .executive-summary table tr:hover { background: #f0f4ff; }
+        .executive-summary ul { margin: 15px 0 25px 0; padding: 20px 20px 20px 45px; background: white; border-radius: 5px; border-left: 3px solid #667eea; }
+        .executive-summary li { margin: 12px 0; line-height: 1.8; }
+        .executive-summary li strong { color: #667eea; }
+        .executive-summary code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; color: #d13438; }
+        .executive-summary strong { color: #5a67d8; }
+
+        /* Provider Section */
+        .provider-section { margin-bottom: 40px; background: #fafafa; padding: 30px; border-radius: 8px; scroll-margin-top: 20px; transition: background-color 0.3s ease; }
+        .provider-section:target { background: #f0f4ff; box-shadow: 0 0 0 3px #667eea; }
+        .provider-section h3 { color: #5a67d8; font-size: 1.5em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .provider-section h3 .back-link { font-size: 0.6em; color: #667eea; text-decoration: none; font-weight: normal; padding: 5px 12px; border: 1px solid #667eea; border-radius: 4px; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px; }
+        .provider-section h3 .back-link:hover { background: #667eea; color: white; transform: translateY(-2px); box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3); }
+        .provider-badge { display: inline-block; padding: 4px 12px; border-radius: 15px; font-size: 0.85em; color: white; margin-left: 10px; }
+
+        /* Expand/Collapse Controls */
+        .expand-collapse-controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: #f0f4ff; border-radius: 8px; }
+        .control-btn { background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3); }
+        .control-btn:hover { background: #5a67d8; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4); }
+
+        /* Article Details (Collapsible) */
+        .article-details { background: white; margin-bottom: 20px; border-radius: 5px; border-left: 3px solid #667eea; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.3s ease; }
+        .article-details:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .article-details summary { padding: 20px; cursor: pointer; list-style: none; user-select: none; position: relative; outline: none; }
+        .article-details summary::-webkit-details-marker { display: none; }
+        .article-details summary::before { content: '+'; position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; background: #667eea; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3); }
+        .article-details[open] summary::before { content: '−'; background: #5a67d8; transform: translateY(-50%) rotate(180deg); }
+        .article-details summary:hover::before { background: #5a67d8; transform: translateY(-50%) scale(1.1); }
+        .article-details[open] summary:hover::before { transform: translateY(-50%) rotate(180deg) scale(1.1); }
+        .article-summary-header h4 { color: #667eea; margin-bottom: 10px; font-size: 1.2em; }
+        .article-summary-header h4 a { color: #667eea; text-decoration: none; }
+        .article-summary-header h4 a:hover { text-decoration: underline; }
+        .meta-preview { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 8px; font-size: 0.85em; color: #666; }
+        .article-content { padding: 0 20px 20px 20px; animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Article Meta */
+        .article-meta { font-size: 0.85em; color: #666; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+
+        /* Date Badges */
+        .date-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; white-space: nowrap; }
+        .date-badge.today { background: #ff4444; color: white; animation: pulse 2s ease-in-out infinite; }
+        .date-badge.new { background: #ff8800; color: white; }
+        .date-badge.recent { background: #667eea; color: white; }
+        .date-badge.older { background: #e0e0e0; color: #666; }
+        .date-badge.unknown { background: #f0f0f0; color: #999; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+        /* Tags */
+        .tag { display: inline-block; background: #f0f4ff; color: #667eea; padding: 3px 10px; border-radius: 3px; font-size: 0.85em; margin: 2px; }
+
+        /* Provider AI Summary */
+        .provider-ai-summary { background: linear-gradient(135deg, #f8f9ff 0%, #eef1ff 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea; box-shadow: 0 2px 5px rgba(102, 126, 234, 0.1); }
+        .provider-ai-summary .summary-label { display: inline-block; background: #667eea; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+        .provider-ai-summary p { margin: 0; line-height: 1.7; color: #444; font-size: 0.95em; }
+
+        /* Article Summary Content */
+        .article-summary { color: #444; line-height: 1.7; }
+        .article-summary table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .article-summary th { background: #667eea; color: white; padding: 10px; text-align: left; }
+        .article-summary td { padding: 10px; border: 1px solid #ddd; }
+        .article-summary ul, .article-summary ol { margin: 12px 0; padding-left: 25px; }
+        .article-summary li { margin: 8px 0; }
+        .article-summary code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
+
+        /* Footer */
+        .footer { background: #f5f5f5; padding: 30px; text-align: center; color: #666; }
+    </style>
+    <script>
+        function expandAll(sectionId) {
+            var section = document.getElementById(sectionId);
+            var details = section.querySelectorAll('details');
+            details.forEach(function(d) { d.open = true; });
+        }
+        function collapseAll(sectionId) {
+            var section = document.getElementById(sectionId);
+            var details = section.querySelectorAll('details');
+            details.forEach(function(d) { d.open = false; });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LLM News & Updates Report</h1>
+            <div class="subtitle">January 28, 2026</div>
+            <div class="subtitle">Report Period: last 7 days</div>
+            <div class="ai-model">
+                AI Model: local-model (Local - LM Studio)
+                <span class="badge">Local</span>
+            </div>
+        </div>
+
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-number">35</div>
+                <div class="stat-label">Total Updates</div>
+            </div>
+            <div class="stat-card models">
+                <div class="stat-number">7</div>
+                <div class="stat-label">Model Releases</div>
+            </div>
+            <div class="stat-card apis">
+                <div class="stat-number">3</div>
+                <div class="stat-label">API Updates</div>
+            </div>
+            <div class="stat-card features">
+                <div class="stat-number">2</div>
+                <div class="stat-label">New Features</div>
+            </div>
+        </div>
+
+        <div class="provider-summary">
+            <h2>Updates by Provider</h2>
+            <div class="provider-grid">
+                <a href="#provider-anthropic" class="provider-item" style="border-left-color: #d97757;">
+                    <span class="provider-name">Anthropic</span>
+                    <span class="provider-count ">1</span>
+                </a>
+                <a href="#provider-openai" class="provider-item" style="border-left-color: #10a37f;">
+                    <span class="provider-name">OpenAI</span>
+                    <span class="provider-count ">5</span>
+                </a>
+                <a href="#provider-google" class="provider-item" style="border-left-color: #4285f4;">
+                    <span class="provider-name">Google</span>
+                    <span class="provider-count ">7</span>
+                </a>
+                <a href="#provider-microsoft" class="provider-item" style="border-left-color: #00a4ef;">
+                    <span class="provider-name">Microsoft</span>
+                    <span class="provider-count ">5</span>
+                </a>
+                <a href="#provider-perplexity" class="provider-item" style="border-left-color: #20b2aa;">
+                    <span class="provider-name">Perplexity</span>
+                    <span class="provider-count ">3</span>
+                </a>
+                <a href="#provider-hugging-face" class="provider-item" style="border-left-color: #ffd21e;">
+                    <span class="provider-name">Hugging Face</span>
+                    <span class="provider-count ">1</span>
+                </a>
+                <a href="#provider-ollama" class="provider-item" style="border-left-color: #1a1a1a;">
+                    <span class="provider-name">Ollama</span>
+                    <span class="provider-count ">10</span>
+                </a>
+                <a href="#provider-langchain" class="provider-item" style="border-left-color: #00875a;">
+                    <span class="provider-name">LangChain</span>
+                    <span class="provider-count ">1</span>
+                </a>
+                <a href="#provider-other" class="provider-item" style="border-left-color: #666666;">
+                    <span class="provider-name">Other</span>
+                    <span class="provider-count ">2</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <div class="executive-summary">
+                <h3>Executive Summary</h3>
+                <p><strong>LLM News &amp; Updates Summary – For the week of January 28th, 2026</strong></p>
+<hr />
+<h3>Executive Overview</h3>
+<ul>
+<li>This week’s releases focus on operational refinements and tooling integrations rather than new flagship models.  </li>
+<li>Key themes: <strong>deployment convenience (Ollama launch commands), stability fixes (vLLM dtype bug, memory‑leak patch), and expanded AI‑assisted workflows in IDEs and collaboration tools (Microsoft Copilot, Google Gemini).</strong>  </li>
+</ul>
+<hr />
+<h3>Major Announcements</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Highlights</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>New Model Releases</strong></td>
+<td><em>None</em> – all updates were feature or stability improvements.</td>
+</tr>
+<tr>
+<td><strong>Significant Capability Updates</strong></td>
+<td>• Ollama’s <code>ollama launch clawdbot</code> command (v0.15.2).  <br>• Google Gemini integration in Calendar and Meet for scheduling and AI‑note sharing.  <br>• Microsoft Copilot’s GPT‑5.2‑Codex now available across major IDEs.</td>
+</tr>
+<tr>
+<td><strong>Breaking Changes / Deprecations</strong></td>
+<td>• Ollama renamed <code>ollama config</code> to <code>ollama launch</code> (v0.15.0‑rc4).  <br>• vLLM released a patch fixing dtype handling (v0.15.0rc0) and a security/memory‑leak fix (v0.14.1).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Provider Updates</h3>
+<h4>Anthropic Claude</h4>
+<ul>
+<li>Anthropic released an update focused on user wellbeing for Claude, adding enhanced safeguards that prioritize empathetic responses and transparent disclosure of AI limitations during emotionally charged conversations. The announcement does not introduce a new model version or change API endpoints, pricing, or performance benchmarks. No additional cybersecurity-specific changes were disclosed.</li>
+</ul>
+<h4>OpenAI</h4>
+<ul>
+<li>OpenAI highlighted the use of its ChatGPT/GPT models by Indeed to improve job‑search, recruiting, and talent‑acquisition workflows, though no new model version was announced. A technical deep‑dive into the Codex Command Line Interface explained how the existing Codex model orchestrates tools and prompts via the Responses API, with no new capabilities released. OpenAI also disclosed scaling its PostgreSQL deployment to support 800 million ChatGPT users through replicas, caching layers, rate‑limiting controls, and workload isolation—no new models or APIs introduced. Additionally, Praktika deployed GPT‑4.1 and GPT‑5.2 in its adaptive AI tutoring platform for personalized lesson planning and real‑time progress tracking, while a data‑driven report on “GPT‑5 for Work” outlined industry adoption trends without specifying new model variants or pricing changes.</li>
+</ul>
+<h4>Google Gemini</h4>
+<ul>
+<li>Google announced the AI‑powered animated short *Dear Upstairs Neighbors* and added Gemini integration to Google Calendar for automatic meeting time suggestions, while Workspace admins now control “Take notes for me” sharing settings in Meet. New features include on‑demand SAT practice tests via Gemini, automatic inclusion of owned secondary calendars, and styled captions in Google Vids supporting 30+ languages. The Personal Intelligence mode in Search taps Gmail and Photos context to deliver tailored responses, raising privacy considerations for cybersecurity professionals.</li>
+</ul>
+<h4>Meta Llama</h4>
+<ul>
+<li>No updates reported.</li>
+</ul>
+<h4>LM Studio</h4>
+<ul>
+<li>No updates reported.</li>
+</ul>
+<h4>Mistral AI</h4>
+<ul>
+<li>No updates reported.</li>
+</ul>
+<h4>Microsoft Copilot</h4>
+<ul>
+<li>Microsoft has released GPT‑5.2‑Codex as a generally available model for GitHub Copilot Enterprise, Business, Pro, and Pro+, accessible in Visual Studio, JetBrains IDEs, Xcode, and Eclipse, with full ask, agent, and edit modes. Copilot’s “Files Changed” page is now the default experience, allowing line‑level commenting on any changed file and inline pull‑request descriptions without navigation. GitHub Issues now load 35 % of views in under 200 ms, a significant performance boost for faster issue triage. The new ubuntu‑slim runner (1 vCPU, 5 GB RAM) is GA for short automation tasks, while Copilot CLI introduces a conversational plan mode and advanced reasoning models with GPT‑5.2‑Codex, enabling clearer code generation workflows.</li>
+</ul>
+<h4>Perplexity</h4>
+<ul>
+<li>Perplexity released SDK v0.26.0 on Jan 24, adding a convenient `client.output_text` property for easier access to response text and tidying imports in `response_create_response.py`. The preceding v0.25.0 (Jan 23) introduced two manual API changes that adjust internal handling of the `api` module, while v0.24.0 also added a manual‑update capability for the `api` component. No new model versions, endpoints, or security‑related updates were announced in these releases.</li>
+</ul>
+<h4>Hugging Face</h4>
+<ul>
+<li>Hugging Face released Transformers v5, its first major update in five years, introducing a dynamic weight loading API via the `WeightConverter` class that allows reshaping, merging, and splitting of checkpoint layers such as fusing Q/K/V projections. The update also streamlines the tokenizer API, enabling empty tokenizers to be instantiated and trained directly on custom corpora. No security‑specific changes were reported in this release.</li>
+</ul>
+<h4>Others</h4>
+<ul>
+<li><strong>Ollama</strong>: Ollama’s v0.15.2 added a new CLI command `ollama launch clawdbot`, enabling direct deployment of the Clawdbot chatbot within existing workflows. The v0.15.1 release improved GLM‑4.7‑Flash performance and tool‑calling quality, fixed macOS/arm64 Linux issues, and corrected a bug in `ollama launch` that misidentified Claude models. Security‑relevant fixes include CUDA MMA error resolution in v0.15.0‑rc6 and shared‑memory overflow prevention for Maxwell GPUs in v0.15.0‑rc5, ensuring stable GPU acceleration during inference.</li>
+<li><strong>LangChain</strong>: LangChain released v1.2.7, adding dynamic tool registration via middleware so developers can add or modify tools at runtime without redeploying chains. The patch also fixes trailing whitespace in summarization prompts and improves grammar in the `SummarizationMiddleware` system prompt. Documentation cleanup and dependency updates were applied across multiple directories, along with a pre‑commit hook for version consistency checks. No security‑specific changes were reported.</li>
+<li><strong>Other</strong>: vLLM released v0.15.0rc0, correcting dtype handling in the Pynccl wrapper to prevent type‑mismatch errors during tensor operations. The earlier patch v0.14.1 addressed security vulnerabilities and memory leaks without adding new models or APIs. No new model specifications were introduced in either release.</li>
+</ul>
+<hr />
+<h3>Cybersecurity Relevance</h3>
+<ul>
+<li><strong>Deployment &amp; Automation</strong>  </li>
+<li>Ollama’s <code>launch</code> commands simplify embedding LLMs into CI/CD or SOAR pipelines for code review, threat intel ingestion, or incident playbook generation.  </li>
+<li>
+<p>Microsoft Copilot’s GPT‑5.2‑Codex and improved UI enable faster, more accurate code reviews with line‑level comments—valuable for vulnerability triage.  </p>
+</li>
+<li>
+<p><strong>Stability &amp; Reliability</strong>  </p>
+</li>
+<li>vLLM dtype and memory‑leak fixes reduce false positives/negatives in inference pipelines that process security logs or malware samples.  </li>
+<li>
+<p>Ollama CUDA MMA and shared‑memory overflow patches prevent crashes that could interrupt automated scans on legacy GPU hardware.  </p>
+</li>
+<li>
+<p><strong>Governance &amp; Privacy</strong>  </p>
+</li>
+<li>Google Gemini’s calendar scheduling and Meet usage metrics provide audit trails for AI interactions, aiding compliance.  </li>
+<li>
+<p>Perplexity SDK manual update feature allows controlled refresh of threat intelligence models during low‑risk windows.  </p>
+</li>
+<li>
+<p><strong>Risk Considerations</strong>  </p>
+</li>
+<li>Any chatbot integration (Clawdbot, Gemini Personal Intelligence) must guard against inadvertent data leakage; validate outputs and enforce least‑privilege access.  </li>
+<li>Vision-enabled models (Flux2KleinPipeline) require input sanitization to avoid malicious image exploitation.</li>
+</ul>
+<hr />
+<h3>API &amp; Developer Updates</h3>
+<ul>
+<li><strong>SDK Enhancements</strong>  </li>
+<li>Perplexity: <code>client.output_text</code> property (v0.26.0).  </li>
+<li>
+<p>Perplexity: manual <code>api</code> update capability (v0.25.0, v0.24.0).  </p>
+</li>
+<li>
+<p><strong>Model Loading Flexibility</strong>  </p>
+</li>
+<li>
+<p>Hugging Face Transformers v5 introduces <code>WeightConverter</code> for checkpoint reshaping and merging—useful for custom quantized deployments.  </p>
+</li>
+<li>
+<p><strong>No new public API endpoints or pricing changes</strong> were announced across the week.</p>
+</li>
+</ul>
+<hr />
+<h3>Worth Exploring</h3>
+<ol>
+<li><strong>Ollama Launch Commands</strong> – Test <code>ollama launch clawdbot</code> in a sandbox to automate incident‑response playbook generation.  </li>
+<li><strong>Microsoft Copilot GPT‑5.2‑Codex</strong> – Enable in IDEs and evaluate its accuracy on security‑critical codebases.  </li>
+<li><strong>Google Gemini Calendar Scheduling</strong> – Integrate with internal ticketing systems to auto‑schedule threat‑hunt sessions.  </li>
+<li><strong>Hugging Face WeightConverter</strong> – Experiment with merging Q/K/V projections for memory‑efficient on‑prem deployments.  </li>
+<li><strong>Perplexity SDK Manual Updates</strong> – Schedule periodic refreshes of threat‑intel models during maintenance windows.</li>
+</ol>
+<hr />
+<h3>Key Metrics</h3>
+<ul>
+<li><strong>Provider updates reported:</strong> 9 (Anthropic, OpenAI, Google, Microsoft, Perplexity, Hugging Face, LangChain, Ollama, vLLM).  </li>
+<li><strong>Announcement types:</strong> 0 new model releases; 7 capability/feature updates; 4 stability/security patches.  </li>
+</ul>
+<hr />
+            </div>
+
+            <div class="section">
+                <h2>Detailed Updates by Provider</h2>
+
+                <div class="provider-section" id="provider-anthropic">
+                    <h3>
+                        Anthropic (1)
+                        <a href="#" class="back-link">↑ Back to Top</a>
+                    </h3>
+
+                    <div class="provider-ai-summary">
+                        <span class="summary-label">AI Summary</span>
+                        <p>Anthropic released an update focused on user wellbeing for Claude, adding enhanced safeguards that prioritize empathetic responses and transparent disclosure of AI limitations during emotionally charged conversations. The announcement does not introduce a new model version or change API endpoints, pricing, or performance benchmarks. No additional cybersecurity-specific changes were disclosed.</p>
+                    </div>
+
+                    <div class="expand-collapse-controls">
+                        <button class="control-btn" onclick="expandAll('provider-anthropic')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-anthropic')">📕 Collapse All</button>
+                    </div>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://www.anthropic.com/news/protecting-well-being-of-users" target="_blank">Protecting the wellbeing of our users</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 22, 2026</span>
+                                    <span><strong>Product:</strong> Claude</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+- Anthropic announced enhanced safeguards for Claude focused on user wellbeing during emotionally charged conversations.
+- The update em...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+- Anthropic announced enhanced safeguards for Claude focused on user wellbeing during emotionally charged conversations.<br />
+- The update emphasizes empathetic responses, transparent disclosure of AI limitations, and overall consideration of user mental health.</p>
+<p><strong>2. Technical Details</strong><br />
+- No new model version or specification was disclosed.<br />
+- No API changes, new endpoints, performance benchmarks, or pricing adjustments were mentioned.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- The safeguard improvements reduce the risk of malicious actors exploiting Claude to provide misleading emotional support or manipulate users.<br />
+- For security teams, this means higher confidence when deploying Claude in customer‑facing or internal support scenarios where sensitive personal data may be discussed.<br />
+- No direct impact on code analysis, vulnerability detection, or integration with existing security tooling was noted.</p>
+<p><strong>4. Action Items</strong><br />
+- The update is part of the general release; no separate beta or enterprise‑only access is required.<br />
+- Users should review their deployment policies to ensure compliance with the new wellbeing safeguards, especially in contexts involving user data that could be emotionally sensitive.<br />
+- No migration steps are necessary at this time.</p></div>
+                        </div>
+                    </details>
+
+                </div>
+
+                <div class="provider-section" id="provider-openai">
+                    <h3>
+                        OpenAI (5)
+                        <a href="#" class="back-link">↑ Back to Top</a>
+                    </h3>
+
+                    <div class="provider-ai-summary">
+                        <span class="summary-label">AI Summary</span>
+                        <p>OpenAI highlighted the use of its ChatGPT/GPT models by Indeed to improve job‑search, recruiting, and talent‑acquisition workflows, though no new model version was announced. A technical deep‑dive into the Codex Command Line Interface explained how the existing Codex model orchestrates tools and prompts via the Responses API, with no new capabilities released. OpenAI also disclosed scaling its PostgreSQL deployment to support 800 million ChatGPT users through replicas, caching layers, rate‑limiting controls, and workload isolation—no new models or APIs introduced. Additionally, Praktika deployed GPT‑4.1 and GPT‑5.2 in its adaptive AI tutoring platform for personalized lesson planning and real‑time progress tracking, while a data‑driven report on “GPT‑5 for Work” outlined industry adoption trends without specifying new model variants or pricing changes.</p>
+                    </div>
+
+                    <div class="expand-collapse-controls">
+                        <button class="control-btn" onclick="expandAll('provider-openai')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-openai')">📕 Collapse All</button>
+                    </div>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://openai.com/index/indeed-maggie-hulce" target="_blank">How Indeed uses AI to help evolve the job search</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 26, 2026</span>
+                                    <span><strong>Product:</strong> ChatGPT/GPT</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+- Announcement: Indeed highlights the use of OpenAI’s ChatGPT/GPT to enhance job‑search, recruiting, and talent‑acquisition processes.
+-...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+- <strong>Announcement:</strong> Indeed highlights the use of OpenAI’s ChatGPT/GPT to enhance job‑search, recruiting, and talent‑acquisition processes.<br />
+- <strong>Model/Capability:</strong> The article references “ChatGPT/GPT” but does not specify a particular model version or new feature set.  </p>
+<p><strong>2. Technical Details</strong><br />
+- No model specifications, API changes, performance benchmarks, or pricing information are provided in the article.  </p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <strong>Potential Benefits:</strong> AI‑driven candidate screening and resume parsing could streamline data handling for HR security teams, potentially reducing exposure to phishing or credential‑stealing attempts embedded in job postings.<br />
+- <strong>Risks/Considerations:</strong> The integration of LLMs into recruitment workflows may introduce new attack surfaces (e.g., prompt injection or data leakage) if not properly secured.<br />
+- <strong>Integration Possibilities:</strong> Security tools could monitor AI‑generated content for compliance with privacy regulations and detect anomalous patterns in candidate data requests.  </p>
+<p><strong>4. Action Items</strong><br />
+- <strong>Availability:</strong> The use of ChatGPT/GPT by Indeed is currently operational; no beta or enterprise‑only restrictions are mentioned.<br />
+- <strong>Migration/Implementation:</strong> No migration steps are required as the article does not detail changes to existing systems.<br />
+- <strong>Recommended Actions:</strong> Security professionals should assess how AI‑enhanced recruitment tools interact with their data pipelines, implement safeguards against prompt injection, and ensure compliance with data protection standards when integrating LLMs into hiring workflows.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://openai.com/index/unrolling-the-codex-agent-loop" target="_blank">Unrolling the Codex agent loop</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 23, 2026</span>
+                                    <span><strong>Product:</strong> ChatGPT/GPT</span>
+                                    <span class="tag">feature_announcement</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+OpenAI released a technical deep‑dive article titled “Unrolling the Codex agent loop.” The piece focuses on how the Codex Command Line I...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+OpenAI released a technical deep‑dive article titled “Unrolling the Codex agent loop.” The piece focuses on how the Codex Command Line Interface (CLI) orchestrates models, tools, prompts, and performance through the Responses API. No new model version or capability is announced; the content merely explains existing functionality in greater detail.</p>
+<p><strong>2. Technical Details</strong><br />
+- <strong>Model</strong>: Codex (no specific version change).<br />
+- <strong>API</strong>: The article centers on the Responses API used by the Codex CLI to manage interactions between the model and external tools. No new endpoints or specification changes are mentioned.<br />
+- <strong>Performance</strong>: Not quantified; the article discusses orchestration and performance tuning concepts rather than providing benchmarks.<br />
+- <strong>Pricing</strong>: Not specified.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <strong>Tool Integration</strong>: The clarified workflow of Codex CLI can help security teams embed LLMs into automated code‑analysis pipelines, enabling dynamic tool invocation (e.g., static analyzers, linters).<br />
+- <strong>Prompt Engineering</strong>: Understanding the agent loop aids in crafting prompts that guide the model to perform specific security tasks such as vulnerability detection or remediation suggestions.<br />
+- <strong>Risk Awareness</strong>: The article does not highlight new risks; however, any automation of code analysis via LLMs should still be validated against false positives/negatives and audited for compliance with security policies.</p>
+<p><strong>4. Action Items</strong><br />
+- <strong>Access</strong>: The deep‑dive is publicly available; no beta or enterprise restriction noted.<br />
+- <strong>Implementation</strong>: Security teams can review the article to better design Codex CLI workflows that integrate with existing security tooling (e.g., CI/CD scanners, SAST/DAST tools).<br />
+- <strong>Monitoring</strong>: Keep an eye on future updates from OpenAI for any changes to the Responses API or new Codex capabilities that may enhance automated code‑security analysis.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://openai.com/index/scaling-postgresql" target="_blank">Scaling PostgreSQL to power 800 million ChatGPT users</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 22, 2026</span>
+                                    <span><strong>Product:</strong> ChatGPT/GPT</span>
+                                    <span class="tag">api_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+- OpenAI disclosed how it scaled its PostgreSQL deployment to support ChatGPT’s 800 million users.
+- The scaling strategy involves repli...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+- OpenAI disclosed how it scaled its PostgreSQL deployment to support ChatGPT’s 800 million users.<br />
+- The scaling strategy involves replicas, caching layers, rate‑limiting controls, and workload isolation to handle millions of queries per second.</p>
+<p><strong>2. Technical Details</strong><br />
+- No new model or API endpoint is introduced; the update pertains solely to backend database architecture.<br />
+- Performance: PostgreSQL now processes “millions of queries per second” through sharding across replicas and aggressive caching.<br />
+- No pricing changes are mentioned.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- Improved database reliability reduces downtime risk for security‑critical applications that rely on ChatGPT APIs.<br />
+- Rate limiting and workload isolation can help mitigate abuse or denial‑of‑service attempts against the service.<br />
+- The enhanced scalability may enable more robust logging, audit trails, and compliance reporting for enterprises using OpenAI’s models.</p>
+<p><strong>4. Action Items</strong><br />
+- No direct action is required from users; the update is internal infrastructure.<br />
+- Security teams should note that the underlying database improvements do not alter API behavior or introduce new endpoints.<br />
+- Continue to monitor OpenAI announcements for any future changes that might affect security tooling integration.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://openai.com/index/praktika" target="_blank">Inside Praktika's conversational approach to language learning</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 22, 2026</span>
+                                    <span><strong>Product:</strong> ChatGPT/GPT</span>
+                                    <span class="tag">model_release</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+- Praktika has announced the deployment of GPT‑4.1 and GPT‑5.2 in its adaptive AI tutoring platform.
+- The new models enable personalize...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+- Praktika has announced the deployment of <strong>GPT‑4.1</strong> and <strong>GPT‑5.2</strong> in its adaptive AI tutoring platform.<br />
+- The new models enable personalized lesson planning, real‑time progress tracking, and conversational practice aimed at achieving practical language fluency.</p>
+<p><strong>2. Technical Details</strong><br />
+- Model specifications: not specified.<br />
+- API changes or new endpoints: not specified.<br />
+- Performance benchmarks or improvements: not specified.<br />
+- Pricing changes: not specified.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <strong>New capabilities useful for security work:</strong> The conversational and adaptive nature of GPT‑4.1/GPT‑5.2 could be leveraged to create interactive training modules for phishing awareness, secure coding practices, or compliance education.<br />
+- <strong>Code analysis or vulnerability detection improvements:</strong> not specified.<br />
+- <strong>Potential risks or considerations:</strong> Not specified; however, any deployment of large language models should consider data privacy, model hallucinations, and potential misuse in social engineering contexts.<br />
+- <strong>Integration possibilities with security tools:</strong> not specified.</p>
+<p><strong>4. Action Items</strong><br />
+- <strong>Availability &amp; access:</strong> not specified whether the new models are generally available, beta, or enterprise‑only.<br />
+- <strong>Migration requirements:</strong> not specified.<br />
+- <strong>Recommended actions:</strong> Monitor OpenAI’s official channels for detailed release notes and integration guides; evaluate the suitability of GPT‑4.1/GPT‑5.2 for internal training or threat simulation scenarios once availability is confirmed.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://openai.com/business/guides-and-resources/chatgpt-usage-and-adoption-patterns-at-work" target="_blank">Inside GPT-5 for Work: How Businesses Use GPT-5</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 22, 2026</span>
+                                    <span><strong>Product:</strong> ChatGPT/GPT</span>
+                                    <span class="tag">model_release</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+- Announcement: OpenAI released a data‑driven report titled “Inside GPT‑5 for Work” that examines how employees across various industrie...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+- Announcement: OpenAI released a data‑driven report titled “Inside GPT‑5 for Work” that examines how employees across various industries are using ChatGPT.<br />
+- Focus: Adoption trends, most common tasks performed, departmental usage patterns, and projections for AI integration in the workplace.  </p>
+<p><strong>2. Technical Details</strong><br />
+- Model name/variant: Not specified beyond reference to GPT‑5.<br />
+- Specifications, API changes, new endpoints, performance benchmarks, or pricing updates are not mentioned in the article.  </p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- New capabilities for security work: The report does not detail any specific security features or improvements.<br />
+- Code analysis or vulnerability detection: Not addressed.<br />
+- Potential risks/considerations: None identified in the provided content.<br />
+- Integration possibilities with security tools: Not discussed.  </p>
+<p><strong>4. Action Items</strong><br />
+- Availability: The report is publicly available; no beta or enterprise‑only restrictions are indicated.<br />
+- Migration requirements: Not applicable—no new model version or API changes announced.<br />
+- Recommended actions: Review the report to understand how peers in your organization are leveraging ChatGPT for tasks that may intersect with security workflows (e.g., policy drafting, compliance checks). Use insights to benchmark your own adoption and identify potential use cases for AI‑assisted threat analysis or incident response documentation.</p></div>
+                        </div>
+                    </details>
+
+                </div>
+
+                <div class="provider-section" id="provider-google">
+                    <h3>
+                        Google (7)
+                        <a href="#" class="back-link">↑ Back to Top</a>
+                    </h3>
+
+                    <div class="provider-ai-summary">
+                        <span class="summary-label">AI Summary</span>
+                        <p>Google announced the AI‑powered animated short *Dear Upstairs Neighbors* and added Gemini integration to Google Calendar for automatic meeting time suggestions, while Workspace admins now control “Take notes for me” sharing settings in Meet. New features include on‑demand SAT practice tests via Gemini, automatic inclusion of owned secondary calendars, and styled captions in Google Vids supporting 30+ languages. The Personal Intelligence mode in Search taps Gmail and Photos context to deliver tailored responses, raising privacy considerations for cybersecurity professionals.</p>
+                    </div>
+
+                    <div class="expand-collapse-controls">
+                        <button class="control-btn" onclick="expandAll('provider-google')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-google')">📕 Collapse All</button>
+                    </div>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://blog.google/innovation-and-ai/models-and-research/google-deepmind/dear-upstairs-neighbors/" target="_blank">How animators and AI researchers made ‘Dear Upstairs Neighbors’</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 26, 2026</span>
+                                    <span><strong>Product:</strong> Gemini</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- Announcement of an animated short film titled “Dear Upstairs Neighbors.”
+- The film is a collaboration between animators and AI researche...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- Announcement of an animated short film titled <em>“Dear Upstairs Neighbors.”</em><br />
+- The film is a collaboration between animators and AI researchers, previewed at the Sundance Film Festival.<br />
+- No new Gemini model version or capability was disclosed.</p>
+<p><strong>Technical Details</strong><br />
+- Model specifications: not specified.<br />
+- API changes or new endpoints: not specified.<br />
+- Performance benchmarks or pricing changes: not specified.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- The article does not mention any new AI capabilities that directly impact security professionals, code analysis, vulnerability detection, or integration with security tools.<br />
+- Potential risks or considerations related to the film’s use of AI are not discussed.</p>
+<p><strong>Action Items</strong><br />
+- Availability and access: not applicable—this is a film preview, not an API release.<br />
+- Migration requirements: none.<br />
+- Recommended actions: no specific actions for cybersecurity professionals; monitor future Gemini releases for relevant updates.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://workspaceupdates.googleblog.com/2026/01/improved-meeting-suggestions-gemini-calendar.html" target="_blank">Better suggestions for meeting times with Gemini in Google Calendar</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 26, 2026</span>
+                                    <span><strong>Product:</strong> Google Workspace</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+Google Workspace now integrates Gemini into Google Calendar to auto‑suggest optimal meeting times for all attendees when their calendars...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+Google Workspace now integrates Gemini into Google Calendar to auto‑suggest optimal meeting times for all attendees when their calendars are accessible. The feature, enabled by default for eligible users, analyzes attendee availability, working hours, and conflicts. When an event is created, clicking “Suggested times” triggers Gemini to propose slots; organizers can then pick the best one with a single click. Additionally, if multiple invitees decline, a banner appears when opening the event showing a time that works for everyone, allowing instant rescheduling.</p>
+<p><strong>2. Technical Details</strong><br />
+- <em>Model</em>: Gemini (no version number disclosed).<br />
+- <em>Integration</em>: Embedded within Google Calendar UI; no new API endpoints or external calls are mentioned.<br />
+- <em>Availability</em>: Enabled by default for Business Standard/Plus, Enterprise Standard/Plus, and Google AI Pro for Education add‑on users. Rapid Release domains receive the feature immediately; Scheduled Release domains will see a gradual rollout starting February 2, 2026 (up to 15 days for visibility). No pricing changes are specified.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <em>Scheduling Efficiency</em>: Security teams can quickly coordinate incident response or threat hunting sessions without manual back‑and‑forth.<br />
+- <em>Privacy Considerations</em>: The feature requires access to attendees’ calendars; admins must manage Gemini permissions via the Help Center, ensuring least‑privilege exposure of calendar data.<br />
+- <em>Risk Mitigation</em>: Automated time selection reduces human error in scheduling critical security meetings, but reliance on a single AI model could introduce bias if attendee availability is misinterpreted.<br />
+- <em>Integration Potential</em>: The feature can be paired with security orchestration tools that trigger alerts or playbooks when a meeting is scheduled, streamlining response workflows.</p>
+<p><strong>4. Action Items</strong><br />
+- Verify that your domain is in the Rapid Release list to access the feature immediately; otherwise, expect rollout within 15 days from February 2, 2026.<br />
+- Admins should review Gemini permissions for Calendar via the Help Center and adjust as needed.<br />
+- End users can start using “Suggested times” when creating events; no migration or additional setup is required beyond default activation.<br />
+- Consider documenting any privacy concerns in your organization’s data‑handling policies, especially if calendar data includes sensitive personnel information.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://workspaceupdates.googleblog.com/2026/01/take-notes-for-me-meet-admin-settings.html" target="_blank">New admin controls for "Take notes for me" sharing settings in Google Meet</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 26, 2026</span>
+                                    <span><strong>Product:</strong> Google Workspace</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+Google Workspace now offers two admin‑controlled settings for the “Take notes for me” feature in Google Meet:  
+
+Default sharing value –...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+Google Workspace now offers two admin‑controlled settings for the “Take notes for me” feature in Google Meet:  </p>
+<ul>
+<li><strong>Default sharing value</strong> – Administrators can pre‑select who receives the AI‑generated note document and recap email (options: <em>Invited guests in your organization</em>, <em>All invited guests</em>, or <em>The host and co‑hosts</em>).  </li>
+<li><strong>Restrict host overrides</strong> – Admins decide whether hosts/co‑hosts may change the sharing level during a meeting. The default is “Allow hosts to change who notes are shared to”; toggling OFF enforces the admin’s chosen default.</li>
+</ul>
+<p>These changes shift control from in‑call hosts to organization policy, enhancing governance over AI‑generated content.</p>
+<p><strong>2. Technical Details</strong><br />
+- No new model or API endpoints are introduced; the feature continues to use Google Meet’s existing AI note‑taking engine.<br />
+- The settings apply to Business Standard/Plus, Enterprise Standard/Plus, Frontline Plus, and Google AI Pro for Education plans.<br />
+- Rollout is gradual (up to 15 days) starting January 26, 2026 under Rapid Release/Scheduled Release domains.<br />
+- No pricing changes are mentioned.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <strong>Data Governance</strong> – By controlling who receives meeting notes, admins can prevent accidental disclosure of sensitive information captured by AI.<br />
+- <strong>Audit Trail</strong> – Fixed sharing defaults aid in compliance reporting and forensic analysis of meeting content distribution.<br />
+- <strong>Risk Mitigation</strong> – Restricting host overrides reduces the attack surface where a malicious host could redirect notes to external parties.<br />
+- <strong>Integration Potential</strong> – Security tools that monitor document access (e.g., DLP, SIEM) can now rely on consistent sharing settings for alerting and logging.</p>
+<p><strong>4. Action Items</strong><br />
+- Review and set the desired default sharing value in the Google Workspace Admin console under Meet AI note‑taking settings.<br />
+- Decide whether to enable or disable host overrides based on your organization’s security policy.<br />
+- Communicate changes to end users via the Help Center links provided (https://support.google.com/a/answer/15071792 and https://support.google.com/meet/answer/14754931).<br />
+- Monitor rollout progress; no migration steps are required beyond configuration changes.  </p>
+<p>These updates give cybersecurity teams tighter control over AI‑generated meeting content, supporting compliance and reducing insider‑threat vectors.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://workspaceupdates.googleblog.com/2026/01/prepare-sat-full-length-practice-tests-gemini.html" target="_blank">Prepare for the SAT with full-length practice tests in Gemini</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 23, 2026</span>
+                                    <span><strong>Product:</strong> Google Workspace</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+Google Workspace has launched full‑length, on‑demand SAT practice tests integrated into Gemini. The feature is available at no cost and is ...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+Google Workspace has launched <em>full‑length, on‑demand SAT practice tests</em> integrated into Gemini. The feature is available at no cost and is powered by vetted content from education partners such as The Princeton Review. Users can start a test simply by saying “I want to take a practice SAT test.” After completion, Gemini provides instant feedback, highlights strengths and weaknesses, and can explain correct answers to help users build customized study plans.</p>
+<p><strong>Technical Details</strong><br />
+- <strong>Model/Capability</strong>: Gemini (no version number disclosed).<br />
+- <strong>Feature Scope</strong>: On‑demand full‑length exams with immediate performance analytics.<br />
+- <strong>Content Source</strong>: Curated from leading education companies; not a new API endpoint or pricing change.<br />
+- <strong>Availability</strong>: Rolled out to all Google Workspace customers, Workspace Individual subscribers, and personal Google accounts signed into Gemini as of January 21 2026 (rapid release).  </p>
+<p><strong>Cybersecurity Relevance</strong><br />
+While the feature is educational, its underlying technology demonstrates Gemini’s ability to process structured test data, provide contextual explanations, and generate actionable feedback—capabilities that can be repurposed for security training modules. For example:<br />
+- <strong>Security Awareness Training</strong>: Deploy similar on‑demand quizzes to assess employee knowledge of phishing or password hygiene.<br />
+- <strong>Automated Feedback</strong>: Use Gemini’s instant analysis to highlight gaps in understanding of security best practices.<br />
+- <strong>Content Customization</strong>: Leverage the model’s ability to explain correct answers for tailored remediation plans.</p>
+<p>Potential risks include data privacy concerns when users submit personal information during practice tests; administrators should ensure compliance with organizational policies and enable/disable access at OU or group levels via the Admin console.</p>
+<p><strong>Action Items</strong><br />
+1. <strong>Enable Gemini</strong>: Admins can toggle the app on/off per OU/group in the Google Workspace Admin Help center.<br />
+2. <strong>Invite Users</strong>: End users simply say “I want to take a practice SAT test” to start.<br />
+3. <strong>Explore Security Use Cases</strong>: Consider adapting the quiz‑feedback workflow for internal security awareness programs.<br />
+4. <strong>Monitor Access</strong>: Verify that only authorized personnel have access, especially if integrating with sensitive training data.  </p>
+<p>This rollout offers a ready‑made framework for interactive, AI‑driven assessment that can be adapted to cybersecurity education and compliance training.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://workspaceupdates.googleblog.com/2026/01/weekly-recap-01-23-2026.html" target="_blank">Google Workspace Updates Weekly Recap - January 23, 2026</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 23, 2026</span>
+                                    <span><strong>Product:</strong> Google Workspace</span>
+                                    <span class="tag">feature_announcement</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+
+
+
+Feature
+Model/Component
+Key Improvements
+
+
+
+
+Automatic addition of owned secondary calendars
+Google Calendar
+All secondary calendars you...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Model/Component</th>
+<th>Key Improvements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Automatic addition of owned secondary calendars</td>
+<td>Google Calendar</td>
+<td>All secondary calendars you own are now automatically listed in the calendar list, eliminating manual addition.</td>
+</tr>
+<tr>
+<td>Neat certified as Google Meet hardware partner</td>
+<td>Google Meet</td>
+<td>Adds a new hardware vendor to the Meet ecosystem, expanding deployment options for video conferencing.</td>
+</tr>
+<tr>
+<td>Forward messages in Google Chat</td>
+<td>Google Chat</td>
+<td>Enables native message forwarding, removing copy‑paste or screenshot workarounds.</td>
+</tr>
+<tr>
+<td>Gemini usage metrics in Meet</td>
+<td>Gemini + Google Meet</td>
+<td>Admins can view Meet usage data within the Gemini reports dashboard under “Gemini usage per interaction.”</td>
+</tr>
+<tr>
+<td>Granular OAuth consent for Chat apps</td>
+<td>Google Chat Apps (Apps Script)</td>
+<td>Adds fine‑grained OAuth scopes to the consent screen, improving user control over data access.</td>
+</tr>
+<tr>
+<td>Ask Gemini in Google Meet expansion</td>
+<td>Gemini + Google Meet</td>
+<td>Extends availability to Workspace Business Standard customers, adds more languages, and supports mobile usage.</td>
+</tr>
+<tr>
+<td>Styled captions in Google Vids</td>
+<td>Google Vids</td>
+<td>Introduces animated, styled captions synchronized with audio/media for better video comprehension.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Technical Details</strong></p>
+<ul>
+<li>No new model specifications or API endpoints are disclosed.  </li>
+<li>The Gemini reports dashboard now includes a “Gemini usage per interaction” section for Meet.  </li>
+<li>OAuth consent granularity is implemented for Apps Script‑based Chat add‑ons; specific scope changes are not detailed.  </li>
+</ul>
+<p><strong>Cybersecurity Relevance</strong></p>
+<ul>
+<li><strong>Enhanced data visibility:</strong> Gemini usage metrics in Meet allow security teams to audit AI interactions within meetings, aiding compliance and threat monitoring.  </li>
+<li><strong>Improved user control:</strong> Granular OAuth consent reduces over‑privileged app access, mitigating potential data leakage risks.  </li>
+<li><strong>Operational efficiency:</strong> Forwarding messages in Chat streamlines information sharing, which can reduce phishing spread by ensuring context is preserved.  </li>
+<li><strong>Hardware diversity:</strong> Neat’s certification may introduce new device security considerations; admins should evaluate firmware and network policies for the added hardware.  </li>
+</ul>
+<p><strong>Action Items</strong></p>
+<ol>
+<li><strong>Enable Gemini metrics</strong>: Admins should enable the “Gemini usage per interaction” view in the Gemini reports dashboard to monitor AI activity in Meet.  </li>
+<li><strong>Review OAuth scopes</strong>: Update Chat app configurations to adopt the new granular consent model, ensuring only necessary permissions are requested.  </li>
+<li><strong>Adopt message forwarding</strong>: Train users on the new forward feature in Google Chat to reduce manual workarounds that can expose sensitive data.  </li>
+<li><strong>Assess Neat hardware</strong>: Evaluate security posture of Neat devices before deployment; verify compatibility with existing Meet policies.  </li>
+<li><strong>Leverage Ask Gemini expansion</strong>: Enable the feature for Business Standard accounts and test additional language support in mobile environments to maintain consistent AI assistance across platforms.</li>
+</ol></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://blog.google/products-and-platforms/products/search/personal-intelligence-ai-mode-search/" target="_blank">Personal Intelligence in AI Mode in Search: Help that's uniquely yours</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 22, 2026</span>
+                                    <span><strong>Product:</strong> Gemini</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+- Google has introduced Personal Intelligence in Gemini for Search.
+- The feature taps into a user’s Gmail and Photos context to generat...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+- Google has introduced <em>Personal Intelligence</em> in Gemini for Search.<br />
+- The feature taps into a user’s Gmail and Photos context to generate responses that are tailored specifically to the individual.</p>
+<p><strong>2. Technical Details</strong><br />
+- No model version or specification details were disclosed.<br />
+- No API changes, new endpoints, performance benchmarks, or pricing information were provided.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <em>Personal Intelligence</em> can surface context‑aware answers that may include personal data from Gmail and Photos, raising privacy considerations for security teams.<br />
+- The feature does not mention code analysis, vulnerability detection, or other security‑specific capabilities.<br />
+- Security professionals should be aware of potential data exposure risks when enabling context‑driven AI features.</p>
+<p><strong>4. Action Items</strong><br />
+- Availability: Not specified whether the feature is in general release, beta, or enterprise‑only.<br />
+- No migration steps or integration instructions were provided.<br />
+- Users should monitor official Google announcements for details on rollout, access controls, and any required configuration changes.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://workspaceupdates.googleblog.com/2026/01/styled-captions-google-vids.html" target="_blank">Styled captions in Google Vids</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 22, 2026</span>
+                                    <span><strong>Product:</strong> Google Workspace</span>
+                                    <span class="tag">api_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+Google Workspace has added styled, animated captions to its AI‑powered video creation app, Google Vids. The feature automatically syncs ...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+Google Workspace has added <em>styled, animated captions</em> to its AI‑powered video creation app, Google Vids. The feature automatically syncs captions with audio and media elements, supports 30+ languages (English, Arabic, Czech, Mandarin Chinese, German, Greek, Spanish, Finnish, Filipino, French, Hindi, Hungarian, Indonesian, Italian, Hebrew, Japanese, Korean, Malay, Dutch, Norwegian, Polish, Portuguese, Romanian, Russian, Swedish, Thai, Turkish, Ukrainian, Vietnamese, and Chinese), and allows users to edit spelling or grammar errors directly in the caption editor.</p>
+<p><strong>2. Technical Details</strong><br />
+- No new model name or version is disclosed; the enhancement builds on existing Google Vids AI capabilities.<br />
+- The feature is available immediately under Rapid Release and Scheduled Release domains; no API endpoints or SDK changes are announced.<br />
+- No performance benchmarks, pricing adjustments, or specification updates are provided.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <strong>Accessibility &amp; Compliance:</strong> Automated captions improve content accessibility, aiding compliance with regulations such as the ADA and GDPR (data localization for language support).<br />
+- <strong>Threat Intelligence Sharing:</strong> Security teams can embed concise, styled captions in training videos to convey key concepts quickly, reducing cognitive load during incident response drills.<br />
+- <strong>Risk of Mis‑captioning:</strong> Incorrect automated captions could misrepresent technical details; security professionals should review and correct captions before distribution.<br />
+- <strong>Integration Potential:</strong> Captions can be exported or embedded into internal knowledge bases (e.g., Confluence, SharePoint) to enhance searchable content for threat hunting documentation.</p>
+<p><strong>4. Action Items</strong><br />
+- <strong>Availability:</strong> Feature is live for all Google Workspace tiers listed (Business Starter/Standard/Plus, Enterprise, Essentials, Frontline, Education, Nonprofits, Individual) and for Google AI Pro/Ultra users.<br />
+- <strong>User Steps:</strong> End users should visit the Help Center link to learn how to add captions; admins have no specific controls.<br />
+- <strong>Quality Assurance:</strong> Review generated captions for accuracy before publishing videos used in security training or communications.<br />
+- <strong>No Migration Needed:</strong> Existing Vids projects can immediately adopt styled captions without code changes.</p></div>
+                        </div>
+                    </details>
+
+                </div>
+
+                <div class="provider-section" id="provider-microsoft">
+                    <h3>
+                        Microsoft (5)
+                        <a href="#" class="back-link">↑ Back to Top</a>
+                    </h3>
+
+                    <div class="provider-ai-summary">
+                        <span class="summary-label">AI Summary</span>
+                        <p>Microsoft has released GPT‑5.2‑Codex as a generally available model for GitHub Copilot Enterprise, Business, Pro, and Pro+, accessible in Visual Studio, JetBrains IDEs, Xcode, and Eclipse, with full ask, agent, and edit modes. Copilot’s “Files Changed” page is now the default experience, allowing line‑level commenting on any changed file and inline pull‑request descriptions without navigation. GitHub Issues now load 35 % of views in under 200 ms, a significant performance boost for faster issue triage. The new ubuntu‑slim runner (1 vCPU, 5 GB RAM) is GA for short automation tasks, while Copilot CLI introduces a conversational plan mode and advanced reasoning models with GPT‑5.2‑Codex, enabling clearer code generation workflows.</p>
+                    </div>
+
+                    <div class="expand-collapse-controls">
+                        <button class="control-btn" onclick="expandAll('provider-microsoft')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-microsoft')">📕 Collapse All</button>
+                    </div>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.blog/changelog/2026-01-26-gpt-5-2-codex-is-now-available-in-visual-studio-jetbrains-ides-xcode-and-eclipse" target="_blank">GPT-5.2-Codex is now available in Visual Studio, JetBrains IDEs, Xcode, and Eclipse</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 26, 2026</span>
+                                    <span><strong>Product:</strong> GitHub Copilot</span>
+                                    <span class="tag">model_release</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What’s New
+Microsoft has released GPT‑5.2‑Codex as a generally available model for GitHub Copilot Enterprise, Business, Pro, and Pro+. The new model c...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What’s New</strong><br />
+Microsoft has released GPT‑5.2‑Codex as a generally available model for GitHub Copilot Enterprise, Business, Pro, and Pro+. The new model can be accessed via the chat model picker in GitHub Copilot Chat on github.com, GitHub Mobile, Visual Studio Code, Visual Studio, JetBrains IDEs, Xcode, and Eclipse. It supports all modes (ask, agent, edit where applicable).  </p>
+<p><strong>Technical Details</strong><br />
+- <strong>Model Availability:</strong><br />
+  - Visual Studio: v17.14.19+ and v18.0.0+ (ask, agent)<br />
+  - JetBrains IDEs: v1.5.61+ (ask, edit, agent)<br />
+  - Xcode: v0.45.0+ (ask, agent)<br />
+  - Eclipse: v0.13.0+ (ask, agent)<br />
+- <strong>Enabling Access:</strong> Copilot Business and Enterprise admins must opt‑in by enabling the GPT‑5.2‑Codex policy in Copilot settings; once enabled, users see the model in the picker.<br />
+- No new API endpoints or pricing changes are mentioned.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- <strong>Enhanced Code Assistance:</strong> The model’s broader availability across major IDEs means security teams can leverage more consistent AI support for code reviews, vulnerability detection, and secure coding practices directly within their development environment.<br />
+- <strong>Mode Flexibility:</strong> Agent mode allows the model to act as an autonomous assistant, potentially automating repetitive security checks or generating secure code snippets. Edit mode (in JetBrains) enables inline suggestions that can help spot insecure patterns during editing.<br />
+- <strong>Risk Considerations:</strong> As with any LLM integration, ensure that sensitive code is not inadvertently exposed to external services; verify data handling policies for Copilot in your organization.</p>
+<p><strong>Action Items</strong><br />
+1. Verify that your IDE version meets the minimum requirement listed above.<br />
+2. For Enterprise or Business users, have admins enable the GPT‑5.2‑Codex policy in Copilot settings.<br />
+3. Once enabled, select GPT‑5.2‑Codex from the model picker to start using it across all supported modes.<br />
+4. Monitor usage and provide feedback via the GitHub Community discussions as needed.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.blog/changelog/2026-01-22-improved-pull-request-files-changed-page-on-by-default" target="_blank">Improved pull request “Files changed” page on by default</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 23, 2026</span>
+                                    <span><strong>Product:</strong> GitHub Copilot</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What’s New
+Microsoft’s GitHub Copilot has rolled out an improved “Files Changed” page as the default experience for all users (public preview). Key en...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What’s New</strong><br />
+Microsoft’s GitHub Copilot has rolled out an improved “Files Changed” page as the default experience for all users (public preview). Key enhancements include:  </p>
+<ul>
+<li>Commenting on any line of a changed file, not just surrounding changes.  </li>
+<li>Viewing pull‑request descriptions directly in the Overview panel without page switches.  </li>
+<li>Resizable file tree with visual indicators for comments, errors, and warnings.  </li>
+<li>Pending comments displayed in the review submission panel; draft comments are locally saved to prevent loss on refresh or accidental close.  </li>
+<li>Reduced full‑page reloads when refreshing changes, toggling split/unified view, etc.  </li>
+<li>Accessibility improvements: keyboard navigation, screen‑reader landmarks, adjustable line spacing.  </li>
+</ul>
+<p>An experimental “large pull request” mode uses virtualization to lower DOM load and improve responsiveness on slower machines; it disables some browser functions (search, select all, print/export).  </p>
+<p><strong>Technical Details</strong><br />
+- No new model or API endpoints are introduced; the changes affect the GitHub web UI only.<br />
+- Performance gains come from reduced page reloads and DOM virtualization for large PRs.<br />
+- No pricing or specification updates are mentioned.  </p>
+<p><strong>Cybersecurity Relevance</strong><br />
+Security teams reviewing code can now comment on any line, improving precision in vulnerability discussions. Draft comments survive accidental navigation, reducing loss of critical security notes. The large‑PR mode enables faster review of extensive codebases, which is valuable for compliance audits and threat‑analysis pipelines that involve many files. Accessibility updates help security analysts with disabilities to participate fully in code reviews.  </p>
+<p><strong>Action Items</strong><br />
+- All GitHub users automatically receive the new “Files Changed” experience; opt‑out remains available if preferred.<br />
+- For large pull requests, click “Try a new experimental mode” to enable virtualization; be aware that search, select all, and printing may not work.<br />
+- Review the updated comment workflow and draft‑save feature to streamline security review processes.<br />
+- Provide feedback via the dedicated discussion link to help refine the experience further.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.blog/changelog/2026-01-22-faster-loading-for-github-issues" target="_blank">Faster loading for GitHub Issues</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 22, 2026</span>
+                                    <span><strong>Product:</strong> GitHub Copilot</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+Microsoft has announced a performance upgrade for GitHub Issues under the GitHub Copilot umbrella. The update delivers significantly fas...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+Microsoft has announced a performance upgrade for GitHub Issues under the GitHub Copilot umbrella. The update delivers significantly faster page loads, with 35 % of issue views now rendering in under 200 ms—up from just 2 % at the start of the year. No new model or version is introduced; it’s an infrastructure optimization aimed at making GitHub feel “instant.”  </p>
+<p><strong>2. Technical Details</strong><br />
+- <strong>Performance Benchmark:</strong> 35 % of issue views &lt; 200 ms (previously 2 %).<br />
+- <strong>Scope:</strong> The improvement is live on github.com for all signed‑in users; no configuration or opt‑in required.<br />
+- <strong>Affected Areas:</strong> Repository index, “Issues” dashboard, and GitHub Projects pages.<br />
+- <strong>Future Work:</strong> Microsoft plans to extend these gains to additional pathways, though specifics are not yet disclosed.  </p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <strong>Speedy Threat Response:</strong> Faster issue loading means security teams can triage vulnerability reports and incident tickets more quickly, reducing response time.<br />
+- <strong>Improved Collaboration:</strong> Real‑time updates on projects and dashboards enhance coordination among DevSecOps teams.<br />
+- <strong>No Direct Code Analysis Impact:</strong> The update does not alter Copilot’s code‑generation or analysis capabilities; it purely improves UI responsiveness.<br />
+- <strong>Risk Considerations:</strong> None identified—performance gains do not introduce new security vulnerabilities.  </p>
+<p><strong>4. Action Items</strong><br />
+- <strong>Availability:</strong> Immediate, global rollout for all signed‑in GitHub users on github.com.<br />
+- <strong>No Migration Needed:</strong> The change is automatic; no user action required beyond being logged in.<br />
+- <strong>Feedback Loop:</strong> Users can share experiences via the GitHub Community discussion linked in the announcement.  </p>
+<p><em>Summary length: ~230 words.</em></p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.blog/changelog/2026-01-22-1-vcpu-linux-runner-now-generally-available-in-github-actions" target="_blank">1 vCPU Linux runner now generally available in GitHub Actions</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 22, 2026</span>
+                                    <span><strong>Product:</strong> GitHub Copilot</span>
+                                    <span class="tag">pricing_change</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+GitHub Actions has released ubuntu‑slim runners—1 vCPU Linux containers—as a generally available option. These lightweight runners are d...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+GitHub Actions has released <em>ubuntu‑slim</em> runners—1 vCPU Linux containers—as a generally available option. These lightweight runners are designed for short, low‑cost automation tasks such as issue labeling, linting, basic builds, API calls, and simple Python scripts.</p>
+<ul>
+<li><strong>Key features:</strong> 1 vCPU, 5 GB RAM; containerized execution with hypervisor‑level L2 isolation; automatic decommissioning after job completion.  </li>
+<li><strong>Job limit:</strong> 15 minutes per run; jobs exceeding this time are terminated.</li>
+</ul>
+<p><strong>2. Technical Details</strong>  </p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Runner type</td>
+<td><code>ubuntu-slim</code> (1 vCPU, 5 GB RAM)</td>
+</tr>
+<tr>
+<td>Execution environment</td>
+<td>Docker container on GitHub‑hosted infrastructure</td>
+</tr>
+<tr>
+<td>Isolation level</td>
+<td>Hypervisor L2</td>
+</tr>
+<tr>
+<td>Runtime limit</td>
+<td>15 min per job</td>
+</tr>
+<tr>
+<td>Pricing</td>
+<td>Not specified in the article; see GitHub billing docs for details</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3. Cybersecurity Relevance</strong>  </p>
+<ul>
+<li><strong>Security automation:</strong> Ideal for running quick security scans, static analysis, or vulnerability checks that fit within the 15‑minute window.  </li>
+<li><strong>Code analysis:</strong> Can host lightweight linters or custom scripts to flag insecure patterns before code merges.  </li>
+<li><strong>Risk considerations:</strong> Limited runtime may truncate longer scans; ensure critical analyses complete quickly or split into multiple jobs.  </li>
+<li><strong>Integration:</strong> Easily combine with existing security tooling (e.g., Snyk, Trivy) by adding them to the container image or invoking via API calls within the job.</li>
+</ul>
+<p><strong>4. Action Items</strong>  </p>
+<ol>
+<li><strong>Enable <code>ubuntu-slim</code></strong> in any workflow that benefits from cost‑effective, short‑duration tasks.  </li>
+<li><strong>Review job duration</strong>—adjust scripts or split jobs to stay under 15 min.  </li>
+<li><strong>Check installed software list</strong> (available in the runner‑images repo) to confirm required tools are present.  </li>
+<li><strong>Monitor billing</strong> through GitHub’s Actions pricing page to understand cost impact.  </li>
+</ol>
+<p>These runners provide a practical, low‑overhead option for cybersecurity teams looking to automate routine checks without incurring heavy CI/CD costs.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.blog/changelog/2026-01-21-github-copilot-cli-plan-before-you-build-steer-as-you-go" target="_blank">GitHub Copilot CLI: Plan before you build, steer as you go</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 21, 2026</span>
+                                    <span><strong>Product:</strong> GitHub Copilot</span>
+                                    <span class="tag">model_release</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What’s New
+
+
+
+Feature
+What Changed / Added
+
+
+
+
+Plan Mode
+Introduced a conversational planning phase before code generation. Users can cycle in/out wit...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What’s New</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>What Changed / Added</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Plan Mode</strong></td>
+<td>Introduced a conversational planning phase before code generation. Users can cycle in/out with Shift+Tab, ask clarifying questions via the <code>ask_user</code> tool, review a structured plan panel, and then trigger implementation.</td>
+</tr>
+<tr>
+<td><strong>Advanced Reasoning Models</strong></td>
+<td>GPT‑5.2‑Codex is now available (<code>/model gpt-5.2-codex</code>). Users can set reasoning effort (Low–Extra High) to balance speed vs depth, and toggle visibility of the model’s internal reasoning with Ctrl+T.</td>
+</tr>
+<tr>
+<td><strong>Conversation Steering</strong></td>
+<td>While Copilot thinks, users may enqueue additional messages or send follow‑up instructions. Inline feedback on tool‑call rejections lets Copilot adapt without aborting.</td>
+</tr>
+<tr>
+<td><strong>Background Delegation</strong></td>
+<td>Prefix a prompt with <code>&amp;</code> (or use <code>/delegate</code>) to offload long tasks to the cloud agent, freeing the terminal for other work.</td>
+</tr>
+<tr>
+<td><strong>Automatic Context Management</strong></td>
+<td>Auto‑compaction kicks in at ~95% token usage; manual compaction via <code>/compact</code>. Token usage can be visualized with <code>/context</code>.</td>
+</tr>
+<tr>
+<td><strong>Enhanced Permissions</strong></td>
+<td>“Approve for session” auto‑approves parallel requests of the same type. Flags <code>--allow-all</code> and <code>--yolo</code> grant all permissions instantly.</td>
+</tr>
+<tr>
+<td><strong>Code Review</strong></td>
+<td>New <code>/review</code> command analyzes staged/unstaged changes directly in the CLI, flagging security issues.</td>
+</tr>
+<tr>
+<td><strong>Repository Memory</strong></td>
+<td>Copilot now stores conventions, patterns, and preferences across sessions via a memory‑storage tool.</td>
+</tr>
+<tr>
+<td><strong>Shell Mode Improvements</strong></td>
+<td>History filtering by prefix (e.g., <code>!git</code>) when navigating shell history.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Technical Details</strong></p>
+<ul>
+<li><strong>Model</strong>: GPT‑5.2‑Codex (code‑optimized).  </li>
+<li><strong>Reasoning Effort Levels</strong>: Low, Medium, High, Extra High.  </li>
+<li><strong>Visibility Toggle</strong>: Ctrl+T shows/hides reasoning steps; setting persists across sessions.  </li>
+<li><strong>Context Management</strong>: Auto‑compaction at 95% token limit; manual <code>/compact</code> command available.  </li>
+<li><strong>Permissions Flags</strong>: <code>--allow-all</code>, <code>--yolo</code>.  </li>
+</ul>
+<p>No pricing, benchmark, or API endpoint changes are specified.</p>
+<hr />
+<p><strong>Cybersecurity Relevance</strong></p>
+<ul>
+<li><strong>Planning &amp; Clarification</strong> reduces misunderstandings that could introduce security flaws early in the codebase.  </li>
+<li><strong>Reasoning Visibility</strong> lets analysts see how Copilot approaches complex problems, aiding trust and auditability.  </li>
+<li><strong>Code Review Command</strong> flags five security issues per review, enabling quick pre‑commit checks without leaving the terminal.  </li>
+<li><strong>Repository Memory</strong> preserves coding standards and security policies across sessions, ensuring consistent enforcement.  </li>
+<li><strong>Background Delegation &amp; Context Management</strong> maintain workflow efficiency, allowing security teams to focus on analysis rather than tool overhead.</li>
+</ul>
+<hr />
+<p><strong>Action Items</strong></p>
+<ol>
+<li>Enable <strong>Plan Mode</strong> (Shift+Tab) for new features to capture scope before code generation.  </li>
+<li>Switch to <strong>GPT‑5.2‑Codex</strong> when working on security‑critical code; adjust reasoning effort as needed.  </li>
+<li>Use <code>/review</code> after staging changes to catch vulnerabilities early.  </li>
+<li>Leverage background delegation (<code>&amp;</code>) for long, resource‑intensive scans or analyses.  </li>
+<li>Monitor context usage with <code>/context</code>; trigger manual compaction if approaching limits.  </li>
+<li>Adopt the new permission flags (<code>--allow-all</code>, <code>--yolo</code>) only in trusted environments; otherwise use “approve for session” to reduce interruptions.</li>
+</ol>
+<p>These updates are available in the current GitHub Copilot CLI release and can be accessed by all users with a valid subscription. No migration steps are required beyond updating the CLI to the latest version.</p></div>
+                        </div>
+                    </details>
+
+                </div>
+
+                <div class="provider-section" id="provider-perplexity">
+                    <h3>
+                        Perplexity (3)
+                        <a href="#" class="back-link">↑ Back to Top</a>
+                    </h3>
+
+                    <div class="provider-ai-summary">
+                        <span class="summary-label">AI Summary</span>
+                        <p>Perplexity released SDK v0.26.0 on Jan 24, adding a convenient `client.output_text` property for easier access to response text and tidying imports in `response_create_response.py`. The preceding v0.25.0 (Jan 23) introduced two manual API changes that adjust internal handling of the `api` module, while v0.24.0 also added a manual‑update capability for the `api` component. No new model versions, endpoints, or security‑related updates were announced in these releases.</p>
+                    </div>
+
+                    <div class="expand-collapse-controls">
+                        <button class="control-btn" onclick="expandAll('provider-perplexity')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-perplexity')">📕 Collapse All</button>
+                    </div>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/perplexityai/perplexity-py/releases/tag/v0.26.0" target="_blank">v0.26.0</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 24, 2026</span>
+                                    <span><strong>Product:</strong> Perplexity SDK</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+Perplexity SDK v0.26.0 (released 2026‑01‑24) introduces a convenience property output_text on the client object, simplifying access to resp...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+Perplexity SDK v0.26.0 (released 2026‑01‑24) introduces a convenience property <code>output_text</code> on the client object, simplifying access to response text. The update also includes a minor code cleanup: imports in <code>response_create_response.py</code> are now sorted.</p>
+<p><strong>Technical Details</strong><br />
+- <strong>API Change:</strong> Addition of <code>client.output_text</code> property; no new endpoints or model changes are announced.<br />
+- <strong>Bug Fixes:</strong> Import sorting does not affect runtime behavior but improves maintainability.<br />
+- No performance benchmarks, pricing updates, or specification changes are mentioned.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- The <code>output_text</code> convenience can streamline parsing of LLM responses in security tooling (e.g., automated threat analysis scripts).<br />
+- No new code‑analysis or vulnerability detection features are introduced; existing capabilities remain unchanged.<br />
+- Potential risk: None identified beyond the standard SDK usage considerations.</p>
+<p><strong>Action Items</strong><br />
+- Upgrade to v0.26.0 to gain the <code>output_text</code> property and cleaner imports.<br />
+- No migration steps required; backward compatibility is maintained.<br />
+- Verify that your integration scripts reference the new property if you prefer concise text access.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/perplexityai/perplexity-py/releases/tag/v0.25.0" target="_blank">v0.25.0</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 23, 2026</span>
+                                    <span><strong>Product:</strong> Perplexity SDK</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- Release of Perplexity SDK v0.25.0 (2026‑01‑23).
+- The update includes two manual API changes (commits f0303a2 and 03236e6) that modify in...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- Release of Perplexity SDK v0.25.0 (2026‑01‑23).<br />
+- The update includes two manual API changes (commits f0303a2 and 03236e6) that modify internal handling of the <code>api</code> module.</p>
+<p><strong>Technical Details</strong><br />
+- No new model versions or specification changes are announced.<br />
+- The only technical change noted is the two manual updates to the SDK’s <code>api</code> component; specific API endpoints or parameters affected are not detailed in the release notes.<br />
+- Performance benchmarks, pricing, or additional features are not specified.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- Because no new capabilities or security‑specific enhancements are mentioned, there are no direct implications for code analysis, vulnerability detection, or other security workflows.<br />
+- The manual API updates could affect how developers integrate the SDK with existing security tooling; any changes to request handling or authentication should be reviewed in the updated documentation.</p>
+<p><strong>Action Items</strong><br />
+- Upgrade to v0.25.0 if you are currently using an earlier Perplexity SDK version to ensure compatibility with the latest API adjustments.<br />
+- Review the changelog and commit details linked in the release notes to understand the specific changes to the <code>api</code> module.<br />
+- No migration steps or new access requirements are indicated; the update appears to be a standard release available to all users.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/perplexityai/perplexity-py/releases/tag/v0.24.0" target="_blank">v0.24.0</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 23, 2026</span>
+                                    <span><strong>Product:</strong> Perplexity SDK</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+- Release of Perplexity SDK v0.24.0 (January 23, 2026).
+- The update introduces a new manual‑update capability for the api module (commi...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+- Release of <strong>Perplexity SDK v0.24.0</strong> (January 23, 2026).<br />
+- The update introduces a new manual‑update capability for the <code>api</code> module (commit 6b8c312).</p>
+<p><strong>2. Technical Details</strong><br />
+- No changes to underlying model specifications are disclosed.<br />
+- API change: the SDK now supports manual updates via the <code>api</code> component, allowing developers to trigger explicit refreshes of internal state or cached data.<br />
+- No performance benchmarks, pricing adjustments, or new endpoints are mentioned.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- Manual update functionality can help security teams maintain up‑to‑date threat intelligence or policy models within their own environments, reducing reliance on automatic background refreshes that may miss critical updates.<br />
+- By controlling when the SDK pulls new data, analysts can schedule updates during low‑risk windows, mitigating potential exposure to maliciously crafted prompts that could exploit stale model behavior.<br />
+- Integration with existing security tooling (e.g., SIEMs or SOAR platforms) becomes more predictable, as update timing is explicit rather than implicit.</p>
+<p><strong>4. Action Items</strong><br />
+- <strong>Availability:</strong> v0.24.0 is publicly released; no beta or enterprise‑only restrictions are noted.<br />
+- <strong>Migration:</strong> Upgrade from v0.23.x to v0.24.0 by installing the latest SDK package (<code>pip install --upgrade perplexity-py</code>). Review your code for any deprecated automatic update calls and replace them with explicit manual update logic if desired.<br />
+- <strong>Recommended Actions:</strong> Test the new manual‑update feature in a staging environment, verify that it correctly refreshes model data, and incorporate it into your scheduled security workflows to ensure timely threat intelligence updates.</p></div>
+                        </div>
+                    </details>
+
+                </div>
+
+                <div class="provider-section" id="provider-hugging-face">
+                    <h3>
+                        Hugging Face (1)
+                        <a href="#" class="back-link">↑ Back to Top</a>
+                    </h3>
+
+                    <div class="provider-ai-summary">
+                        <span class="summary-label">AI Summary</span>
+                        <p>Hugging Face released Transformers v5, its first major update in five years, introducing a dynamic weight loading API via the `WeightConverter` class that allows reshaping, merging, and splitting of checkpoint layers such as fusing Q/K/V projections. The update also streamlines the tokenizer API, enabling empty tokenizers to be instantiated and trained directly on custom corpora. No security‑specific changes were reported in this release.</p>
+                    </div>
+
+                    <div class="expand-collapse-controls">
+                        <button class="control-btn" onclick="expandAll('provider-hugging-face')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-hugging-face')">📕 Collapse All</button>
+                    </div>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/huggingface/transformers/releases/tag/v5.0.0" target="_blank">Transformers v5</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 26, 2026</span>
+                                    <span><strong>Product:</strong> Transformers</span>
+                                    <span class="tag">api_update</span><span class="tag">model_release</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- Hugging Face released Transformers v5, the first major update in five years.
+- Major refactors simplify APIs and internal architecture, r...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- Hugging Face released <strong>Transformers v5</strong>, the first major update in five years.<br />
+- Major refactors simplify APIs and internal architecture, removing long‑due deprecations.<br />
+- Introduces a new <strong>dynamic weight loading API</strong> via the <code>WeightConverter</code> class, enabling reshaping, merging, and splitting of checkpoint layers (e.g., fusing Q/K/V projections).<br />
+- Tokenizer API is streamlined: an empty tokenizer can now be instantiated and trained directly on custom corpora.  </p>
+<p><strong>Technical Details</strong><br />
+- <strong>Dynamic weight loading</strong>: <code>WeightConverter(operations=[Concatenate(dim=0)], source_keys=["self_attn.q_proj","self_attn.k_proj","self_attn.v_proj"], target_keys="self_attn.qkv_proj")</code>. This allows reversible transformations, faster loading through scheduled tensor materialization, and complex mixes such as quantization + MoEs or TP + MoEs.<br />
+- Backwards‑incompatible changes are documented in the migration guide (<code>MIGRATION_GUIDE_V5.md</code>).<br />
+- Minor releases will now roll out weekly (v5.1 next week), ensuring quicker access to new model support.  </p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- <strong>Model loading flexibility</strong>: Security teams can tailor checkpoint shapes for custom inference pipelines, potentially reducing memory footprint or enabling on‑prem deployment with quantized models.<br />
+- <strong>Tokenizer simplification</strong>: Easier creation of domain‑specific tokenizers (e.g., for malware code or phishing emails) improves downstream NLP tasks like threat classification.<br />
+- <strong>Reversible transformations</strong>: Guarantees that loading and saving checkpoints preserve integrity, aiding audit trails in security workflows.<br />
+- <strong>Potential risks</strong>: New API changes may break existing pipelines; careful testing is required to avoid mis‑aligned weight mappings that could corrupt inference results.  </p>
+<p><strong>Action Items</strong><br />
+1. Install the latest release with <code>pip install transformers</code>.<br />
+2. Review the migration guide (<code>MIGRATION_GUIDE_V5.md</code>) for any breaking changes affecting your codebase.<br />
+3. Test the new <code>WeightConverter</code> on existing checkpoints to validate correct weight transformations before production use.<br />
+4. Leverage the simplified tokenizer API to train custom tokenizers for security‑specific corpora.<br />
+5. Monitor upcoming weekly minor releases (v5.1, v5.2…) for additional bug fixes and feature enhancements.</p></div>
+                        </div>
+                    </details>
+
+                </div>
+
+                <div class="provider-section" id="provider-ollama">
+                    <h3>
+                        Ollama (10)
+                        <a href="#" class="back-link">↑ Back to Top</a>
+                    </h3>
+
+                    <div class="provider-ai-summary">
+                        <span class="summary-label">AI Summary</span>
+                        <p>Ollama’s v0.15.2 added a new CLI command `ollama launch clawdbot`, enabling direct deployment of the Clawdbot chatbot within existing workflows. The v0.15.1 release improved GLM‑4.7‑Flash performance and tool‑calling quality, fixed macOS/arm64 Linux issues, and corrected a bug in `ollama launch` that misidentified Claude models. Security‑relevant fixes include CUDA MMA error resolution in v0.15.0‑rc6 and shared‑memory overflow prevention for Maxwell GPUs in v0.15.0‑rc5, ensuring stable GPU acceleration during inference.</p>
+                    </div>
+
+                    <div class="expand-collapse-controls">
+                        <button class="control-btn" onclick="expandAll('provider-ollama')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-ollama')">📕 Collapse All</button>
+                    </div>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.2" target="_blank">v0.15.2</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 27, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+Ollama released version v0.15.2, adding a new command: ollama launch clawdbot. This command enables users to start Clawdbot directly throug...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+Ollama released version v0.15.2, adding a new command: <code>ollama launch clawdbot</code>. This command enables users to start Clawdbot directly through Ollama’s model interface, simplifying deployment of the Clawdbot chatbot within existing Ollama workflows.</p>
+<p><strong>Technical Details</strong><br />
+- <strong>Command Added:</strong> <code>ollama launch clawdbot</code> – no other model specifications or API endpoints are mentioned.<br />
+- <strong>Model Impact:</strong> The update does not alter underlying model weights or introduce new models; it merely provides a convenience wrapper for launching Clawdbot.<br />
+- <strong>Performance / Pricing:</strong> Not specified.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- <strong>Utility for Security Teams:</strong> Clawdbot can be leveraged to automate routine security queries, generate incident response playbooks, or assist in threat intelligence gathering when integrated into internal tooling.<br />
+- <strong>Code Analysis/Vulnerability Detection:</strong> No direct improvements are announced; however, the ability to launch Clawdbot may allow teams to script automated code review prompts if Clawdbot is configured for such tasks.<br />
+- <strong>Risks/Considerations:</strong> As with any chatbot integration, ensure that sensitive security data is not inadvertently exposed through the bot’s output or logs. Validate outputs before acting on them.<br />
+- <strong>Integration Possibilities:</strong> The new command can be incorporated into CI/CD pipelines or security orchestration platforms to trigger Clawdbot for contextual queries during vulnerability scans or log analysis.</p>
+<p><strong>Action Items</strong><br />
+1. Update Ollama to v0.15.2 to access the <code>ollama launch clawdbot</code> command.<br />
+2. Test the command in a controlled environment, verifying that Clawdbot launches correctly and that its responses meet security compliance requirements.<br />
+3. If integrating into automated workflows, add safeguards (e.g., input sanitization, output validation) to mitigate accidental data leakage.<br />
+4. Monitor for future releases that may expand Clawdbot’s capabilities or introduce additional security-focused features.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.1" target="_blank">v0.15.1</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 25, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- Model Update: GLM‑4.7‑Flash receives performance and correctness improvements, addressing repetitive answer generation and enhancing tool...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- <strong>Model Update:</strong> GLM‑4.7‑Flash receives performance and correctness improvements, addressing repetitive answer generation and enhancing tool‑calling quality.<br />
+- <strong>Platform Fixes:</strong> Resolved performance issues on macOS and arm64 Linux.<br />
+- <strong>Command Correction:</strong> Fixed a bug where <code>ollama launch</code> failed to detect Claude models and incorrectly updated OpenCode configurations.</p>
+<p><strong>Technical Details</strong><br />
+- <strong>Model Specification:</strong> GLM‑4.7‑Flash (no new version number beyond the name).<br />
+- <strong>Performance Enhancements:</strong> Improved response consistency and tool‑calling accuracy; macOS and arm64 Linux performance stabilized.<br />
+- <strong>Command Line Behavior:</strong> <code>ollama launch</code> now correctly identifies Claude models and maintains proper OpenCode settings.<br />
+- <strong>No API or pricing changes</strong> are mentioned.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- <strong>Improved Tool Calling:</strong> More reliable invocation of external tools can aid automated security workflows (e.g., running static analysis, querying threat intel APIs).<br />
+- <strong>Reduced Repetition:</strong> Cleaner outputs lower the risk of misleading or redundant information during incident response documentation.<br />
+- <strong>Platform Stability:</strong> Better performance on macOS and arm64 Linux supports secure deployment in diverse environments, including edge devices and ARM‑based servers often used for security tooling.<br />
+- <strong>Potential Risks:</strong> No new vulnerabilities are disclosed; however, any tool‑calling enhancement should be monitored for unintended data leakage or execution of malicious code if not properly sandboxed.</p>
+<p><strong>Action Items</strong><br />
+- <strong>Update to v0.15.1</strong>: Users should upgrade Ollama to this version to benefit from the GLM‑4.7‑Flash fixes and platform stability improvements.<br />
+- <strong>Verify Tool Integration</strong>: After upgrading, test tool‑calling workflows to ensure they function as expected in your security pipelines.<br />
+- <strong>Monitor Launch Behavior</strong>: Confirm that <code>ollama launch</code> now correctly detects Claude models and does not alter OpenCode configurations inadvertently.<br />
+- <strong>No Migration Required</strong>: The update is a patch; existing deployments can be upgraded without major changes.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.1-rc1" target="_blank">v0.15.1-rc1</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 25, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">model_release</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- Model: glm4moelite (Ollama) – version update in the v0.15.1‑rc1 release.
+- Key Improvements:
+  - Additional tensors are now quantized to ...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- <strong>Model:</strong> <code>glm4moelite</code> (Ollama) – version update in the v0.15.1‑rc1 release.<br />
+- <strong>Key Improvements:</strong><br />
+  - Additional tensors are now quantized to <code>q8_0</code>.<br />
+  - The model has been modified to avoid emitting a double Beginning‑of‑Sentence (BOS) token.</p>
+<p><strong>Technical Details</strong><br />
+- <strong>Model Specifications:</strong> Not specified beyond the new quantization and BOS handling.<br />
+- <strong>API Changes / Endpoints:</strong> None mentioned.<br />
+- <strong>Performance Benchmarks:</strong> Not provided.<br />
+- <strong>Pricing:</strong> Not discussed.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- <strong>New Capabilities:</strong> The enhanced quantization may reduce memory footprint, enabling deployment on resource‑constrained environments often used in security tooling (e.g., edge devices, sandboxed analysis).<br />
+- <strong>Code Analysis / Vulnerability Detection:</strong> No direct improvements reported.<br />
+- <strong>Potential Risks/Considerations:</strong> Quantizing more tensors could affect numerical precision; security analysts should validate output fidelity for sensitive tasks.<br />
+- <strong>Integration Possibilities:</strong> The BOS token fix may improve prompt handling in automated security workflows that rely on consistent tokenization.</p>
+<p><strong>Action Items</strong><br />
+- <strong>Availability:</strong> Release is part of the v0.15.1‑rc1 update; access through Ollama’s standard distribution channel (not specified as beta or enterprise only).<br />
+- <strong>Migration Requirements:</strong> No migration steps indicated; simply pull the updated <code>glm4moelite</code> model via Ollama.<br />
+- <strong>Recommended Actions:</strong> Test the new quantized model in your existing security pipelines to confirm performance and accuracy, especially for tasks that depend on precise tokenization.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.1-rc0" target="_blank">v0.15.1-rc0: build: add -O3 optimization to CGO flags (#13877)</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 24, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+Ollama released a minor build update (v0.15.1‑rc0) that adds -O3 optimization flags to CGO compilation settings for both C and C++ code....</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+Ollama released a minor build update (v0.15.1‑rc0) that adds <code>-O3</code> optimization flags to CGO compilation settings for both C and C++ code. The change targets the Go build process used in Ollama’s Docker images and local builds, ensuring that compiled binaries receive higher optimization than previously defaulted to <code>-O2</code>. Documentation (app/README.md) has been updated to reflect this new flag.</p>
+<p><strong>2. Technical Details</strong><br />
+- <strong>Build Impact:</strong> CGO_CFLAGS and CGO_CXXFLAGS now include <code>-O3</code>, improving compilation speed and runtime performance of the compiled components.<br />
+- <strong>Docker Build:</strong> The Dockerfile no longer overwrites user‑supplied CGO flags; it preserves any custom optimization arguments passed as build arguments.<br />
+- <strong>Documentation Update:</strong> README notes the inclusion of <code>-O3</code> for developers building Ollama locally.</p>
+<p>No new model versions, APIs, pricing changes, or performance benchmarks are disclosed in this release note.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <strong>Performance Gains:</strong> Faster and more efficient binaries can reduce resource consumption during security tooling that relies on Ollama’s LLM inference engine, potentially lowering latency for real‑time threat analysis or log parsing tasks.<br />
+- <strong>Stability:</strong> By aligning Docker builds with local Go defaults, the risk of unexpected performance regressions in production deployments is mitigated, which is critical when integrating LLMs into security pipelines that require consistent response times.<br />
+- <strong>No Direct Security Features Added:</strong> The update does not introduce new vulnerability detection or code‑analysis capabilities; it purely optimizes build performance.</p>
+<p><strong>4. Action Items</strong><br />
+- <strong>Users of Docker Builds:</strong> Rebuild your Ollama images to benefit from the <code>-O3</code> flag, especially if you experience slow inference or high CPU usage.<br />
+- <strong>Local Developers:</strong> Run <code>go build</code> with the updated CGO flags (now defaulting to <code>-O3</code>) to ensure local binaries match production performance.<br />
+- <strong>Documentation Review:</strong> Update any internal build scripts or CI pipelines to reflect the preserved CGO flag behavior and avoid accidental overrides.  </p>
+<p>This update is available in the v0.15.1‑rc0 release; no migration steps beyond rebuilding are required.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.0" target="_blank">v0.15.0</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 24, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- ollama launch command: Enables direct use of Ollama’s models—Claude Code, Codex, OpenCode, and Droid—without separate configuration steps...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- <strong><code>ollama launch</code> command</strong>: Enables direct use of Ollama’s models—Claude Code, Codex, OpenCode, and Droid—without separate configuration steps.<br />
+- <strong>Multi‑line string fix</strong>: Corrects an issue where <code>"""</code> strings failed in <code>ollama run</code>.<br />
+- <strong>Keyboard shortcuts</strong>: <code>&lt;Ctrl+J&gt;</code> and <code>&lt;Shift+Enter&gt;</code> now insert newlines during <code>ollama run</code>.<br />
+- <strong>Memory optimization</strong>: GLM‑4.7‑Flash models consume less memory.</p>
+<p><strong>Technical Details</strong><br />
+- No new model specifications or version numbers are disclosed.<br />
+- The update introduces a single command (<code>ollama launch</code>) that internally handles model selection and configuration for the four mentioned code-focused models.<br />
+- Memory usage reduction is noted for GLM‑4.7‑Flash; exact figures are not provided.<br />
+- No API endpoints, pricing changes, or performance benchmarks are specified.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- <strong>Code analysis</strong>: The streamlined launch of Claude Code, Codex, OpenCode, and Droid simplifies integrating these models into security tooling for vulnerability scanning, code review, and automated remediation scripts.<br />
+- <strong>Workflow efficiency</strong>: Fixed multi‑line string handling and new newline shortcuts reduce friction when crafting complex prompts or scripts, aiding rapid iteration during threat hunting or incident response.<br />
+- <strong>Resource management</strong>: Lower memory footprint for GLM‑4.7‑Flash allows deployment on constrained environments (e.g., edge devices or internal servers) where security teams may prefer to keep models in-house.</p>
+<p><strong>Action Items</strong><br />
+- Update your local Ollama installation to v0.15.0 to access the new <code>ollama launch</code> command and bug fixes.<br />
+- Replace any custom configuration scripts for Claude Code, Codex, OpenCode, or Droid with the simplified <code>ollama launch &lt;model&gt;</code> syntax.<br />
+- Test multi‑line string handling in your existing workflows; the issue should now be resolved.<br />
+- If you rely on GLM‑4.7‑Flash, monitor memory usage to confirm the reported reduction and adjust resource allocations accordingly.  </p>
+<p>These changes are generally available with the v0.15.0 release; no beta or enterprise‑only restrictions are mentioned.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.0-rc6" target="_blank">v0.15.0-rc6</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 24, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- Ollama released a patch (v0.15.0‑rc6) that fixes CUDA Mixed‑Matrix‑Multiply (MMA) errors in the release build of its Llama model.
+Technic...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- Ollama released a patch (v0.15.0‑rc6) that fixes CUDA Mixed‑Matrix‑Multiply (MMA) errors in the release build of its Llama model.</p>
+<p><strong>Technical Details</strong><br />
+- The update addresses GPU compute issues related to CUDA MMA operations; no new model versions, API endpoints, or performance benchmarks are disclosed.  </p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- By stabilizing CUDA MMA execution, security teams can rely on consistent GPU acceleration when running Llama for tasks such as code analysis, vulnerability scanning, or threat intelligence generation. The fix reduces the risk of runtime crashes that could interrupt automated security workflows.</p>
+<p><strong>Action Items</strong><br />
+- Update to v0.15.0‑rc6 to eliminate CUDA MMA errors.<br />
+- No migration steps are required beyond installing the new release; no pricing changes were announced.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.0-rc5" target="_blank">v0.15.0-rc5: llama: fix fattn-tile shared memory overflow on sm_50/52 (#13872)</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 24, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+Ollama released a patch (v0.15.0‑rc5) that fixes a shared‑memory overflow bug in the flash‑attention tile kernel for NVIDIA Maxwell GPUs (s...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+Ollama released a patch (v0.15.0‑rc5) that fixes a shared‑memory overflow bug in the flash‑attention tile kernel for NVIDIA Maxwell GPUs (sm_50/52). The fix changes the thread configuration from <code>nthreads=256</code> to <code>nthreads=128</code> when using 4 columns (<code>ncols=4</code>). This adjustment keeps the per‑block shared memory usage below the 48 KB limit, preventing crashes or undefined behavior during inference.</p>
+<p><strong>Technical Details</strong><br />
+- <strong>Affected component:</strong> Flash‑attention tile kernel in Ollama’s LLM runtime.<br />
+- <strong>Configuration change:</strong> <code>nthreads</code> reduced from 256 to 128 for <code>ncols=4</code>.<br />
+- <strong>Resulting memory usage:</strong> With the new setting, <code>np=1</code>, keeping shared memory under 48 KB; previously <code>np=2</code> exceeded the limit.<br />
+- No other model specifications, API endpoints, performance benchmarks, or pricing changes are mentioned.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- <strong>Stability for security workloads:</strong> The fix ensures reliable execution of LLM inference on older NVIDIA GPUs commonly found in legacy data‑center environments used by security teams.<br />
+- <strong>Reduced risk of memory‑corruption exploits:</strong> By preventing shared‑memory overflows, the patch mitigates a potential vector for denial‑of‑service or arbitrary code execution attacks that could arise from kernel crashes.<br />
+- <strong>No direct impact on code analysis or vulnerability detection capabilities</strong>, but the improved reliability supports continuous integration pipelines that use LLMs for automated security testing.</p>
+<p><strong>Action Items</strong><br />
+- Update to Ollama v0.15.0‑rc5 (or later) if you are running inference on Maxwell GPUs.<br />
+- Verify your deployment configuration: ensure <code>nthreads</code> is set to 128 when using 4 columns in flash attention.<br />
+- No migration steps beyond the version upgrade; the change is internal and does not affect user APIs or model weights.  </p>
+<p>This update enhances operational stability for security professionals relying on LLM inference on legacy GPU hardware, reducing potential attack surfaces related to memory overflows.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.0-rc4" target="_blank">v0.15.0-rc4</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 24, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+Ollama has released a minor update (v0.15.0‑rc4) that renames the CLI configuration command from ollama config to ollama launch. No new mod...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+Ollama has released a minor update (v0.15.0‑rc4) that renames the CLI configuration command from <code>ollama config</code> to <code>ollama launch</code>. No new models, versions, or capabilities are introduced in this release.</p>
+<p><strong>Technical Details</strong><br />
+- <strong>Command Change:</strong> The only modification is the renamed command; all other functionality remains unchanged.<br />
+- <strong>Specifications &amp; Benchmarks:</strong> Not specified.<br />
+- <strong>API Changes:</strong> None reported.<br />
+- <strong>Pricing:</strong> Not mentioned.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+This update has no direct impact on security workflows, code analysis, or vulnerability detection. It simply alters the CLI command used to launch Ollama instances, which may affect scripts or automation pipelines that rely on the old <code>ollama config</code> invocation.</p>
+<p><strong>Action Items</strong><br />
+- Update any automated scripts, CI/CD pipelines, or documentation that reference <code>ollama config</code> to use <code>ollama launch</code>.<br />
+- Verify that existing workflows still function after the command rename.<br />
+- No migration steps beyond this command change are required; the update is available in the current release channel.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.0-rc3" target="_blank">v0.15.0-rc3: Revert "model: add MLA absorption for glm4moelite (#13810)" (#13869)</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 24, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- Ollama released a patch (v0.15.0‑rc3) that reverts the earlier commit adding MLA absorption for the glm4moelite model. No new models, fea...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- Ollama released a patch (v0.15.0‑rc3) that reverts the earlier commit adding MLA absorption for the <code>glm4moelite</code> model. No new models, features, or capabilities were introduced in this update.</p>
+<p><strong>Technical Details</strong><br />
+- The change affects only the internal implementation of the <code>glm4moelite</code> model; no new API endpoints, specifications, performance benchmarks, or pricing information are provided.  </p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- Since the update merely removes a previously added feature, there are no new security‑related capabilities or improvements to code analysis, vulnerability detection, or integration points.<br />
+- Security professionals should be aware that any functionality relying on MLA absorption for <code>glm4moelite</code> will no longer be available after this revert.</p>
+<p><strong>Action Items</strong><br />
+- Users of the <code>glm4moelite</code> model should verify whether they were utilizing the MLA absorption feature and adjust their workflows accordingly.<br />
+- No migration steps or new access requirements are indicated; the update is a standard rollback within the existing release cycle.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/ollama/ollama/releases/tag/v0.15.0-rc2" target="_blank">v0.15.0-rc2: x/imagegen: fix image editing support (#13866)</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 23, 2026</span>
+                                    <span><strong>Product:</strong> Ollama</span>
+                                    <span class="tag">model_release</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- Release: v0.15.0‑rc2 for Ollama’s image generation stack (x/imagegen).
+- Fixes &amp; Enhancements:
+  - Resolved a panic in ollama show wh...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- <strong>Release:</strong> v0.15.0‑rc2 for Ollama’s image generation stack (<code>x/imagegen</code>).<br />
+- <strong>Fixes &amp; Enhancements:</strong><br />
+  - Resolved a panic in <code>ollama show</code> when handling image‑generation models by adding safe type assertion.<br />
+  - Enabled vision capability for Flux2KleinPipeline models at creation time, allowing these models to process visual inputs immediately after instantiation.<br />
+  - Implemented automatic flattening of transparent PNGs onto a white background to improve generation quality.</p>
+<p><strong>Technical Details</strong><br />
+- <strong>Model Impacted:</strong> Flux2KleinPipeline (vision-enabled).<br />
+- <strong>API Changes:</strong> No new endpoints are introduced; the existing <code>ollama show</code> command now safely handles image‑gen models. The creation process for Flux2KleinPipeline models includes an optional vision flag to activate visual processing.<br />
+- <strong>Performance/Quality:</strong> Transparent PNGs are preprocessed (flattened) before generation, which enhances output consistency. No explicit benchmarks or pricing changes are provided.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- <strong>Security‑Focused Use Cases:</strong><br />
+  - The added vision capability allows security analysts to feed screenshots, malware artifacts, or network diagrams directly into the model for contextual analysis or automated report generation.<br />
+  - Flattening transparent images ensures that visual inputs do not contain hidden layers that could obscure malicious content during processing.<br />
+- <strong>Risk Considerations:</strong><br />
+  - Enabling vision on models increases the attack surface; ensure proper input validation to avoid injection of malicious image data.<br />
+  - The fix for <code>ollama show</code> prevents crashes that could be exploited via malformed model metadata.</p>
+<p><strong>Action Items</strong><br />
+- <strong>Availability:</strong> Release candidate (rc2) is publicly available through Ollama’s standard distribution channel.<br />
+- <strong>Migration:</strong> Existing users should update to v0.15.0‑rc2 to benefit from the panic fix and vision support. No breaking changes are noted, but verify that <code>ollama show</code> commands run without errors after upgrade.<br />
+- <strong>Recommended Actions:</strong><br />
+  - Test the new vision flag with Flux2KleinPipeline models in your security workflows (e.g., automated threat intel image parsing).<br />
+  - Incorporate input sanitization for visual data to mitigate potential exploitation of the expanded vision capability.</p></div>
+                        </div>
+                    </details>
+
+                </div>
+
+                <div class="provider-section" id="provider-langchain">
+                    <h3>
+                        LangChain (1)
+                        <a href="#" class="back-link">↑ Back to Top</a>
+                    </h3>
+
+                    <div class="provider-ai-summary">
+                        <span class="summary-label">AI Summary</span>
+                        <p>LangChain released v1.2.7, adding dynamic tool registration via middleware so developers can add or modify tools at runtime without redeploying chains. The patch also fixes trailing whitespace in summarization prompts and improves grammar in the `SummarizationMiddleware` system prompt. Documentation cleanup and dependency updates were applied across multiple directories, along with a pre‑commit hook for version consistency checks. No security‑specific changes were reported.</p>
+                    </div>
+
+                    <div class="expand-collapse-controls">
+                        <button class="control-btn" onclick="expandAll('provider-langchain')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-langchain')">📕 Collapse All</button>
+                    </div>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/langchain-ai/langchain/releases/tag/langchain%3D%3D1.2.7" target="_blank">langchain==1.2.7</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge recent">January 23, 2026</span>
+                                    <span><strong>Product:</strong> LangChain</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+
+LangChain v1.2.7 Release – The latest patch introduces dynamic tool registration via middleware, allowing developers to add or modify tool...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong></p>
+<ul>
+<li><strong>LangChain v1.2.7 Release</strong> – The latest patch introduces dynamic tool registration via middleware, allowing developers to add or modify tools at runtime without redeploying the entire chain.</li>
+<li>Minor bug fixes: trailing whitespace removed from summarization prompts and grammar improvements in <code>SummarizationMiddleware</code> system prompt.</li>
+<li>Documentation cleanup and dependency updates across multiple directories.</li>
+<li>Added a pre‑commit hook for version consistency checks.</li>
+</ul>
+<p><strong>Technical Details</strong></p>
+<ul>
+<li>No new model specifications or API endpoints are announced; the changes affect internal LangChain middleware architecture.</li>
+<li>The dynamic tool registration feature is implemented through a middleware layer, enabling plug‑in style extensions to existing chains.</li>
+<li>Dependency updates (uv group) suggest improved build and packaging stability but no performance benchmarks are provided.</li>
+</ul>
+<p><strong>Cybersecurity Relevance</strong></p>
+<ul>
+<li><strong>Dynamic Tool Registration</strong>: Security teams can inject custom analysis tools—such as static code analyzers or threat intelligence fetchers—into LLM workflows on the fly, enhancing automation of vulnerability assessments.</li>
+<li><strong>Summarization Improvements</strong>: Cleaner prompts may yield more accurate security report summaries, reducing misinterpretation risks.</li>
+<li><strong>Version Consistency Hook</strong>: Helps maintain reproducible environments, critical for compliance and audit trails in security operations.</li>
+</ul>
+<p><strong>Action Items</strong></p>
+<ul>
+<li>Upgrade to LangChain v1.2.7 to leverage dynamic tool registration; review middleware integration guides for custom tool implementation.</li>
+<li>Test summarization prompts after the whitespace fix to ensure output consistency in security documentation pipelines.</li>
+<li>Update dependency management scripts to incorporate the new uv group bumps, ensuring build stability across your CI/CD workflows.</li>
+<li>No migration hurdles are noted beyond standard version upgrade procedures.</li>
+</ul></div>
+                        </div>
+                    </details>
+
+                </div>
+
+                <div class="provider-section" id="provider-other">
+                    <h3>
+                        Other (2)
+                        <a href="#" class="back-link">↑ Back to Top</a>
+                    </h3>
+
+                    <div class="provider-ai-summary">
+                        <span class="summary-label">AI Summary</span>
+                        <p>vLLM released v0.15.0rc0, correcting dtype handling in the Pynccl wrapper to prevent type‑mismatch errors during tensor operations. The earlier patch v0.14.1 addressed security vulnerabilities and memory leaks without adding new models or APIs. No new model specifications were introduced in either release.</p>
+                    </div>
+
+                    <div class="expand-collapse-controls">
+                        <button class="control-btn" onclick="expandAll('provider-other')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-other')">📕 Collapse All</button>
+                    </div>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/vllm-project/vllm/releases/tag/v0.15.0rc0" target="_blank">v0.15.0rc0: [Bugfix] Fix Dtypes for Pynccl Wrapper (#33030)</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 26, 2026</span>
+                                    <span><strong>Product:</strong> vLLM</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">1. What’s New
+- Release: vLLM version v0.15.0rc0 (release candidate).
+- Fix: Corrected data‑type handling in the Pynccl wrapper, addressing a bug that...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>1. What’s New</strong><br />
+- <strong>Release:</strong> vLLM version v0.15.0rc0 (release candidate).<br />
+- <strong>Fix:</strong> Corrected data‑type handling in the Pynccl wrapper, addressing a bug that could cause incorrect dtype propagation during tensor operations.</p>
+<p><strong>2. Technical Details</strong><br />
+- No new models or APIs are introduced; the change is internal to vLLM’s Python interface.<br />
+- The patch ensures that tensors passed through the Pynccl wrapper maintain their intended data types, preventing potential type‑mismatch errors in downstream computations.<br />
+- No performance benchmarks, pricing changes, or specification updates are mentioned.</p>
+<p><strong>3. Cybersecurity Relevance</strong><br />
+- <strong>Reliability:</strong> Accurate dtype handling is critical for secure inference pipelines where precision and consistency affect model outputs and audit trails.<br />
+- <strong>Audit &amp; Compliance:</strong> Fixing type inconsistencies reduces the risk of subtle bugs that could lead to incorrect tokenization or misinterpretation of security logs processed by LLMs.<br />
+- <strong>Integration Stability:</strong> Security tools that embed vLLM for threat detection, log analysis, or automated response will benefit from more predictable tensor behavior, lowering false positives/negatives caused by dtype errors.</p>
+<p><strong>4. Action Items</strong><br />
+- <strong>Upgrade Path:</strong> Users on earlier v0.15.x releases should update to v0.15.0rc0 to eliminate the dtype bug.<br />
+- <strong>Testing:</strong> Validate that your inference workflows (especially those involving custom tensor manipulations) behave as expected after the upgrade.<br />
+- <strong>Monitoring:</strong> Keep an eye on downstream logs for any residual type‑related anomalies; the fix is intended to resolve them.</p></div>
+                        </div>
+                    </details>
+
+                    <details class="article-details">
+                        <summary>
+                            <div class="article-summary-header">
+                                <h4><a href="https://github.com/vllm-project/vllm/releases/tag/v0.14.1" target="_blank">v0.14.1</a></h4>
+                                <div class="meta-preview">
+                                    <span class="date-badge new">January 24, 2026</span>
+                                    <span><strong>Product:</strong> vLLM</span>
+                                    <span class="tag">general_update</span>
+                                </div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">What's New
+- Release: vLLM v0.14.1 (patch to the previous v0.14.0).
+- Focus of update: fixes related to security and memory leaks.
+Technical Details
+-...</p>
+                            </div>
+                        </summary>
+                        <div class="article-content">
+                            <div class="article-summary"><p><strong>What's New</strong><br />
+- Release: <strong>vLLM v0.14.1</strong> (patch to the previous v0.14.0).<br />
+- Focus of update: fixes related to <strong>security</strong> and <strong>memory leaks</strong>.</p>
+<p><strong>Technical Details</strong><br />
+- No new model specifications, API endpoints, or performance benchmarks are disclosed in this release note.<br />
+- The patch does not introduce additional features or pricing changes; it solely addresses existing issues.</p>
+<p><strong>Cybersecurity Relevance</strong><br />
+- <strong>Security Impact:</strong> The update resolves identified security vulnerabilities within the vLLM runtime, reducing potential attack vectors that could be exploited by malicious actors.<br />
+- <strong>Memory Leak Fixes:</strong> By eliminating memory leaks, the patch improves stability and reduces the risk of resource exhaustion attacks or denial‑of‑service conditions in production deployments.<br />
+- <strong>Operational Benefit:</strong> Security teams can rely on a more robust inference engine when integrating vLLM into threat detection pipelines, code review tools, or automated vulnerability analysis workflows.</p>
+<p><strong>Action Items</strong><br />
+- <strong>Availability:</strong> The patch is publicly available as part of the standard vLLM release channel.<br />
+- <strong>Upgrade Path:</strong> Users running v0.14.0 should upgrade to v0.14.1 to benefit from the security and stability fixes. No migration scripts or configuration changes are required beyond a typical version bump.<br />
+- <strong>Recommendation:</strong> Perform an update in staging environments first, then roll out to production once verified that no new regressions occur.  </p>
+<p><em>Note: All other details (model specs, API changes, benchmarks, pricing) were not specified in the release announcement.</em></p></div>
+                        </div>
+                    </details>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>SecIntel AI - Security Intelligence Tracker</strong></p>
+            <p>LLM News & Updates Tracker</p>
+            <p>Generated on January 28, 2026</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,230 @@
+# =============================================================================
+# SecIntel AI Source Templates
+# =============================================================================
+# Copy the template that matches your source type, paste into the appropriate
+# tracker's config.yaml, and fill in your details.
+#
+# Validate your changes: python secintel.py --validate-sources
+# Test connectivity:     python secintel.py --validate-sources --test-connections
+# =============================================================================
+
+
+# =============================================================================
+# RSS FEED TEMPLATES
+# =============================================================================
+# Use for: Blogs, news sites, release feeds, GitHub releases
+# How to find RSS feeds:
+#   - Look for RSS icon on the site
+#   - Try: /feed/, /rss/, /rss.xml, /feed.xml, /atom.xml
+#   - GitHub releases: github.com/owner/repo/releases.atom
+# =============================================================================
+
+# --- BASIC RSS TEMPLATE ---
+# Minimal configuration for a simple RSS feed
+- name: "Your Source Name"              # Display name (required)
+  url: https://example.com              # Main website URL (required)
+  type: rss                             # Source type (required)
+  feed_url: https://example.com/feed/   # RSS feed URL (required)
+
+
+# --- RSS WITH VENDOR/PRODUCT TRACKING ---
+# For third-party security product feeds
+- name: "Vendor Product Updates"
+  url: https://vendor.com
+  type: rss
+  feed_url: https://vendor.com/releases.xml
+  vendor: "Vendor Name"                 # Vendor for grouping/filtering
+  product: "Product Name"               # Product name
+
+
+# --- RSS WITH MULTIPLE PRODUCTS ---
+# Filter feed entries by multiple product names in title
+- name: "Multi-Product Feed"
+  url: https://vendor.com
+  type: rss
+  feed_url: https://vendor.com/all-products.xml
+  vendor: "Vendor Name"
+  products:                             # List of products to filter
+    - "Product A"
+    - "Product B"
+    - "Product C"
+  filter_by_title: true                 # Match products against entry titles
+
+
+# --- RSS WITH KEYWORD FILTER ---
+# Filter entries by regex pattern
+- name: "Filtered Feed"
+  url: https://example.com
+  type: rss
+  feed_url: https://example.com/feed.xml
+  filter_pattern: "security|vulnerability|CVE"  # Regex to match
+
+
+# --- GITHUB RELEASES ---
+# Track releases from a GitHub repository
+- name: "Project Name Releases"
+  url: https://github.com/owner/repo
+  type: rss
+  feed_url: https://github.com/owner/repo/releases.atom
+
+
+# =============================================================================
+# WEB SCRAPING TEMPLATES
+# =============================================================================
+# Use for: "What's New" pages, release notes, static HTML pages
+# Finding CSS selectors:
+#   - Right-click element → Inspect
+#   - Look at class names, IDs, and tag structure
+#   - Test in console: document.querySelectorAll('selector')
+# =============================================================================
+
+# --- BASIC WEB TEMPLATE ---
+# Scrape a single page for content
+- name: "Release Notes Page"
+  url: https://docs.example.com/releases      # Page URL (required)
+  type: web                                   # Source type (required)
+  content_selector: "main, article"           # CSS selector for content
+
+
+# --- WEB WITH ARTICLE LIST ---
+# Scrape a page that links to multiple articles
+- name: "Blog Index"
+  url: https://blog.example.com
+  type: web
+  article_selector: "a.post-link"             # Links to articles
+  content_selector: "article"                 # Content within articles
+
+
+# --- WEB WITH DETAILED SELECTORS ---
+# Extract specific fields from the page
+- name: "Structured Release Notes"
+  url: https://docs.example.com/changelog
+  type: web
+  vendor: "Vendor Name"
+  product: "Product Name"
+  single_page: true                           # All content on one page
+  selectors:
+    release_container: ".release, .version"   # Container for each release
+    title: "h2, h3"                           # Release title
+    date: "time, [datetime], .date"           # Release date
+    content: "p, ul, li"                      # Release content
+
+
+# --- MICROSOFT LEARN STYLE ---
+# For Microsoft "What's New" documentation pages
+- name: "Product What's New"
+  url: https://learn.microsoft.com/en-us/product/whats-new
+  type: web
+  single_page: true
+  content_selector: "main, article, [role='main']"
+
+
+# =============================================================================
+# JSON API TEMPLATES
+# =============================================================================
+# Use for: Sites with REST API endpoints returning JSON
+# Finding APIs:
+#   - Check site's developer documentation
+#   - Use browser DevTools Network tab to see XHR requests
+# =============================================================================
+
+# --- BASIC API TEMPLATE ---
+- name: "API Source"
+  url: https://api.example.com/v1/releases    # API endpoint (required)
+  type: api                                   # Source type (required)
+  vendor: "Vendor Name"
+  product: "Product Name"
+
+
+# --- API WITH PARAMETERS ---
+# Pass query parameters to the API
+- name: "API with Params"
+  url: https://api.example.com/search
+  type: api
+  vendor: "Vendor Name"
+  product: "Product Name"
+  params:
+    type: "release_notes"                     # Query parameters
+    limit: 50
+    sort: "date"
+    order: "desc"
+
+
+# --- API WITH HEADERS ---
+# Include custom headers (e.g., authentication)
+- name: "Authenticated API"
+  url: https://api.example.com/releases
+  type: api
+  vendor: "Vendor Name"
+  product: "Product Name"
+  headers:
+    Authorization: "Bearer YOUR_API_KEY"      # Replace with actual key
+    Accept: "application/json"
+
+
+# =============================================================================
+# HEADLESS BROWSER TEMPLATES
+# =============================================================================
+# Use for: JavaScript-heavy sites that require browser rendering
+# Requirements: pip install playwright && playwright install
+# Note: These are slower and more resource-intensive
+# =============================================================================
+
+# --- BASIC HEADLESS TEMPLATE ---
+- name: "JavaScript Site"
+  url: https://dynamic-site.com/releases      # Page URL
+  type: headless                              # Source type (required)
+  vendor: "Vendor Name"
+  product: "Product Name"
+  wait_for: ".content, article"               # Wait for this selector to appear
+
+
+# --- HEADLESS WITH YEAR TEMPLATE ---
+# For sites with year-based URLs like "/releases-2024"
+- name: "Yearly Release Page"
+  type: headless
+  url_template: "https://example.com/releases-{year}"  # {year} is replaced
+  vendor: "Vendor Name"
+  product: "Product Name"
+  dynamic_year: true                          # Use current year
+  fallback_to_previous_year: true             # Try last year if current fails
+  wait_for: ".release-notes"
+
+
+# --- ZENDESK/HELP CENTER STYLE ---
+# Common pattern for support sites
+- name: "Help Center Changelog"
+  type: headless
+  url: "https://support.vendor.com/hc/en-us/articles/123456-Change-Log"
+  vendor: "Vendor Name"
+  product: "Product Name"
+  wait_for: ".article-content table, article table"
+
+
+# =============================================================================
+# COMPLETE EXAMPLES (PUBLIC SOURCES)
+# =============================================================================
+# Working examples using public threat intelligence sources
+# =============================================================================
+
+# --- KREBS ON SECURITY (RSS) ---
+# A popular security blog with RSS feed
+- name: Krebs on Security
+  url: https://krebsonsecurity.com
+  type: rss
+  feed_url: https://krebsonsecurity.com/feed/
+
+# --- CISA ALERTS (RSS) ---
+# Official US government security advisories
+- name: CISA Alerts
+  url: https://www.cisa.gov/news-events/cybersecurity-advisories
+  type: rss
+  feed_url: https://www.cisa.gov/cybersecurity-advisories/all.xml
+
+# --- MICROSOFT DEFENDER XDR (WEB) ---
+# Microsoft Learn "What's New" page
+- name: Defender XDR What's New
+  url: https://learn.microsoft.com/en-us/defender-xdr/whats-new
+  type: web
+  single_page: true
+  content_selector: "main, article, [role='main']"

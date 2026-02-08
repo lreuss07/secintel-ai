@@ -1,0 +1,25 @@
+# SecIntel AI - Security Intelligence Tracker
+# Requirements for AI integrations
+
+# AI Backend Options
+openai>=1.0.0       # LM Studio API (OpenAI-compatible)
+anthropic>=0.18.0   # Claude API (Anthropic)
+
+# Web scraping
+requests>=2.31.0
+feedparser>=6.0.10
+beautifulsoup4>=4.12.0
+python-dateutil>=2.8.0
+
+# Headless browser (for JavaScript-rendered pages)
+playwright>=1.40.0
+
+# Configuration
+pyyaml>=6.0
+
+# Reporting
+jinja2>=3.1.2
+markdown>=3.4.0
+
+# Optional but recommended
+lxml>=4.9.0  # Better HTML/XML parsing
