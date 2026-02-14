@@ -2,6 +2,59 @@
 
 AI-powered security intelligence aggregation and reporting platform. SecIntel AI scrapes updates from Microsoft security products, threat intelligence feeds, third-party security tools, and LLM providers, then generates AI-powered summaries and executive reports using local LLMs (LM Studio) or cloud APIs (Claude).
 
+## Report Examples
+
+<details>
+<summary><b>Microsoft Defender Report</b></summary>
+
+![Header and stats](docs/images/security_product_tier1_report_20260214_094747_01_header_stats.png)
+![Products overview](docs/images/security_product_tier1_report_20260214_094747_02_products_overview.png)
+![What's new](docs/images/security_product_tier1_report_20260214_094747_04_whats_new.png)
+![Executive summary](docs/images/security_product_tier1_report_20260214_094747_07_exec_summary.png)
+
+</details>
+
+<details>
+<summary><b>Microsoft Security Products Report</b></summary>
+
+![Header and stats](docs/images/security_product_tier1_report_20260214_101511_01_header_stats.png)
+![Products overview](docs/images/security_product_tier1_report_20260214_101511_02_products_overview.png)
+![What's new](docs/images/security_product_tier1_report_20260214_101511_04_whats_new.png)
+![Executive summary](docs/images/security_product_tier1_report_20260214_101511_06_exec_summary.png)
+
+</details>
+
+<details>
+<summary><b>Threat Intelligence Report</b></summary>
+
+![Header](docs/images/threat_intel_tier1_report_20260214_103030_01_header.png)
+![Threat overview](docs/images/threat_intel_tier1_report_20260214_103030_02_threat_overview.png)
+![Top threats](docs/images/threat_intel_tier1_report_20260214_103030_03_top_threats.png)
+![Impact and actions](docs/images/threat_intel_tier1_report_20260214_103030_04_impact_actions.png)
+![IOCs and navigation](docs/images/threat_intel_tier1_report_20260214_103030_05_iocs_nav.png)
+
+</details>
+
+<details>
+<summary><b>3rd Party Security Report</b></summary>
+
+![Header and stats](docs/images/thirdparty_security_report_20260214_103621_01_header_stats.png)
+![Products overview](docs/images/thirdparty_security_report_20260214_103621_02_products_overview.png)
+![What's new](docs/images/thirdparty_security_report_20260214_103621_04_whats_new.png)
+![Executive summary](docs/images/thirdparty_security_report_20260214_103621_06_exec_summary.png)
+
+</details>
+
+<details>
+<summary><b>LLM News Report</b></summary>
+
+![Header and stats](docs/images/llm_news_report_20260214_104026_01_header_stats.png)
+![Providers overview](docs/images/llm_news_report_20260214_104026_02_providers_overview.png)
+![Executive summary](docs/images/llm_news_report_20260214_104026_03_whats_new.png)
+![Detailed provider coverage](docs/images/llm_news_report_20260214_104026_06_detailed_anthropic.png)
+
+</details>
+
 ## Prerequisites
 
 - **Python 3.8+**

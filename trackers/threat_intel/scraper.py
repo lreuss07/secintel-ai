@@ -17,16 +17,18 @@ logger = logging.getLogger(__name__)
 class ThreatIntelScraper:
     """Scrapes threat intelligence from various sources"""
     
-    def __init__(self, sources_config, time_window_days=None):
+    def __init__(self, sources_config, time_window_days=None, max_articles_per_source=None):
         """
         Initialize the scraper with source configurations.
 
         Args:
             sources_config (list): List of source configurations
             time_window_days (int, optional): Global time window override - only scrape articles from last N days
+            max_articles_per_source (int, optional): Max articles to scrape per source (testing mode)
         """
         self.sources = sources_config
         self.time_window_days = time_window_days
+        self.max_articles_per_source = max_articles_per_source
         self.user_agents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15',
@@ -91,8 +93,12 @@ class ThreatIntelScraper:
                 logger.warning(f"Unsupported source type: {source['type']}")
                 continue
             
+            if self.max_articles_per_source and len(articles) > self.max_articles_per_source:
+                logger.info(f"TESTING MODE: Limiting {source_name} to {self.max_articles_per_source} articles (of {len(articles)})")
+                articles = articles[:self.max_articles_per_source]
+
             results[source_name] = articles
-            
+
             # Be nice to the servers
             time.sleep(random.uniform(1, 3))
         

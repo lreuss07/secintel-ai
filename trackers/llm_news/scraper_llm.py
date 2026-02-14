@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 class LLMNewsScraper:
     """Multi-source scraper for LLM news and updates"""
 
-    def __init__(self, sources_config, time_window_days=None):
+    def __init__(self, sources_config, time_window_days=None, max_articles_per_source=None):
         self.sources = sources_config
         self.time_window_days = time_window_days or 30
+        self.max_articles_per_source = max_articles_per_source
         self.user_agents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -246,6 +247,10 @@ class LLMNewsScraper:
                 else:
                     logger.warning(f"Unknown source type: {source_type}")
                     articles = []
+
+                if self.max_articles_per_source and len(articles) > self.max_articles_per_source:
+                    logger.info(f"TESTING MODE: Limiting {source_name} to {self.max_articles_per_source} articles (of {len(articles)})")
+                    articles = articles[:self.max_articles_per_source]
 
                 results[source_name] = articles
                 logger.info(f"Scraped {len(articles)} articles from {source_name}")

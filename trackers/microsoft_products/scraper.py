@@ -62,16 +62,18 @@ class MicrosoftSecurityProductScraper:
         'authorization', 'zero trust', 'threat protection'
     ]
     
-    def __init__(self, sources_config, time_window_days=None):
+    def __init__(self, sources_config, time_window_days=None, max_articles_per_source=None):
         """
         Initialize the scraper with source configurations.
 
         Args:
             sources_config (list): List of source configurations
             time_window_days (int, optional): Only scrape articles from the last N days
+            max_articles_per_source (int, optional): Max articles to scrape per source (testing mode)
         """
         self.sources = sources_config
         self.time_window_days = time_window_days
+        self.max_articles_per_source = max_articles_per_source
         self.user_agents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15',
@@ -159,6 +161,10 @@ class MicrosoftSecurityProductScraper:
                     )
                 ]
                 logger.info(f"Filtered {original_count} articles to {len(articles)} security product articles")
+
+            if self.max_articles_per_source and len(articles) > self.max_articles_per_source:
+                logger.info(f"TESTING MODE: Limiting {source_name} to {self.max_articles_per_source} articles (of {len(articles)})")
+                articles = articles[:self.max_articles_per_source]
 
             results[source_name] = articles
 

@@ -46,9 +46,14 @@ class MicrosoftProductsTracker(BaseTracker):
         self.logger.info("=" * 70)
 
         time_window = self.config.get('time_window_days')
+        sources = self.config['sources']
+        if self.max_sources:
+            self.logger.info(f"TESTING MODE: Limiting to {self.max_sources} sources (of {len(sources)})")
+            sources = sources[:self.max_sources]
         self.scraper = MicrosoftSecurityProductScraper(
-            self.config['sources'],
-            time_window_days=time_window
+            sources,
+            time_window_days=time_window,
+            max_articles_per_source=self.max_articles_per_source
         )
 
         scraped_results = self.scraper.scrape_all_sources()
@@ -77,6 +82,9 @@ class MicrosoftProductsTracker(BaseTracker):
         self.logger.info("=" * 70)
 
         articles = self.db.get_articles_without_summary(tracker_name='microsoft_products')
+        if self.max_summaries and len(articles) > self.max_summaries:
+            self.logger.info(f"TESTING MODE: Limiting analysis to {self.max_summaries} articles (of {len(articles)})")
+            articles = articles[:self.max_summaries]
         self.logger.info(f"Found {len(articles)} product updates to analyze")
 
         if not articles:

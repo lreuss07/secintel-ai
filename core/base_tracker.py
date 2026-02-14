@@ -33,6 +33,21 @@ class BaseTracker(ABC):
         display_name = config.get('display_name', name.title())
         self.db.register_tracker(name, display_name)
 
+    @property
+    def max_sources(self):
+        """Max sources to scrape (None = unlimited)"""
+        return self.config.get('testing', {}).get('max_sources')
+
+    @property
+    def max_articles_per_source(self):
+        """Max articles per source (None = unlimited)"""
+        return self.config.get('testing', {}).get('max_articles_per_source')
+
+    @property
+    def max_summaries(self):
+        """Max articles to AI-summarize (None = unlimited)"""
+        return self.config.get('testing', {}).get('max_summaries')
+
     @abstractmethod
     def scrape(self):
         """

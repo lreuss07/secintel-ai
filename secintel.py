@@ -82,6 +82,19 @@ def parse_arguments():
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Enable verbose logging')
 
+    # Testing mode arguments
+    parser.add_argument('--testing', action='store_true',
+                        help='Enable testing mode with resource limits (default: 2 sources, 3 articles/source, 3 summaries)')
+
+    parser.add_argument('--max-sources', type=int, default=None,
+                        help='Max sources to scrape per tracker (default: 2 in testing mode)')
+
+    parser.add_argument('--max-articles', type=int, default=None,
+                        help='Max articles to scrape per source (default: 3 in testing mode)')
+
+    parser.add_argument('--max-summaries', type=int, default=None,
+                        help='Max articles to AI-summarize per tracker (default: 3 in testing mode)')
+
     return parser.parse_args()
 
 def get_trackers(config, db_manager, tracker_name):
@@ -102,30 +115,40 @@ def get_trackers(config, db_manager, tracker_name):
         if config['trackers']['defender'].get('enabled', True):
             defender_config = config['trackers']['defender'].copy()
             defender_config['ai'] = config['ai']  # Add global AI config
+            if 'testing' in config:
+                defender_config['testing'] = config['testing']
             trackers.append(DefenderTracker(defender_config, db_manager))
 
     if tracker_name in ['microsoft_products', 'all']:
         if config['trackers']['microsoft_products'].get('enabled', True):
             ms_config = config['trackers']['microsoft_products'].copy()
             ms_config['ai'] = config['ai']  # Add global AI config
+            if 'testing' in config:
+                ms_config['testing'] = config['testing']
             trackers.append(MicrosoftProductsTracker(ms_config, db_manager))
 
     if tracker_name in ['threat_intel', 'all']:
         if config['trackers']['threat_intel'].get('enabled', True):
             ti_config = config['trackers']['threat_intel'].copy()
             ti_config['ai'] = config['ai']  # Add global AI config
+            if 'testing' in config:
+                ti_config['testing'] = config['testing']
             trackers.append(ThreatIntelTracker(ti_config, db_manager))
 
     if tracker_name in ['thirdparty_security', 'all']:
         if config['trackers']['thirdparty_security'].get('enabled', True):
             tp_config = config['trackers']['thirdparty_security'].copy()
             tp_config['ai'] = config['ai']  # Add global AI config
+            if 'testing' in config:
+                tp_config['testing'] = config['testing']
             trackers.append(ThirdPartySecurityTracker(tp_config, db_manager))
 
     if tracker_name in ['llm_news', 'all']:
         if config['trackers']['llm_news'].get('enabled', True):
             llm_config = config['trackers']['llm_news'].copy()
             llm_config['ai'] = config['ai']  # Add global AI config
+            if 'testing' in config:
+                llm_config['testing'] = config['testing']
             trackers.append(LLMNewsTracker(llm_config, db_manager))
 
     return trackers
@@ -156,6 +179,24 @@ def main():
         # Load configuration
         config = load_config(args.config)
         logger.info(f"Configuration loaded from {args.config}")
+
+        # Apply testing mode limits
+        if args.testing:
+            config['testing'] = {
+                'max_sources': args.max_sources if args.max_sources is not None else 2,
+                'max_articles_per_source': args.max_articles if args.max_articles is not None else 3,
+                'max_summaries': args.max_summaries if args.max_summaries is not None else 3,
+            }
+            logger.info(f"TESTING MODE enabled - limits: {config['testing']}")
+        elif any([args.max_sources, args.max_articles, args.max_summaries]):
+            config['testing'] = {}
+            if args.max_sources is not None:
+                config['testing']['max_sources'] = args.max_sources
+            if args.max_articles is not None:
+                config['testing']['max_articles_per_source'] = args.max_articles
+            if args.max_summaries is not None:
+                config['testing']['max_summaries'] = args.max_summaries
+            logger.info(f"Resource limits applied: {config['testing']}")
 
         # List trackers if requested
         if args.list:
@@ -253,6 +294,10 @@ def main():
             print("  --test-connections    Test connectivity to sources (with --validate-sources)")
             print("  --list                List available trackers")
             print("  --config FILE         Specify configuration file")
+            print("  --testing             Enable testing mode (limited sources/articles/summaries)")
+            print("  --max-sources N       Max sources per tracker (default: 2 in testing mode)")
+            print("  --max-articles N      Max articles per source (default: 3 in testing mode)")
+            print("  --max-summaries N     Max AI summaries per tracker (default: 3 in testing mode)")
             print("\nExamples:")
             print("  python secintel.py --list")
             print("  python secintel.py --test-connection")
@@ -263,6 +308,8 @@ def main():
             print("  python secintel.py --tracker defender --full-run")
             print("  python secintel.py --tracker all --report --tier 1")
             print("  python secintel.py --scrape --analyze")
+            print("  python secintel.py --testing --full-run")
+            print("  python secintel.py --testing --tracker defender --max-sources 1 --full-run")
             print()
             return
 
