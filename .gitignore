@@ -50,6 +50,9 @@ Thumbs.db
 # Debug/test artifacts
 debug_html/
 
+# Screenshots / local working images
+AICorrection.png
+
 # Sync script (contains local paths)
 scripts/sync-to-public.sh
 

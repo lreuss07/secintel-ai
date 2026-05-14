@@ -134,6 +134,12 @@ class AIClient:
             logger.error(f"LM Studio completion error: {str(e)}")
             raise
 
+    def _model_supports_temperature(self) -> bool:
+        """Some Claude models (e.g. Opus 4.7) deprecate the temperature parameter."""
+        # Models known to reject `temperature` — keep this list narrow and explicit.
+        deprecated_substrings = ('opus-4-7',)
+        return not any(s in self.model for s in deprecated_substrings)
+
     def _claude_completion(
         self,
         messages: List[Dict[str, str]],
@@ -173,22 +179,18 @@ class AIClient:
             # If the list doesn't alternate properly, Claude API will error
             # For now, we'll assume proper alternation (most common case)
 
-            # Call Claude API
+            # Build kwargs - omit temperature for models that have deprecated it (e.g. Opus 4.7)
+            kwargs = {
+                'model': self.model,
+                'max_tokens': max_tokens,
+                'messages': conversation_messages,
+            }
+            if self._model_supports_temperature():
+                kwargs['temperature'] = temperature
             if system_message:
-                response = self.client.messages.create(
-                    model=self.model,
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                    system=system_message,
-                    messages=conversation_messages
-                )
-            else:
-                response = self.client.messages.create(
-                    model=self.model,
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                    messages=conversation_messages
-                )
+                kwargs['system'] = system_message
+
+            response = self.client.messages.create(**kwargs)
 
             # Extract text from response
             # Claude response format: response.content is a list of content blocks

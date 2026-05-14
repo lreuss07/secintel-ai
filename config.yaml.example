@@ -17,7 +17,7 @@ ai:
   # Claude settings (used when provider = 'claude')
   claude:
     api_key: 'your-anthropic-api-key-here'
-    model: 'claude-sonnet-4-20250514'
+    model: 'claude-sonnet-4-6'
 
   # Shared settings (applied to both providers)
   temperature: 0.1

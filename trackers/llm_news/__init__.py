@@ -5,6 +5,7 @@ Tracks news and updates from major Large Language Model providers.
 
 from core.base_tracker import BaseTracker
 from core.lm_studio_connection import LMStudioConnectionManager
+from core.ai_client import AIClient
 from .scraper_llm import LLMNewsScraper
 from .summarizer_llm import LLMNewsSummarizer, LLMNewsExecutiveSummarizer
 from .reporting_llm import LLMNewsReportGenerator
@@ -117,13 +118,18 @@ class LLMNewsTracker(BaseTracker):
             self.logger.info("No articles require analysis")
             return 0
 
-        # Ensure LM Studio connection is established
-        if not self.connection_manager.ensure_connection(allow_prompt=True):
-            self.logger.error("Cannot proceed with analysis without LM Studio connection")
-            return 0
+        # Check AI provider - only require LM Studio connection if using lmstudio
+        ai_config = self.config.get('ai', {})
+        ai_provider = ai_config.get('provider', 'lmstudio')
 
-        # Initialize summarizer with verified connection config
-        ai_config = self.connection_manager.get_config()
+        if ai_provider == 'lmstudio':
+            if not self.connection_manager.ensure_connection(allow_prompt=True):
+                self.logger.error("Cannot proceed with analysis without LM Studio connection")
+                return 0
+        else:
+            self.logger.info(f"Using {ai_provider} provider - skipping LM Studio connection check")
+
+        # Initialize summarizer with full AI config (preserves provider selection)
         self.summarizer = LLMNewsSummarizer(ai_config=ai_config)
 
         for idx, article in enumerate(articles, 1):
@@ -338,13 +344,18 @@ class LLMNewsTracker(BaseTracker):
             if not article.get('product'):
                 article['product'] = 'Unknown'
 
-        # Ensure LM Studio connection is established
-        if not self.connection_manager.ensure_connection(allow_prompt=True):
-            self.logger.error("Cannot proceed with report generation without LM Studio connection")
-            return None
+        # Check AI provider - only require LM Studio connection if using lmstudio
+        ai_config = self.config.get('ai', {})
+        ai_provider = ai_config.get('provider', 'lmstudio')
 
-        # Initialize executive summarizer with verified connection config
-        ai_config = self.connection_manager.get_config()
+        if ai_provider == 'lmstudio':
+            if not self.connection_manager.ensure_connection(allow_prompt=True):
+                self.logger.error("Cannot proceed with report generation without LM Studio connection")
+                return None
+        else:
+            self.logger.info(f"Using {ai_provider} provider - skipping LM Studio connection check")
+
+        # Initialize executive summarizer with full AI config (preserves provider selection)
         self.executive_summarizer = LLMNewsExecutiveSummarizer(ai_config=ai_config)
 
         # Generate executive summary
@@ -461,5 +472,11 @@ class LLMNewsTracker(BaseTracker):
         return report_path
 
     def test_connection(self):
-        """Test LM Studio connection"""
-        return self.connection_manager.ensure_connection(allow_prompt=True)
+        """Test AI provider connection (LM Studio or Claude)"""
+        ai_config = self.config.get('ai', {})
+        ai_provider = ai_config.get('provider', 'lmstudio')
+
+        if ai_provider == 'lmstudio':
+            return self.connection_manager.ensure_connection(allow_prompt=True)
+        else:
+            return AIClient(ai_config).test_connection()

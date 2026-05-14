@@ -6,6 +6,7 @@ Tracks general cybersecurity news and threat actor campaigns.
 from core.base_tracker import BaseTracker
 from core.ioc_extractor import IOCExtractor
 from core.lm_studio_connection import LMStudioConnectionManager
+from core.ai_client import AIClient
 from .scraper import ThreatIntelScraper
 from .summarizer import ArticleSummarizer, ExecutiveSummarizer
 from .reporting import ReportGenerator
@@ -246,5 +247,11 @@ class ThreatIntelTracker(BaseTracker):
             return None
 
     def test_connection(self):
-        """Test LM Studio connection"""
-        return self.connection_manager.ensure_connection(allow_prompt=True)
+        """Test AI provider connection (LM Studio or Claude)"""
+        ai_config = self.config.get('ai', {})
+        ai_provider = ai_config.get('provider', 'lmstudio')
+
+        if ai_provider == 'lmstudio':
+            return self.connection_manager.ensure_connection(allow_prompt=True)
+        else:
+            return AIClient(ai_config).test_connection()

@@ -4,6 +4,7 @@ Microsoft Products tracker plugin for SecIntel AI.
 
 from core.base_tracker import BaseTracker
 from core.lm_studio_connection import LMStudioConnectionManager
+from core.ai_client import AIClient
 from .scraper import MicrosoftSecurityProductScraper
 from .summarizer import MicrosoftSecurityProductSummarizer, MicrosoftSecurityExecutiveSummarizer
 from .reporting import MicrosoftSecurityReportGenerator
@@ -91,13 +92,18 @@ class MicrosoftProductsTracker(BaseTracker):
             self.logger.info("No product updates require analysis")
             return 0
 
-        # Ensure LM Studio connection is established
-        if not self.connection_manager.ensure_connection(allow_prompt=True):
-            self.logger.error("Cannot proceed with analysis without LM Studio connection")
-            return 0
+        # Check AI provider - only require LM Studio connection if using lmstudio
+        ai_config = self.config.get('ai', {})
+        ai_provider = ai_config.get('provider', 'lmstudio')
 
-        # Initialize summarizer with verified connection config
-        ai_config = self.connection_manager.get_config()
+        if ai_provider == 'lmstudio':
+            if not self.connection_manager.ensure_connection(allow_prompt=True):
+                self.logger.error("Cannot proceed with analysis without LM Studio connection")
+                return 0
+        else:
+            self.logger.info(f"Using {ai_provider} provider - skipping LM Studio connection check")
+
+        # Initialize summarizer with full AI config (preserves provider selection)
         self.summarizer = MicrosoftSecurityProductSummarizer(ai_config=ai_config)
 
         for idx, article in enumerate(articles, 1):
@@ -169,13 +175,18 @@ class MicrosoftProductsTracker(BaseTracker):
             tags = self.db.get_tags_for_article(article['id'])
             article['update_type'] = [tag['tag'] for tag in tags] if tags else ['General Update']
 
-        # Ensure LM Studio connection is established
-        if not self.connection_manager.ensure_connection(allow_prompt=True):
-            self.logger.error("Cannot proceed with report generation without LM Studio connection")
-            return None
+        # Check AI provider - only require LM Studio connection if using lmstudio
+        ai_config = self.config.get('ai', {})
+        ai_provider = ai_config.get('provider', 'lmstudio')
 
-        # Initialize executive summarizer with verified connection config
-        ai_config = self.connection_manager.get_config()
+        if ai_provider == 'lmstudio':
+            if not self.connection_manager.ensure_connection(allow_prompt=True):
+                self.logger.error("Cannot proceed with report generation without LM Studio connection")
+                return None
+        else:
+            self.logger.info(f"Using {ai_provider} provider - skipping LM Studio connection check")
+
+        # Initialize executive summarizer with full AI config (preserves provider selection)
         self.executive_summarizer = MicrosoftSecurityExecutiveSummarizer(ai_config=ai_config)
 
         # Generate executive summary
@@ -235,5 +246,11 @@ class MicrosoftProductsTracker(BaseTracker):
         return report_path
 
     def test_connection(self):
-        """Test LM Studio connection"""
-        return self.connection_manager.ensure_connection(allow_prompt=True)
+        """Test AI provider connection (LM Studio or Claude)"""
+        ai_config = self.config.get('ai', {})
+        ai_provider = ai_config.get('provider', 'lmstudio')
+
+        if ai_provider == 'lmstudio':
+            return self.connection_manager.ensure_connection(allow_prompt=True)
+        else:
+            return AIClient(ai_config).test_connection()
