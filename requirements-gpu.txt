@@ -1,0 +1,15 @@
+# Optional GPU acceleration for the Whisper transcript fallback.
+# Install with: pip install -r requirements-gpu.txt
+#
+# These ship the libcublas.so.12 and libcudnn*.so libraries that
+# faster-whisper / ctranslate2 need for CUDA execution. The scraper
+# preloads them automatically at runtime so no LD_LIBRARY_PATH setup
+# is required.
+#
+# Hardware: NVIDIA GPU with CUDA 12 support (RTX 20-series or newer).
+# On Windows, install the NVIDIA driver via Windows; WSL2 will see it
+# transparently.
+
+nvidia-cublas-cu12>=12.0
+nvidia-cudnn-cu12>=9.0
+nvidia-cuda-nvrtc-cu12>=12.0

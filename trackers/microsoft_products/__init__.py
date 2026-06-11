@@ -73,6 +73,14 @@ class MicrosoftProductsTracker(BaseTracker):
                     for update_type in article['update_type']:
                         self.db.store_tag(article_id, update_type)
 
+                # Persist RSS <category> values (e.g. "Microsoft Teams", "Outlook") with a
+                # service: prefix so the report can route per-article when one source feed
+                # carries items spanning many products (e.g. the M365 Message Center archive).
+                if article_id:
+                    for rss_category in article.get('tags', []):
+                        if rss_category:
+                            self.db.store_tag(article_id, f'service:{rss_category}')
+
         self.logger.info(f"Scraping operation completed - Total product updates: {total_articles}")
         return total_articles
 
@@ -111,9 +119,9 @@ class MicrosoftProductsTracker(BaseTracker):
             self.logger.info(f"Analyzing update {idx}/{len(articles)}: {article['title']}")
 
             try:
-                # Get update type classification
+                # Get update type classification (exclude service:* tags which are RSS categories)
                 tags = self.db.get_tags_for_article(article_id)
-                update_types = [tag['tag'] for tag in tags] if tags else None
+                update_types = [t['tag'] for t in tags if not t['tag'].startswith('service:')] if tags else None
 
                 # Generate summary
                 summary = self.summarizer.summarize(
@@ -170,10 +178,13 @@ class MicrosoftProductsTracker(BaseTracker):
             self.logger.warning("No recent product updates with summaries available for reporting")
             return None
 
-        # Enhance articles with update type information
+        # Enhance articles with update type information and RSS service categories
         for article in recent_articles:
             tags = self.db.get_tags_for_article(article['id'])
-            article['update_type'] = [tag['tag'] for tag in tags] if tags else ['General Update']
+            tag_values = [t['tag'] for t in tags] if tags else []
+            update_types = [v for v in tag_values if not v.startswith('service:')]
+            article['update_type'] = update_types if update_types else ['General Update']
+            article['rss_categories'] = [v[len('service:'):] for v in tag_values if v.startswith('service:')]
 
         # Check AI provider - only require LM Studio connection if using lmstudio
         ai_config = self.config.get('ai', {})

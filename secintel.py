@@ -23,6 +23,7 @@ from trackers.microsoft_products import MicrosoftProductsTracker
 from trackers.threat_intel import ThreatIntelTracker
 from trackers.thirdparty_security import ThirdPartySecurityTracker
 from trackers.llm_news import LLMNewsTracker
+from trackers.youtube_security import YouTubeSecurityTracker
 
 # Set up logging
 Path("logs").mkdir(exist_ok=True)
@@ -48,9 +49,19 @@ def parse_arguments():
                         help='Path to configuration file')
 
     parser.add_argument('--tracker', '-t',
-                        choices=['defender', 'microsoft_products', 'threat_intel', 'thirdparty_security', 'llm_news', 'all'],
+                        choices=['defender', 'microsoft_products', 'threat_intel', 'thirdparty_security', 'llm_news', 'youtube_security', 'all'],
                         default='all',
                         help='Which tracker to run')
+
+    parser.add_argument('--exclude',
+                        nargs='+',
+                        default=[],
+                        metavar='TRACKER',
+                        choices=['defender', 'microsoft_products', 'threat_intel', 'thirdparty_security', 'llm_news', 'youtube_security'],
+                        help="Tracker(s) to skip when --tracker=all. Note: youtube_security "
+                             "is opt-in per run anyway (interactive prompt, default no after "
+                             "10s) because it downloads audio and runs Whisper transcription; "
+                             "excluding it just suppresses the prompt.")
 
     parser.add_argument('--scrape', action='store_true',
                         help='Scrape new updates from sources')
@@ -97,7 +108,43 @@ def parse_arguments():
 
     return parser.parse_args()
 
-def get_trackers(config, db_manager, tracker_name):
+def prompt_yes_no_timeout(question, timeout_seconds=10, default=False):
+    """
+    Ask a yes/no question on the terminal, falling back to a default answer
+    if the user doesn't respond within the timeout or the session is
+    non-interactive (cron, piped input, CI).
+
+    Note: the timeout uses select() on stdin, which works on Linux/WSL/macOS.
+    On platforms where that fails (e.g. native Windows consoles), the default
+    answer is used.
+    """
+    default_label = 'yes' if default else 'no'
+
+    if not sys.stdin.isatty():
+        logger.info(f"Non-interactive session - defaulting to '{default_label}' for: {question}")
+        return default
+
+    print(f"\n{question}")
+    print(f"  [{'Y/n' if default else 'y/N'}] (auto-{default_label} in {timeout_seconds}s): ",
+          end='', flush=True)
+
+    try:
+        import select
+        ready, _, _ = select.select([sys.stdin], [], [], timeout_seconds)
+        if not ready:
+            print()
+            logger.info(f"No answer within {timeout_seconds}s - defaulting to '{default_label}'")
+            return default
+        answer = sys.stdin.readline().strip().lower()
+    except (OSError, ValueError) as e:
+        logger.debug(f"Prompt unavailable ({e}) - defaulting to '{default_label}'")
+        return default
+
+    if answer == '':
+        return default
+    return answer in ('y', 'yes')
+
+def get_trackers(config, db_manager, tracker_name, exclude=None, confirm_youtube=False):
     """
     Get tracker instances based on tracker name.
 
@@ -105,13 +152,26 @@ def get_trackers(config, db_manager, tracker_name):
         config (dict): Configuration dictionary
         db_manager: Database manager instance
         tracker_name (str): 'defender', 'microsoft_products', or 'all'
+        exclude (list[str] | None): Tracker names to skip. Only applied when
+            tracker_name == 'all' (an explicit single-tracker run ignores it).
+        confirm_youtube (bool): When True and tracker_name == 'all', ask the
+            user whether to include the resource-heavy youtube_security
+            tracker (10s timeout, default no). An explicit
+            --tracker youtube_security run never prompts.
 
     Returns:
         list: List of tracker instances
     """
+    excluded = set(exclude or []) if tracker_name == 'all' else set()
+    if excluded:
+        logger.info(f"Excluding trackers from this run: {sorted(excluded)}")
+
+    def _wants(name):
+        return tracker_name in (name, 'all') and name not in excluded
+
     trackers = []
 
-    if tracker_name in ['defender', 'all']:
+    if _wants('defender'):
         if config['trackers']['defender'].get('enabled', True):
             defender_config = config['trackers']['defender'].copy()
             defender_config['ai'] = config['ai']  # Add global AI config
@@ -119,7 +179,7 @@ def get_trackers(config, db_manager, tracker_name):
                 defender_config['testing'] = config['testing']
             trackers.append(DefenderTracker(defender_config, db_manager))
 
-    if tracker_name in ['microsoft_products', 'all']:
+    if _wants('microsoft_products'):
         if config['trackers']['microsoft_products'].get('enabled', True):
             ms_config = config['trackers']['microsoft_products'].copy()
             ms_config['ai'] = config['ai']  # Add global AI config
@@ -127,7 +187,7 @@ def get_trackers(config, db_manager, tracker_name):
                 ms_config['testing'] = config['testing']
             trackers.append(MicrosoftProductsTracker(ms_config, db_manager))
 
-    if tracker_name in ['threat_intel', 'all']:
+    if _wants('threat_intel'):
         if config['trackers']['threat_intel'].get('enabled', True):
             ti_config = config['trackers']['threat_intel'].copy()
             ti_config['ai'] = config['ai']  # Add global AI config
@@ -135,7 +195,7 @@ def get_trackers(config, db_manager, tracker_name):
                 ti_config['testing'] = config['testing']
             trackers.append(ThreatIntelTracker(ti_config, db_manager))
 
-    if tracker_name in ['thirdparty_security', 'all']:
+    if _wants('thirdparty_security'):
         if config['trackers']['thirdparty_security'].get('enabled', True):
             tp_config = config['trackers']['thirdparty_security'].copy()
             tp_config['ai'] = config['ai']  # Add global AI config
@@ -143,13 +203,35 @@ def get_trackers(config, db_manager, tracker_name):
                 tp_config['testing'] = config['testing']
             trackers.append(ThirdPartySecurityTracker(tp_config, db_manager))
 
-    if tracker_name in ['llm_news', 'all']:
+    if _wants('llm_news'):
         if config['trackers']['llm_news'].get('enabled', True):
             llm_config = config['trackers']['llm_news'].copy()
             llm_config['ai'] = config['ai']  # Add global AI config
             if 'testing' in config:
                 llm_config['testing'] = config['testing']
             trackers.append(LLMNewsTracker(llm_config, db_manager))
+
+    if _wants('youtube_security'):
+        if config['trackers']['youtube_security'].get('enabled', True):
+            include_youtube = True
+            if tracker_name == 'all' and confirm_youtube:
+                include_youtube = prompt_yes_no_timeout(
+                    "Include the YouTube tracker in this run? It downloads audio and "
+                    "runs Whisper transcription, which is slow and resource-heavy.",
+                    timeout_seconds=10,
+                    default=False,
+                )
+                if not include_youtube:
+                    logger.info(
+                        "Skipping youtube_security (declined or no answer). "
+                        "Run with --tracker youtube_security to run it explicitly."
+                    )
+            if include_youtube:
+                yt_config = config['trackers']['youtube_security'].copy()
+                yt_config['ai'] = config['ai']  # Add global AI config
+                if 'testing' in config:
+                    yt_config['testing'] = config['testing']
+                trackers.append(YouTubeSecurityTracker(yt_config, db_manager))
 
     return trackers
 
@@ -244,8 +326,13 @@ def main():
         db_manager.initialize_database()
         logger.info("Database initialized successfully")
 
-        # Get tracker instances
-        trackers = get_trackers(config, db_manager, args.tracker)
+        # Get tracker instances. The YouTube confirmation prompt only fires
+        # when actual scrape/analyze/report work is about to run - not for
+        # --test-connection or the no-op help path.
+        will_run_ops = args.scrape or args.analyze or args.report or args.full_run
+        trackers = get_trackers(config, db_manager, args.tracker,
+                                exclude=args.exclude,
+                                confirm_youtube=will_run_ops and not args.test_connection)
 
         if not trackers:
             logger.error(f"No enabled trackers found for: {args.tracker}")

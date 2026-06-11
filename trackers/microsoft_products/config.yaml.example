@@ -82,6 +82,17 @@ sources:
     type: rss
     feed_url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=microsoft_365blog
 
+  - name: M365 Message Center & Roadmap Archive (Merill)
+    url: https://mc.merill.net/
+    type: rss
+    feed_url: https://mc.merill.net/rss.xml
+    # Republishes Microsoft 365 Message Center messages and Roadmap items.
+    # Message Center content varies by tenant — use your tenant's Message Center
+    # as the authoritative source. Volume is high (~15 items/day across all M365
+    # services). The microsoft_products report routes items per-article by RSS
+    # <category> tag so they land in the right product section (Teams, Purview,
+    # Copilot, etc.) rather than all under one source.
+
   # ========================================
   # MICROSOFT TEAMS
   # ========================================

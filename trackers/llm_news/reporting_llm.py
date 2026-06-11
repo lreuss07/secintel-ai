@@ -12,6 +12,7 @@ from markdown.extensions.tables import TableExtension
 from markdown.extensions.nl2br import Nl2BrExtension
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from collections import defaultdict
+from core.report_sanitizer import esc, safe_url, sanitize_html
 
 logger = logging.getLogger(__name__)
 
@@ -93,11 +94,11 @@ class LLMNewsReportGenerator:
 
             if provider_articles and summary:
                 # Use the AI-generated provider summary
-                provider_updates_html += f"<li>{summary}</li>\n"
+                provider_updates_html += f"<li>{sanitize_html(summary)}</li>\n"
             elif provider_articles:
                 # Have articles but no summary - list article titles
                 titles = [a.get('title', 'Unknown')[:80] for a in provider_articles[:3]]
-                provider_updates_html += f"<li>{len(provider_articles)} update(s): {'; '.join(titles)}</li>\n"
+                provider_updates_html += f"<li>{len(provider_articles)} update(s): {esc('; '.join(titles))}</li>\n"
             else:
                 provider_updates_html += "<li>No updates reported.</li>\n"
 
@@ -112,9 +113,9 @@ class LLMNewsReportGenerator:
                 summary = provider_summaries.get(provider_key, '')
                 if provider_articles:
                     if summary:
-                        provider_updates_html += f"<li><strong>{provider_key}</strong>: {summary}</li>\n"
+                        provider_updates_html += f"<li><strong>{esc(provider_key)}</strong>: {sanitize_html(summary)}</li>\n"
                     else:
-                        provider_updates_html += f"<li><strong>{provider_key}</strong>: {len(provider_articles)} update(s)</li>\n"
+                        provider_updates_html += f"<li><strong>{esc(provider_key)}</strong>: {len(provider_articles)} update(s)</li>\n"
             provider_updates_html += "</ul>\n"
 
         # Replace the AI-generated Provider Updates section
@@ -544,7 +545,7 @@ class LLMNewsReportGenerator:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
+    <title>{esc(title)}</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         html {{ scroll-behavior: smooth; }}
@@ -694,11 +695,11 @@ class LLMNewsReportGenerator:
 <body>
     <div class="container">
         <div class="header">
-            <h1>{title}</h1>
+            <h1>{esc(title)}</h1>
             <div class="subtitle">{current_date}</div>
-            <div class="subtitle">Report Period: {time_period}</div>
+            <div class="subtitle">Report Period: {esc(time_period)}</div>
             <div class="ai-model">
-                AI Model: {model_name} (Local - LM Studio)
+                AI Model: {esc(model_name)} (Local - LM Studio)
                 <span class="badge">Local</span>
             </div>
         </div>
@@ -731,8 +732,8 @@ class LLMNewsReportGenerator:
             provider_id = provider_name.lower().replace(' ', '-')
             color = provider_colors.get(provider_name, '#666666')
             count_class = '' if len(articles) > 0 else 'zero'
-            html += f"""                <a href="#provider-{provider_id}" class="provider-item" style="border-left-color: {color};">
-                    <span class="provider-name">{provider_name}</span>
+            html += f"""                <a href="#provider-{esc(provider_id)}" class="provider-item" style="border-left-color: {color};">
+                    <span class="provider-name">{esc(provider_name)}</span>
                     <span class="provider-count {count_class}">{len(articles)}</span>
                 </a>
 """
@@ -753,8 +754,8 @@ class LLMNewsReportGenerator:
 """
             for article in new_articles[:6]:  # Show up to 6 new items
                 html += f"""                <div class="whats-new-item">
-                    <h4><a href="{article.get('url', '#')}" target="_blank">{article.get('title', 'Unknown')}</a><span class="new-badge">New</span></h4>
-                    <div class="meta">{article.get('provider', 'Unknown')} • {article.get('product', 'Unknown')}</div>
+                    <h4><a href="{safe_url(article.get('url', '#'))}" target="_blank">{esc(article.get('title', 'Unknown'))}</a><span class="new-badge">New</span></h4>
+                    <div class="meta">{esc(article.get('provider', 'Unknown'))} • {esc(article.get('product', 'Unknown'))}</div>
                 </div>
 """
             html += """            </div>
@@ -770,7 +771,7 @@ class LLMNewsReportGenerator:
             html += f"""
             <div class="executive-summary">
                 <h3>Executive Summary</h3>
-                {executive_summary}
+                {sanitize_html(executive_summary)}
             </div>
 """
 
@@ -790,9 +791,9 @@ class LLMNewsReportGenerator:
             provider_summary = provider_summaries.get(provider_name, '')
 
             html += f"""
-                <div class="provider-section" id="provider-{provider_id}">
+                <div class="provider-section" id="provider-{esc(provider_id)}">
                     <h3>
-                        {provider_name} ({len(articles)})
+                        {esc(provider_name)} ({len(articles)})
                         <a href="#" class="back-link">↑ Back to Top</a>
                     </h3>
 """
@@ -801,22 +802,22 @@ class LLMNewsReportGenerator:
                 html += f"""
                     <div class="provider-ai-summary">
                         <span class="summary-label">AI Summary</span>
-                        <p>{provider_summary}</p>
+                        <p>{sanitize_html(provider_summary)}</p>
                     </div>
 """
             html += f"""
                     <div class="expand-collapse-controls">
-                        <button class="control-btn" onclick="expandAll('provider-{provider_id}')">📖 Expand All</button>
-                        <button class="control-btn" onclick="collapseAll('provider-{provider_id}')">📕 Collapse All</button>
+                        <button class="control-btn" onclick="expandAll('provider-{esc(provider_id)}')">📖 Expand All</button>
+                        <button class="control-btn" onclick="collapseAll('provider-{esc(provider_id)}')">📕 Collapse All</button>
                     </div>
 """
             for article in articles:
                 summary_html = article.get('summary', 'No summary available.')
                 content_type = article.get('content_type', ['general_update'])
                 if isinstance(content_type, list):
-                    tags_html = ''.join([f'<span class="tag">{ct}</span>' for ct in content_type])
+                    tags_html = ''.join([f'<span class="tag">{esc(ct)}</span>' for ct in content_type])
                 else:
-                    tags_html = f'<span class="tag">{content_type}</span>'
+                    tags_html = f'<span class="tag">{esc(content_type)}</span>'
 
                 # Date badge
                 date_info = article.get('date_info', {})
@@ -836,17 +837,17 @@ class LLMNewsReportGenerator:
                     <details class="article-details">
                         <summary>
                             <div class="article-summary-header">
-                                <h4><a href="{article.get('url', '#')}" target="_blank">{article.get('title', 'Unknown')}</a></h4>
+                                <h4><a href="{safe_url(article.get('url', '#'))}" target="_blank">{esc(article.get('title', 'Unknown'))}</a></h4>
                                 <div class="meta-preview">
-                                    <span class="date-badge {age_category}">{formatted_date}</span>
-                                    <span><strong>Product:</strong> {article.get('product', 'Unknown')}</span>
+                                    <span class="date-badge {age_category}">{esc(formatted_date)}</span>
+                                    <span><strong>Product:</strong> {esc(article.get('product', 'Unknown'))}</span>
                                     {tags_html}
                                 </div>
-                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">{preview}</p>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">{esc(preview)}</p>
                             </div>
                         </summary>
                         <div class="article-content">
-                            <div class="article-summary">{summary_html}</div>
+                            <div class="article-summary">{sanitize_html(summary_html)}</div>
                         </div>
                     </details>
 """

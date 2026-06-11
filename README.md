@@ -62,6 +62,14 @@ AI-powered security intelligence aggregation and reporting platform. SecIntel AI
   - Download from: https://lmstudio.ai
   - Recommended models: Llama 3 8B, Mistral 7B, or any 20B+ parameter model
   - Default endpoint: `http://localhost:1234/v1`
+- **ffmpeg** (only if using the `youtube_security` tracker, for audio extraction)
+  - Debian/Ubuntu: `sudo apt install ffmpeg`
+  - macOS: `brew install ffmpeg`
+  - Windows: `choco install ffmpeg` or download from https://ffmpeg.org/
+- **NVIDIA GPU + CUDA 12** (optional, for faster Whisper transcription on YouTube videos)
+  - Any RTX 20-series or newer
+  - On Windows + WSL2, the NVIDIA driver installed on Windows is enough — WSL2 sees it transparently
+  - CUDA libraries are installed via pip (see Installation), no manual CUDA setup needed
 
 > **AI Model Note:** Local 20B+ parameter models provide comparable accuracy to cloud APIs at zero cost. We recommend LM Studio for most users. See [docs/AI_PROVIDER_SETUP.md](docs/AI_PROVIDER_SETUP.md) for setup instructions.
 
@@ -74,6 +82,10 @@ cd secintel-ai
 
 # Install Python dependencies
 pip install -r requirements.txt
+
+# Optional: Install NVIDIA CUDA libraries for GPU Whisper transcription
+# (only needed if you use the youtube_security tracker and have an NVIDIA GPU)
+pip install -r requirements-gpu.txt
 
 # Copy example configs and edit with your settings
 # (config.yaml files are not included - they contain API keys and reveal your security stack)
@@ -171,6 +183,7 @@ python secintel.py --report --tier 1
 | `threat_intel` | Threat intelligence news | Security blogs, CISA alerts, vendor advisories |
 | `thirdparty_security` | 3rd party security tools | Configurable - see `trackers/thirdparty_security/config.yaml.example` |
 | `llm_news` | LLM/AI provider updates | Anthropic, OpenAI, Google, Meta, Perplexity, etc. |
+| `youtube_security` | Security YouTube channels | John Hammond, IppSec, BHIS, Troy Hunt, Simply Cyber, NetworkChuck, TCM, Tyler Ramsbey (configurable) |
 
 ### 3rd Party Security Tools
 
@@ -184,6 +197,28 @@ The `thirdparty_security` tracker supports monitoring updates from various secur
 
 See `trackers/thirdparty_security/config.yaml.example` for example configurations covering EDR/XDR, SIEM, vulnerability management, network security, identity, and email security vendors.
 
+### YouTube Security Channels
+
+The `youtube_security` tracker pulls recent uploads from security YouTube channels and summarizes them via their transcripts. It uses a layered transcript strategy:
+
+1. **`youtube-transcript-api`** for the fast path — reads YouTube's existing captions in ~1 second per video. Free, but YouTube rate-limits this aggressively from non-residential IPs.
+2. **yt-dlp + faster-whisper fallback** — if the captions endpoint is throttled or the video has no captions, the tracker downloads the audio (~20–150 MB) and transcribes it locally. Audio files are deleted right after transcription. GPU acceleration is auto-detected.
+
+**Discovery** uses the YouTube Data API when a key is configured (recommended — see `trackers/youtube_security/config.yaml.example` for setup; ~1 quota unit per channel per run against a 10,000/day free quota). Without a key, discovery falls back to YouTube's Atom RSS feeds.
+
+**Why YouTube is special:** the tracker is dramatically more expensive than the RSS-based ones when the captions endpoint is throttled, since every video routes through Whisper. Because of this, it is **opt-in per run**: an interactive `--tracker all` / `--full-run` asks whether to include it, defaulting to **no** after 10 seconds. Non-interactive runs (cron, piped) skip it automatically — no flags needed. To run it, answer `y` at the prompt or invoke it explicitly:
+
+```bash
+# Routine run — prompts for YouTube (auto-skips after 10s, or in cron)
+python secintel.py --full-run
+
+# YouTube only, no prompt
+python secintel.py --tracker youtube_security --full-run
+
+# Suppress the prompt entirely on interactive full runs
+python secintel.py --full-run --exclude youtube_security
+```
+
 ## Commands
 
 | Command | Description |
@@ -193,7 +228,8 @@ See `trackers/thirdparty_security/config.yaml.example` for example configuration
 | `--report` | Generate HTML/Markdown reports |
 | `--tier {0,1,2,3}` | Report tier: 0=Daily (1d), 1=Weekly (7d), 2=Bi-Weekly (14d), 3=Monthly (30d) |
 | `--full-run` | Complete workflow (scrape -> analyze -> report) |
-| `--tracker NAME` | Select tracker: `defender`, `microsoft_products`, `threat_intel`, `thirdparty_security`, or `all` |
+| `--tracker NAME` | Select tracker: `defender`, `microsoft_products`, `threat_intel`, `thirdparty_security`, `llm_news`, `youtube_security`, or `all` |
+| `--exclude NAME [NAME ...]` | Skip one or more trackers from a `--tracker=all` run (e.g. `--exclude youtube_security` for a faster daily run) |
 | `--test-connection` | Test LM Studio connection |
 | `--list` | List available trackers |
 | `--config FILE` | Specify configuration file (default: config.yaml) |
@@ -362,12 +398,16 @@ See `requirements.txt` for the full list. Key dependencies:
 | Package | Purpose |
 |---------|---------|
 | `openai` | LM Studio API client (OpenAI-compatible) |
+| `anthropic` | Claude API client |
 | `requests` | HTTP requests |
 | `feedparser` | RSS feed parsing |
 | `beautifulsoup4` | HTML parsing |
 | `playwright` | Headless browser for JS-rendered pages |
 | `jinja2` | Report templating |
 | `pyyaml` | Configuration files |
+| `youtube-transcript-api` | YouTube captions (fast path for the `youtube_security` tracker) |
+| `yt-dlp` | Audio download fallback when YouTube captions are unavailable / throttled |
+| `faster-whisper` | Local speech-to-text for the YouTube Whisper fallback (CPU or NVIDIA GPU) |
 
 ## Acknowledgments
 

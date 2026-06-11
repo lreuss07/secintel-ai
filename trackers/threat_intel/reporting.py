@@ -10,6 +10,7 @@ import markdown
 import json
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from .summarizer import clean_summary_artifacts, validate_cves_in_text
+from core.report_sanitizer import esc, safe_url, sanitize_html
 
 logger = logging.getLogger(__name__)
 
@@ -460,10 +461,12 @@ class ReportGenerator:
                     # Fix formatting issues before conversion
                     article['summary'] = self._fix_markdown_formatting(article['summary'])
                     # Then convert markdown to HTML with all necessary extensions
-                    article['summary'] = markdown.markdown(
+                    article['summary'] = sanitize_html(markdown.markdown(
                         article['summary'],
                         extensions=['tables', 'fenced_code', 'nl2br', 'sane_lists', 'md_in_html']
-                    )
+                    ))
+                # Sanitize URL before it reaches the template (blocks javascript:/data: schemes)
+                article['url'] = safe_url(article.get('url', '#'))
 
             # Prepare template data
             exec_text = executive_summary.get('executive_summary', '')
@@ -475,10 +478,10 @@ class ReportGenerator:
             template_data = {
                 'title': f"SecIntel AI Intelligence Executive Summary - {datetime.now().strftime('%B %d, %Y')}",
                 'date': datetime.now().strftime('%B %d, %Y %H:%M'),
-                'executive_summary': markdown.markdown(
+                'executive_summary': sanitize_html(markdown.markdown(
                     exec_text,
                     extensions=['tables', 'fenced_code', 'nl2br', 'sane_lists', 'md_in_html']
-                ),
+                )),
                 'key_actors': executive_summary.get('key_actors', []),
                 'critical_iocs': executive_summary.get('critical_iocs', []),
                 'recommendations': executive_summary.get('recommendations', []),
@@ -1765,8 +1768,8 @@ class ReportGenerator:
             <div class="subtitle">{subtitle}</div>
             <div class="date">Generated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</div>
             <div class="ai-model">
-                {ai_model_info['display']}
-                <span class="badge">{ai_model_info['provider_type']}</span>
+                {esc(ai_model_info['display'])}
+                <span class="badge">{esc(ai_model_info['provider_type'])}</span>
             </div>
         </div>
 
@@ -1804,7 +1807,7 @@ class ReportGenerator:
             html += f"""
         <div class="executive-summary">
             <h3>📊 Executive Summary</h3>
-            {exec_summary_html}
+            {sanitize_html(exec_summary_html)}
         </div>
 """
 
@@ -1816,7 +1819,7 @@ class ReportGenerator:
 
         for source_name, source_articles in sources.items():
             safe_id = source_name.replace(' ', '-').replace("'", "")
-            html += f'                <a href="#{safe_id}" class="source-link">{source_name}<span class="source-count">{len(source_articles)}</span></a>\n'
+            html += f'                <a href="#{esc(safe_id)}" class="source-link">{esc(source_name)}<span class="source-count">{len(source_articles)}</span></a>\n'
 
         html += """            </div>
         </div>
@@ -1843,8 +1846,8 @@ class ReportGenerator:
 
             safe_id = source_name.replace(' ', '-').replace("'", "")
             html += f"""
-        <div class="source-section" id="{safe_id}">
-            <h2>{source_name} ({len(source_articles)} article{'s' if len(source_articles) != 1 else ''})</h2>
+        <div class="source-section" id="{esc(safe_id)}">
+            <h2>{esc(source_name)} ({len(source_articles)} article{'s' if len(source_articles) != 1 else ''})</h2>
 """
 
             # Add source-specific executive summary if available
@@ -1861,8 +1864,8 @@ class ReportGenerator:
                 )
                 html += f"""
             <div class="source-summary">
-                <h4>📝 {source_name} Summary</h4>
-                {source_summary_html}
+                <h4>📝 {esc(source_name)} Summary</h4>
+                {sanitize_html(source_summary_html)}
             </div>
 """
 
@@ -1921,11 +1924,11 @@ class ReportGenerator:
                     </div>
                     <span class="expand-icon">▼</span>
                 </div>
-                <h3 class="article-title"><a href="{url}" target="_blank" onclick="event.stopPropagation()">{title}</a></h3>
-                <div class="article-meta">Published: {published_date}</div>
-                <div class="article-preview">{preview}</div>
+                <h3 class="article-title"><a href="{safe_url(url)}" target="_blank" onclick="event.stopPropagation()">{esc(title)}</a></h3>
+                <div class="article-meta">Published: {esc(published_date)}</div>
+                <div class="article-preview">{esc(preview)}</div>
                 <div class="article-content">
-                    {summary_html}
+                    {sanitize_html(summary_html)}
 """
 
                 # IOC section removed - was generating too many false positives

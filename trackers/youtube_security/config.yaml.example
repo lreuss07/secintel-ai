@@ -1,0 +1,161 @@
+# YouTube Security Channels Tracker Configuration
+# Copy this file to config.yaml and customize for your environment.
+
+# YouTube Data API v3 key (recommended).
+#
+# When set, video discovery uses the official YouTube Data API at ~1 quota
+# unit per channel per run, well under the 10,000 free units per day. Without
+# a key the tracker falls back to YouTube's public Atom RSS feeds, which
+# work but get aggressively rate-limited from non-residential IPs.
+#
+# To get a key: https://console.cloud.google.com/ → "APIs & Services" →
+#   1. Enable "YouTube Data API v3"
+#   2. Create Credentials → API key
+#   3. (Optional) Restrict the key to the YouTube Data API and your IP
+youtube_api_key: 'YOUR_YOUTUBE_DATA_API_KEY_HERE'
+
+sources:
+  # Each entry is a channel to monitor. channel_id is the 24-character ID
+  # that starts with "UC". To find it: open the channel page on YouTube,
+  # view source, and search for "channelId":"UC..." OR use a lookup tool
+  # like https://commentpicker.com/youtube-channel-id.php
+  #
+  # The defaults below are popular security education channels; replace,
+  # remove, or extend as you like.
+
+  # John Hammond - Cybersecurity research, CTF, malware analysis
+  - name: "John Hammond"
+    channel_id: "UCVeW9qkBjo3zosnqUbG7CFw"
+    provider: "YouTube"
+    product: "John Hammond"
+
+  # IppSec - HackTheBox walkthroughs and penetration testing
+  - name: "IppSec"
+    channel_id: "UCa6eh7gCkpPo5XXUDfygQQA"
+    provider: "YouTube"
+    product: "IppSec"
+
+  # Simply Cyber (Gerald Auger) - Daily cyber news commentary
+  - name: "Simply Cyber"
+    channel_id: "UCG-48Ki-b6W_siaUkukJOSw"
+    provider: "YouTube"
+    product: "Simply Cyber"
+
+  # Tyler Ramsbey - Offensive security, Hack Smarter labs
+  - name: "Tyler Ramsbey"
+    channel_id: "UC_82czjFMgsYMjodhG_4mIw"
+    provider: "YouTube"
+    product: "Tyler Ramsbey"
+
+  # Troy Hunt - Have I Been Pwned, breach analysis
+  - name: "Troy Hunt"
+    channel_id: "UCD6MWz4A61JaeGrvyoYl-rQ"
+    provider: "YouTube"
+    product: "Troy Hunt"
+
+  # Black Hills Information Security - Security tutorials and webcasts
+  - name: "Black Hills InfoSec"
+    channel_id: "UCJ2U9Dq9NckqHMbcUupgF0A"
+    provider: "YouTube"
+    product: "BHIS"
+
+  # NetworkChuck - Networking and security tutorials
+  - name: "NetworkChuck"
+    channel_id: "UC9x0AN7BWHpCDHSm9NiJFJQ"
+    provider: "YouTube"
+    product: "NetworkChuck"
+
+  # The Cyber Mentor - Ethical hacking and penetration testing
+  - name: "The Cyber Mentor"
+    channel_id: "UC0ArlFuFYMpEewyRBzdLHiw"
+    provider: "YouTube"
+    product: "TCM Security"
+
+# =============================================================================
+# TRANSCRIPT SETTINGS
+# =============================================================================
+transcript:
+  max_chars: 15000          # Max transcript chars to store in DB
+  min_chars: 1000           # Min chars to accept (filters out shorts/promos)
+  ai_max_chars: 12000       # Max chars to send to AI for summarization
+  languages:                # Preferred transcript languages (in order)
+    - "en"
+
+  # After this many consecutive non-captions failures from youtube-transcript-api,
+  # assume the IP is throttled and skip that path for the rest of the run.
+  # Explicit RequestBlocked/IpBlocked exceptions short-circuit immediately.
+  max_consecutive_failures: 3
+
+  # Whisper fallback: when youtube-transcript-api fails (rate-limit or a video
+  # has no captions), download the audio with yt-dlp and transcribe locally
+  # via faster-whisper. Bypasses YouTube's captions throttle entirely. Costs
+  # CPU/GPU time and temporarily uses ~20-150 MB disk per video.
+  #
+  # Requires the yt-dlp and faster-whisper Python packages (in requirements.txt)
+  # plus the ffmpeg binary at the OS level. For NVIDIA GPU acceleration, also
+  # install requirements-gpu.txt (CUDA libs are auto-detected at runtime).
+  whisper:
+    enabled: true
+    model_size: "small"     # tiny, base, small, medium, large-v3 (larger = better but slower)
+    device: "auto"          # auto, cpu, cuda — auto picks GPU if available
+    compute_type: "auto"    # auto, int8, float16, float32 — int8 is fast on CPU
+    audio_tmpdir: "/tmp/secintel-whisper"
+
+# =============================================================================
+# KEYWORDS for content classification
+# =============================================================================
+keywords:
+  threat_advisory:
+    - "vulnerability"
+    - "cve"
+    - "exploit"
+    - "zero-day"
+    - "zero day"
+    - "ransomware"
+    - "malware"
+    - "threat actor"
+    - "apt"
+    - "breach"
+    - "data leak"
+    - "attack"
+    - "phishing"
+
+  ctf_walkthrough:
+    - "ctf"
+    - "capture the flag"
+    - "hack the box"
+    - "htb"
+    - "tryhackme"
+    - "walkthrough"
+    - "writeup"
+    - "write-up"
+    - "challenge"
+
+  tutorial:
+    - "tutorial"
+    - "how to"
+    - "guide"
+    - "learn"
+    - "getting started"
+    - "beginner"
+    - "setup"
+    - "install"
+    - "configure"
+
+  tool_review:
+    - "tool"
+    - "review"
+    - "demo"
+    - "demonstration"
+    - "comparison"
+    - "vs"
+    - "alternative"
+
+  security_news:
+    - "news"
+    - "update"
+    - "announcement"
+    - "released"
+    - "patch"
+    - "advisory"
+    - "report"

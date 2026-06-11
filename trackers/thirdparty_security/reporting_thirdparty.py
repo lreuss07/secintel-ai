@@ -12,6 +12,7 @@ from markdown.extensions.tables import TableExtension
 from markdown.extensions.nl2br import Nl2BrExtension
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from collections import defaultdict
+from core.report_sanitizer import esc, safe_url, sanitize_html
 
 logger = logging.getLogger(__name__)
 
@@ -457,6 +458,30 @@ class ThirdPartySecurityReportGenerator:
         # Try to load template, fallback to inline HTML
         try:
             template = self.env.get_template('security_product_report_tiered.html')
+
+            # Sanitize all untrusted HTML fragments and URLs before they reach
+            # the template, which renders summaries with |safe and article URLs
+            # in href="" (Jinja autoescape escapes quotes but does NOT block a
+            # javascript: scheme). See core/report_sanitizer. The inline
+            # fallback below does its own esc()/safe_url() and is left untouched.
+            executive_summary = sanitize_html(executive_summary)
+            product_summaries = {
+                k: sanitize_html(v) for k, v in (product_summaries or {}).items()
+            }
+
+            def _sanitize_articles(article_groups):
+                # article_groups may be a dict {vendor: [articles]} or a flat list
+                groups = article_groups.values() if isinstance(article_groups, dict) else [article_groups]
+                for group in groups:
+                    for article in group:
+                        if article.get('summary'):
+                            article['summary'] = sanitize_html(article['summary'])
+                        if 'url' in article:
+                            article['url'] = safe_url(article.get('url', '#'))
+
+            _sanitize_articles(products)
+            _sanitize_articles(new_articles)
+
             return template.render(
                 title=title,
                 date=current_date,
@@ -487,7 +512,7 @@ class ThirdPartySecurityReportGenerator:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
+    <title>{esc(title)}</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 20px; }}
@@ -525,9 +550,9 @@ class ThirdPartySecurityReportGenerator:
 <body>
     <div class="container">
         <div class="header">
-            <h1>{title}</h1>
-            <div class="subtitle">{current_date}</div>
-            <div class="subtitle">Report Period: {time_period}</div>
+            <h1>{esc(title)}</h1>
+            <div class="subtitle">{esc(current_date)}</div>
+            <div class="subtitle">Report Period: {esc(time_period)}</div>
         </div>
 
         <div class="summary-stats">
@@ -557,7 +582,7 @@ class ThirdPartySecurityReportGenerator:
             <h2>What's New Since Last Report</h2>
             <p style="text-align: center; margin-bottom: 20px;">
                 <strong>{new_count}</strong> new update{'s' if new_count != 1 else ''} added
-                {f'since {last_report_time}' if last_report_time else ''}
+                {f'since {esc(last_report_time)}' if last_report_time else ''}
             </p>
         </div>
 """
@@ -571,7 +596,7 @@ class ThirdPartySecurityReportGenerator:
             html += f"""
             <div class="executive-summary">
                 <h3>Executive Summary</h3>
-                {executive_summary}
+                {sanitize_html(executive_summary)}
             </div>
 """
 
@@ -584,24 +609,24 @@ class ThirdPartySecurityReportGenerator:
         for product_name, articles in products.items():
             html += f"""
                 <div class="product-section">
-                    <h3>{product_name} ({len(articles)} update{'s' if len(articles) != 1 else ''})</h3>
+                    <h3>{esc(product_name)} ({len(articles)} update{'s' if len(articles) != 1 else ''})</h3>
 """
             for article in articles:
                 summary_html = article.get('summary', 'No summary available.')
                 tags_html = ''
                 if article.get('update_type'):
-                    tags_html = ''.join([f'<span class="tag">{tag}</span>' for tag in article['update_type']])
+                    tags_html = ''.join([f'<span class="tag">{esc(tag)}</span>' for tag in article['update_type']])
 
                 html += f"""
                     <div class="article">
                         <h4>
-                            <a href="{article.get('url', '#')}" target="_blank">{article.get('title', 'Unknown')}</a>
+                            <a href="{safe_url(article.get('url', '#'))}" target="_blank">{esc(article.get('title', 'Unknown'))}</a>
                         </h4>
                         <div class="article-meta">
-                            <span><strong>Published:</strong> {article.get('date_info', {}).get('formatted_date', 'Unknown')}</span>
-                            <span style="margin-left: 15px;"><strong>Product:</strong> {article.get('product', 'Unknown')}</span>
+                            <span><strong>Published:</strong> {esc(article.get('date_info', {}).get('formatted_date', 'Unknown'))}</span>
+                            <span style="margin-left: 15px;"><strong>Product:</strong> {esc(article.get('product', 'Unknown'))}</span>
                         </div>
-                        <div class="article-summary">{summary_html}</div>
+                        <div class="article-summary">{sanitize_html(summary_html)}</div>
                         <div class="tags">{tags_html}</div>
                     </div>
 """
@@ -616,7 +641,7 @@ class ThirdPartySecurityReportGenerator:
         <div class="footer">
             <p><strong>SecIntel AI - Security Intelligence Tracker</strong></p>
             <p>3rd Party Security Product Tracker</p>
-            <p>Generated on """ + current_date + """</p>
+            <p>Generated on """ + esc(current_date) + """</p>
         </div>
     </div>
 </body>

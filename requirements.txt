@@ -20,6 +20,22 @@ pyyaml>=6.0
 # Reporting
 jinja2>=3.1.2
 markdown>=3.4.0
+nh3>=0.2.0   # HTML sanitization of AI summaries in reports (XSS protection)
+
+# YouTube transcript extraction
+youtube-transcript-api>=0.6.0
+# yt-dlp + faster-whisper power the fallback path when youtube-transcript-api
+# is rate-limited or a video has no captions.
+#
+# System dependency: ffmpeg must be installed at the OS level for yt-dlp's
+# audio extraction. On Debian/Ubuntu: `sudo apt install ffmpeg`. On macOS:
+# `brew install ffmpeg`. On Windows: download from https://ffmpeg.org/ and
+# add to PATH (or use Chocolatey: `choco install ffmpeg`).
+#
+# CPU transcription works out of the box. For NVIDIA GPU acceleration on
+# Linux/WSL2, also install: pip install -r requirements-gpu.txt
+yt-dlp>=2024.1.0
+faster-whisper>=1.0.0
 
 # Optional but recommended
 lxml>=4.9.0  # Better HTML/XML parsing

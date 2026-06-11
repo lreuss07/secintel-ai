@@ -673,12 +673,68 @@ class MicrosoftSecurityReportGenerator:
             'Tech Community - Microsoft Security Blog': 'Copilot',
         }
 
+        # Map RSS <category> values to primary product buckets. Used for feeds where
+        # one source name spans many products (e.g. the M365 Message Center archive).
+        # Order within this dict controls priority: more specific products win over
+        # general M365 buckets when an article carries multiple categories.
+        rss_category_to_product = {
+            'Microsoft Entra': 'Entra ID',
+            'Microsoft Intune': 'Microsoft Intune',
+            'Microsoft Purview': 'Microsoft Purview',
+            'Microsoft Teams': 'Microsoft Teams',
+            'SharePoint': 'SharePoint',
+            'SharePoint Syntex': 'SharePoint',
+            'Exchange': 'Exchange',
+            'Microsoft Copilot (Microsoft 365)': 'Copilot',
+            'Microsoft Agent 365': 'Copilot',
+            'Windows 365': 'Windows Security',
+            'Microsoft Edge': 'Other Security Updates',
+            'Microsoft Defender for Office 365': 'Office 365 Security',
+            'Outlook': 'Office 365 Security',
+            'Microsoft Viva': 'Office 365 Security',
+            'PowerPoint': 'Office 365 Security',
+            'Word': 'Office 365 Security',
+            'Excel': 'Office 365 Security',
+            'OneNote': 'Office 365 Security',
+            'OneDrive': 'Office 365 Security',
+            'Planner': 'Office 365 Security',
+            'Forms': 'Office 365 Security',
+            'Access': 'Office 365 Security',
+            'Power Automate': 'Office 365 Security',
+            'Microsoft 365': 'Office 365 Security',
+            'Microsoft 365 app': 'Office 365 Security',
+            'Microsoft 365 admin center': 'Office 365 Security',
+            'Microsoft 365 Admin Center': 'Office 365 Security',
+        }
+
         for article in articles:
             source = article.get('source', '')
             title = article.get('title', '')
 
             # Try to categorize by source first (most accurate)
             categorized = False
+
+            # If the article carries RSS <category> tags, route by them first — this lets
+            # a single-source feed with mixed products land each item in the right bucket.
+            # Prefer a specific product bucket over the generic 'Office 365 Security' so
+            # e.g. a "Copilot in PowerPoint" item lands in Copilot regardless of tag order.
+            matched_products = []
+            for rss_cat in article.get('rss_categories', []):
+                p = rss_category_to_product.get(rss_cat)
+                if p and p not in matched_products:
+                    matched_products.append(p)
+            if matched_products:
+                fallback_buckets = {'Office 365 Security', 'Other Security Updates'}
+                specific = [p for p in matched_products if p not in fallback_buckets]
+                chosen = specific[0] if specific else matched_products[0]
+                products[chosen].append(article)
+                categorized = True
+                logger.debug(f"Mapped RSS categories {matched_products} -> '{chosen}': {title[:50]}...")
+
+            # If RSS-category routing classified the article, skip the source-based chain
+            # below so we don't double-bucket it.
+            if categorized:
+                continue
 
             # Check if source matches any known source mapping
             if source in source_mapping:

@@ -436,14 +436,14 @@ class DatabaseManager:
                 cursor.execute('''
                 SELECT id, source, title, url, author, published_date, content
                 FROM articles
-                WHERE summary IS NULL AND tracker_name = ?
+                WHERE (summary IS NULL OR summary = '') AND tracker_name = ?
                 ORDER BY scraped_date ASC
                 ''', (tracker_name,))
             else:
                 cursor.execute('''
                 SELECT id, source, title, url, author, published_date, content
                 FROM articles
-                WHERE summary IS NULL
+                WHERE summary IS NULL OR summary = ''
                 ORDER BY scraped_date ASC
                 ''')
 
