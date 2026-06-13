@@ -258,46 +258,16 @@ class AIClient:
         # Truncate content to first 2000 chars for faster classification
         content_sample = content[:2000] if len(content) > 2000 else content
 
-        classification_prompt = f"""You are a cybersecurity content classifier. Classify the following article into ONE of these categories:
-
-1. **threat_advisory** - Articles about:
-   - CVEs, vulnerabilities, security patches
-   - Malware analysis, threat actor reports
-   - Breach reports, incident analysis
-   - Active exploitation, attack campaigns
-   - IOCs (Indicators of Compromise)
-   - Security advisories and alerts
-
-2. **product_update** - Articles about:
-   - Vendor product changelogs
-   - Feature announcements and release notes
-   - Product updates and new capabilities
-   - Beta/preview feature releases
-   - Version updates and roadmaps
-
-3. **industry_news** - Articles about:
-   - General cybersecurity news
-   - Opinion pieces and editorials
-   - Policy updates and regulations
-   - Industry trends and analysis
-   - Explainer articles and how-to guides
-   - Company announcements
-   - Market analysis and research
-
-Title: {title}
-
-Content (first 2000 characters):
-{content_sample}
-
-Respond with ONLY ONE WORD - the category name (threat_advisory, product_update, or industry_news).
-Do not include any explanation or additional text."""
+        from core.prompt_library import render
+        classification_prompt = render('classify.classify.user',
+                                       title=title, content_sample=content_sample)
 
         try:
             response = self.chat_completion(
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a precise content classifier. Respond with only the category name, nothing else."
+                        "content": render('classify.classify.system')
                     },
                     {
                         "role": "user",

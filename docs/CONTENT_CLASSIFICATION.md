@@ -121,7 +121,7 @@ CREATE TABLE articles (
 
 #### 2. AI Classification (`core/ai_client.py`)
 
-New method `classify_content()` in the `AIClient` class:
+New method `classify_content()` in the `AIClient` class (line 244):
 
 ```python
 def classify_content(self, title: str, content: str) -> str:
@@ -139,16 +139,22 @@ def classify_content(self, title: str, content: str) -> str:
 - Robust validation and fallback logic
 - Defaults to 'industry_news' on error (safest option)
 
+**Classification Prompt Location:**
+
+The classification prompt is **not** inline in `core/ai_client.py`. It is externalized to `prompts/classify.yaml` and loaded at runtime via `core/prompt_library.py`. The `classify_content()` method calls `core.prompt_library.render()` to render both the system and user prompt templates from that file.
+
+To change classification behavior (categories, instructions, examples), edit `prompts/classify.yaml`. Do **not** look for a hardcoded prompt string in `core/ai_client.py`.
+
 #### 3. Prompt Templates (`trackers/threat_intel/summarizer.py`)
 
-Three specialized prompt methods:
+Three specialized prompt methods (lines 434, 454, 467):
 - `_get_threat_advisory_prompt()` - Full threat intel analysis
 - `_get_product_update_prompt()` - Product-focused summary
 - `_get_industry_news_prompt()` - Brief informational summary
 
 #### 4. Updated Summarizer
 
-The `ArticleSummarizer.summarize()` method now:
+The `ArticleSummarizer.summarize()` method (line 480) now:
 
 1. Classifies the article first
 2. Selects the appropriate prompt template
@@ -356,7 +362,8 @@ Potential improvements for future releases:
 
 ## References
 
-- Main implementation: `./core/ai_client.py` (line 242)
-- Database schema: `./core/database.py` (line 62)
-- Summarizer logic: `./trackers/threat_intel/summarizer.py` (line 156)
+- Main implementation: `./core/ai_client.py` (line 244 — `classify_content()`)
+- Classification prompt template: `./prompts/classify.yaml` (rendered via `./core/prompt_library.py`)
+- Database schema: `./core/database.py` (line 171 — `content_type` column)
+- Summarizer logic: `./trackers/threat_intel/summarizer.py` (line 480 — `summarize()`)
 - Migration script: `./migrate_add_content_type.py`

@@ -41,13 +41,14 @@ class LLMNewsTracker(BaseTracker):
         self.connection_manager = LMStudioConnectionManager(lmstudio_config)
 
     def _get_model_name(self):
-        """Get the configured AI model name for report attribution."""
+        """Get the AI model name for report attribution."""
+        from core.report_helpers import resolve_lmstudio_model
         ai_config = self.config.get('ai', {})
         provider = ai_config.get('provider', 'lmstudio')
 
         if provider == 'lmstudio':
-            lm_config = ai_config.get('lmstudio', {})
-            return lm_config.get('model', 'local-model')
+            # Resolve the actually-loaded model, not the config placeholder
+            return resolve_lmstudio_model(ai_config.get('lmstudio', {}))
         elif provider == 'claude':
             claude_config = ai_config.get('claude', {})
             return claude_config.get('model', 'claude-sonnet')
@@ -160,9 +161,13 @@ class LLMNewsTracker(BaseTracker):
                     product=product
                 )
 
-                # Store summary with content type
-                self.db.update_article_summary(article_id, summary, content_type=content_type)
-                self.logger.info(f"Summary generated for article ID: {article_id} (type: {content_type})")
+                # Store summary (skip on failure - summarize() returns None so the
+                # article stays unsummarized and is retried on the next run)
+                if summary:
+                    self.db.update_article_summary(article_id, summary, content_type=content_type)
+                    self.logger.info(f"Summary generated for article ID: {article_id} (type: {content_type})")
+                else:
+                    self.logger.warning(f"No summary produced for article ID {article_id} - left unsummarized for retry")
 
             except Exception as e:
                 self.logger.error(f"Failed to analyze article ID {article_id}: {str(e)}")
@@ -199,7 +204,8 @@ class LLMNewsTracker(BaseTracker):
         # Get recent articles
         recent_articles = self.db.get_recent_articles_with_summary(
             days=time_window,
-            tracker_name='llm_news'
+            tracker_name='llm_news',
+            limit=self.max_summaries
         )
 
         self.logger.info(f"Found {len(recent_articles)} LLM news articles from last {time_window} days")

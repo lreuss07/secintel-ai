@@ -104,7 +104,8 @@ def parse_arguments():
                         help='Max articles to scrape per source (default: 3 in testing mode)')
 
     parser.add_argument('--max-summaries', type=int, default=None,
-                        help='Max articles to AI-summarize per tracker (default: 3 in testing mode)')
+                        help='Max articles to AI-summarize per tracker; also caps how many '
+                             'recent articles the report summarizes (default: 3 in testing mode)')
 
     return parser.parse_args()
 
@@ -322,14 +323,44 @@ def main():
             return
 
         # Initialize shared database
-        db_manager = DatabaseManager(config['database']['path'])
-        db_manager.initialize_database()
+        db_config = config.get('database', {})
+        db_manager = DatabaseManager(
+            db_config['path'],
+            busy_timeout_ms=db_config.get('busy_timeout_ms', 5000),
+        )
+        if not db_manager.initialize_database():
+            logger.error("Database initialization failed - aborting")
+            sys.exit(1)
         logger.info("Database initialized successfully")
+
+        # Optional integrity check (early warning for corruption). Default on;
+        # non-fatal - we log loudly but still run, since the user may want to
+        # rescrape into a fresh DB. Set database.integrity_check: false to skip.
+        if db_config.get('integrity_check', True):
+            ok, detail = db_manager.check_integrity()
+            if not ok:
+                logger.error(
+                    f"Database integrity check FAILED ({detail}). "
+                    "Consider restoring from a snapshot in the backup dir."
+                )
+
+        # Determine whether real work will run (also gates the snapshot below
+        # and the YouTube confirmation prompt further down).
+        will_run_ops = args.scrape or args.analyze or args.report or args.full_run
+
+        # Optional pre-run snapshot backup (opt-in via config). Captures the
+        # last-good state before this run touches the DB; keeps the most recent
+        # `keep`. Off by default so personal/CLI use isn't forced into it.
+        backup_config = db_config.get('backup', {})
+        if backup_config.get('enabled', False) and will_run_ops:
+            db_manager.create_snapshot(
+                backup_config.get('dir', 'data/backups'),
+                keep=backup_config.get('keep', 7),
+            )
 
         # Get tracker instances. The YouTube confirmation prompt only fires
         # when actual scrape/analyze/report work is about to run - not for
         # --test-connection or the no-op help path.
-        will_run_ops = args.scrape or args.analyze or args.report or args.full_run
         trackers = get_trackers(config, db_manager, args.tracker,
                                 exclude=args.exclude,
                                 confirm_youtube=will_run_ops and not args.test_connection)
@@ -384,7 +415,7 @@ def main():
             print("  --testing             Enable testing mode (limited sources/articles/summaries)")
             print("  --max-sources N       Max sources per tracker (default: 2 in testing mode)")
             print("  --max-articles N      Max articles per source (default: 3 in testing mode)")
-            print("  --max-summaries N     Max AI summaries per tracker (default: 3 in testing mode)")
+            print("  --max-summaries N     Max AI summaries per tracker; also caps report articles (default: 3 in testing mode)")
             print("\nExamples:")
             print("  python secintel.py --list")
             print("  python secintel.py --test-connection")

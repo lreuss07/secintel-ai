@@ -1,0 +1,127 @@
+# Prompts for the YouTube security tracker summarizer
+# (trackers/youtube_security/summarizer_youtube.py). Rendered via
+# core/prompt_library.py; $BLOCK_* values come from prompts/common.yaml.
+
+article:
+  system: |-
+    You are a cybersecurity analyst summarizing security video transcripts. Provide clear, actionable summaries focused on security value. Never ask follow-up questions.
+  user: |-
+    You are a cybersecurity analyst summarizing a security YouTube video. The content below is an auto-generated transcript, so expect informal language, filler words, and tangents. Focus on extracting the substantive security content.
+
+    $BLOCK_UNTRUSTED_TRANSCRIPT_NOTE
+
+    <video_transcript>
+    Title: $title
+    $channel_context
+    Transcript:
+    $transcript_text
+    $type_context
+    </video_transcript>
+
+    Provide a structured summary that includes:
+
+    1. **Overview**: What is this video about? (1-2 sentences)
+
+    2. **Key Security Topics**: Main security topics covered
+       - Specific vulnerabilities, threats, or techniques discussed
+       - Tools or technologies mentioned
+       - Attack vectors or defense strategies
+
+    3. **Technical Details**: Important technical information
+       - CVEs, exploit techniques, or attack methodologies
+       - Commands, tools, or configurations shown
+       - Network/system details relevant to security
+
+    4. **Actionable Takeaways**: What should security professionals do?
+       - Patches to apply or configurations to change
+       - Tools to evaluate or deploy
+       - Threats to monitor or investigate
+
+    Keep the summary technical and focused on practical security value. Aim for 200-300 words. Ignore sponsor segments, personal anecdotes, and off-topic tangents.
+
+    $BLOCK_ACCURACY_TRANSCRIPT
+
+    $BLOCK_NO_QUESTIONS
+
+exec:
+  system: |-
+    You are a cybersecurity analyst creating executive summaries of security YouTube content. Provide comprehensive, actionable summaries. Never ask follow-up questions.
+  user: |-
+    You are a cybersecurity analyst creating an executive summary of security YouTube content from the $time_period.
+
+    CRITICAL INSTRUCTION:
+    The current date is $formatted_date.
+    Your title MUST be: "$title_format"
+
+    Channels covered: $channel_list
+    VIDEO COUNTS BY CHANNEL: $channel_counts_str
+
+    $BLOCK_UNTRUSTED_SUMMARIES_NOTE
+
+    <article_summaries>
+    $articles_text
+    </article_summaries>
+
+    Create a structured executive summary:
+
+    1. **Executive Overview** (2-3 sentences)
+       - Key security themes covered across videos
+       - Notable trends or recurring topics
+
+    2. **Channel Highlights** (organized by channel)
+       For each channel with videos, summarize the key content:
+       - What topics were covered
+       - Most important takeaways
+
+    3. **Threat Landscape** (from video content)
+       - Vulnerabilities discussed
+       - Attack techniques demonstrated
+       - Threat actors or campaigns mentioned
+
+    4. **Tools & Techniques**
+       - Security tools featured or reviewed
+       - Techniques demonstrated
+       - Useful commands or configurations
+
+    5. **Actionable Intelligence**
+       - Patches or updates to apply
+       - Threats to investigate
+       - Skills to develop
+       - Resources to explore
+
+    6. **Content Distribution**
+       - Number of videos by channel
+       - Types of content (threat advisories, CTF walkthroughs, tutorials, etc.)
+
+    Format with clear sections and bullet points. Be specific about tools, CVEs, and techniques mentioned.
+
+    CRITICAL: Only use information from the video summaries above. Do NOT invent details.
+
+    $BLOCK_NO_QUESTIONS
+
+channel_mini:
+  system: |-
+    You are a concise cybersecurity analyst. Provide brief, informative summaries without follow-up questions.
+  user: |-
+    Create a brief 2-4 sentence summary of $channel_name's security videos from the $time_period.
+
+    Channel: $channel_name
+    Number of videos: $video_count
+
+    Videos:
+    $BLOCK_UNTRUSTED_SUMMARIES_NOTE
+
+    <article_summaries>
+    $articles_text
+    </article_summaries>
+
+    Highlight:
+    - Key security topics covered
+    - Most important takeaways
+    - Any critical threats or vulnerabilities discussed
+
+    Keep to 2-4 sentences. Be specific about security topics.
+
+    CRITICAL: Only use information from the videos above. Do NOT invent details.
+
+    $BLOCK_NO_QUESTIONS

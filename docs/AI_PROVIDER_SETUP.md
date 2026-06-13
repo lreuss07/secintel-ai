@@ -34,7 +34,7 @@ ai:
   # Claude settings
   claude:
     api_key: ''  # Your Anthropic API key
-    model: 'claude-sonnet-4-20250514'
+    model: 'claude-sonnet-4-6'
 
   # Shared settings
   temperature: 0.1
@@ -139,13 +139,13 @@ ai:
      provider: 'claude'
      claude:
        api_key: 'sk-ant-your-api-key-here'
-       model: 'claude-sonnet-4-20250514'
+       model: 'claude-sonnet-4-6'
    ```
 
 4. **Choose a Model**
-   - `claude-sonnet-4-20250514` - Recommended (fast, high quality, cost-effective)
-   - `claude-opus-4-20250514` - Highest quality (slower, more expensive)
-   - `claude-haiku-3-20240307` - Fastest, cheapest (lower quality)
+   - `claude-sonnet-4-6` - Recommended (fast, high quality, cost-effective)
+   - `claude-opus-4-8` - Highest quality (slower, more expensive)
+   - `claude-haiku-4-5-20251001` - Fastest, cheapest (lower quality)
 
 5. **Test Connection**
    ```bash
@@ -181,7 +181,7 @@ ai:
 
 ### For Claude
 
-**Best Overall**: claude-sonnet-4-20250514
+**Best Overall**: claude-sonnet-4-6
 - Excellent quality/cost ratio
 - Fast response times
 - Recommended for most users

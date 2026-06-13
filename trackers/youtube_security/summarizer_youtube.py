@@ -12,11 +12,13 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from core.ai_client import AIClient
+from core.report_helpers import SummaryCleanupMixin, content_too_short, insufficient_content_placeholder
+from core.prompt_library import render
 
 logger = logging.getLogger(__name__)
 
 
-class YouTubeSecuritySummarizer:
+class YouTubeSecuritySummarizer(SummaryCleanupMixin):
     """Generates summaries for security YouTube video transcripts."""
 
     def __init__(self, ai_config=None, ai_max_chars=None):
@@ -28,25 +30,6 @@ class YouTubeSecuritySummarizer:
             self.ai_client = AIClientFactory.create_lmstudio()
 
         self.ai_max_chars = ai_max_chars or 12000
-
-    def _remove_trailing_questions(self, text):
-        """Remove trailing questions the AI might add."""
-        question_patterns = [
-            r'\n\n?Do you want.*?\?.*?$',
-            r'\n\n?Would you like.*?\?.*?$',
-            r'\n\n?Should I.*?\?.*?$',
-            r'\n\n?Can I.*?\?.*?$',
-            r'\n\n?Is there anything.*?\?.*?$',
-            r'\n\n?Let me know if.*?\?.*?$',
-            r'\n\n?Feel free to.*?\?.*?$',
-            r'\n\n?Please let me know.*?\?.*?$',
-        ]
-
-        cleaned = text
-        for pattern in question_patterns:
-            cleaned = re.sub(pattern, '', cleaned, flags=re.DOTALL | re.IGNORECASE)
-
-        return cleaned.strip()
 
     def summarize(self, title, content, content_type=None, provider=None, product=None):
         """
@@ -63,6 +46,11 @@ class YouTubeSecuritySummarizer:
             tuple: (summary, content_type)
         """
         try:
+            # Skip too-thin transcripts (failed/empty transcription) - don't burn an LLM call
+            if content_too_short(content):
+                logger.warning(f"Transcript too short ({len(content) if content else 0} chars) for '{title}' - skipping AI summarization")
+                return insufficient_content_placeholder(content), "general_security"
+
             type_context = ""
             if content_type and isinstance(content_type, list):
                 type_context = f"\nContent Classification: {', '.join(content_type)}\n"
@@ -74,48 +62,17 @@ class YouTubeSecuritySummarizer:
             # Truncate transcript for AI context window
             transcript_text = content[:self.ai_max_chars]
 
-            prompt = f"""You are a cybersecurity analyst summarizing a security YouTube video. The content below is an auto-generated transcript, so expect informal language, filler words, and tangents. Focus on extracting the substantive security content.
-
-Title: {title}
-{channel_context}
-Transcript:
-{transcript_text}
-{type_context}
-
-Provide a structured summary that includes:
-
-1. **Overview**: What is this video about? (1-2 sentences)
-
-2. **Key Security Topics**: Main security topics covered
-   - Specific vulnerabilities, threats, or techniques discussed
-   - Tools or technologies mentioned
-   - Attack vectors or defense strategies
-
-3. **Technical Details**: Important technical information
-   - CVEs, exploit techniques, or attack methodologies
-   - Commands, tools, or configurations shown
-   - Network/system details relevant to security
-
-4. **Actionable Takeaways**: What should security professionals do?
-   - Patches to apply or configurations to change
-   - Tools to evaluate or deploy
-   - Threats to monitor or investigate
-
-Keep the summary technical and focused on practical security value. Aim for 200-300 words. Ignore sponsor segments, personal anecdotes, and off-topic tangents.
-
-CRITICAL ACCURACY RULES:
-- ONLY use information explicitly stated in the transcript
-- Do NOT invent CVE numbers, tool names, or technical details
-- If a detail is unclear from the transcript, say "not specified" or omit it
-- Do NOT add information from your own knowledge that wasn't in the transcript
-
-IMPORTANT: Provide ONLY the summary. Do NOT ask follow-up questions or offer to elaborate."""
+            prompt = render('youtube.article.user',
+                            title=title,
+                            channel_context=channel_context,
+                            transcript_text=transcript_text,
+                            type_context=type_context)
 
             summary = self.ai_client.chat_completion(
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a cybersecurity analyst summarizing security video transcripts. Provide clear, actionable summaries focused on security value. Never ask follow-up questions."
+                        "content": render('youtube.article.system')
                     },
                     {
                         "role": "user",
@@ -135,7 +92,8 @@ IMPORTANT: Provide ONLY the summary. Do NOT ask follow-up questions or offer to 
 
         except Exception as e:
             logger.error(f"Error generating video summary: {e}")
-            return f"Error generating summary: {e}", "general_security"
+            # Return None so the caller leaves the article unsummarized for retry
+            return None, "general_security"
 
     def _detect_content_type(self, title, content):
         """Detect content type based on title and content keywords."""
@@ -155,7 +113,7 @@ IMPORTANT: Provide ONLY the summary. Do NOT ask follow-up questions or offer to 
             return 'general_security'
 
 
-class YouTubeSecurityExecutiveSummarizer:
+class YouTubeSecurityExecutiveSummarizer(SummaryCleanupMixin):
     """Generates executive summaries from multiple YouTube security videos."""
 
     def __init__(self, ai_config=None):
@@ -165,33 +123,6 @@ class YouTubeSecurityExecutiveSummarizer:
             logger.warning("Using legacy summarizer initialization.")
             from core.ai_client import AIClientFactory
             self.ai_client = AIClientFactory.create_lmstudio()
-
-    def _get_day_suffix(self, day):
-        """Get ordinal suffix for a day number."""
-        if 10 <= day % 100 <= 20:
-            suffix = 'th'
-        else:
-            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
-        return suffix
-
-    def _remove_trailing_questions(self, text):
-        """Remove trailing questions the AI might add."""
-        question_patterns = [
-            r'\n\n?Do you want.*?\?.*?$',
-            r'\n\n?Would you like.*?\?.*?$',
-            r'\n\n?Should I.*?\?.*?$',
-            r'\n\n?Can I.*?\?.*?$',
-            r'\n\n?Is there anything.*?\?.*?$',
-            r'\n\n?Let me know if.*?\?.*?$',
-            r'\n\n?Feel free to.*?\?.*?$',
-            r'\n\n?Please let me know.*?\?.*?$',
-        ]
-
-        cleaned = text
-        for pattern in question_patterns:
-            cleaned = re.sub(pattern, '', cleaned, flags=re.DOTALL | re.IGNORECASE)
-
-        return cleaned.strip()
 
     def create_summary(self, articles, max_articles=30, time_period="last 30 days"):
         """
@@ -242,59 +173,19 @@ class YouTubeSecurityExecutiveSummarizer:
 
             channel_list = ", ".join(sorted(channels_seen))
 
-            prompt = f"""You are a cybersecurity analyst creating an executive summary of security YouTube content from the {time_period}.
-
-CRITICAL INSTRUCTION:
-The current date is {current_date.strftime('%B %d, %Y')}.
-Your title MUST be: "{title_format}"
-
-Channels covered: {channel_list}
-VIDEO COUNTS BY CHANNEL: {channel_counts_str}
-
-{articles_text}
-
-Create a structured executive summary:
-
-1. **Executive Overview** (2-3 sentences)
-   - Key security themes covered across videos
-   - Notable trends or recurring topics
-
-2. **Channel Highlights** (organized by channel)
-   For each channel with videos, summarize the key content:
-   - What topics were covered
-   - Most important takeaways
-
-3. **Threat Landscape** (from video content)
-   - Vulnerabilities discussed
-   - Attack techniques demonstrated
-   - Threat actors or campaigns mentioned
-
-4. **Tools & Techniques**
-   - Security tools featured or reviewed
-   - Techniques demonstrated
-   - Useful commands or configurations
-
-5. **Actionable Intelligence**
-   - Patches or updates to apply
-   - Threats to investigate
-   - Skills to develop
-   - Resources to explore
-
-6. **Content Distribution**
-   - Number of videos by channel
-   - Types of content (threat advisories, CTF walkthroughs, tutorials, etc.)
-
-Format with clear sections and bullet points. Be specific about tools, CVEs, and techniques mentioned.
-
-CRITICAL: Only use information from the video summaries above. Do NOT invent details.
-
-IMPORTANT: Provide ONLY the summary. No follow-up questions."""
+            prompt = render('youtube.exec.user',
+                            time_period=time_period,
+                            formatted_date=current_date.strftime('%B %d, %Y'),
+                            title_format=title_format,
+                            channel_list=channel_list,
+                            channel_counts_str=channel_counts_str,
+                            articles_text=articles_text)
 
             executive_summary = self.ai_client.chat_completion(
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a cybersecurity analyst creating executive summaries of security YouTube content. Provide comprehensive, actionable summaries. Never ask follow-up questions."
+                        "content": render('youtube.exec.system')
                     },
                     {
                         "role": "user",
@@ -364,30 +255,17 @@ IMPORTANT: Provide ONLY the summary. No follow-up questions."""
                 if summary:
                     articles_text += f"   Summary: {summary[:500]}...\n" if len(summary) > 500 else f"   Summary: {summary}\n"
 
-            prompt = f"""Create a brief 2-4 sentence summary of {channel_name}'s security videos from the {time_period}.
-
-Channel: {channel_name}
-Number of videos: {len(articles)}
-
-Videos:
-{articles_text}
-
-Highlight:
-- Key security topics covered
-- Most important takeaways
-- Any critical threats or vulnerabilities discussed
-
-Keep to 2-4 sentences. Be specific about security topics.
-
-CRITICAL: Only use information from the videos above. Do NOT invent details.
-
-IMPORTANT: Provide ONLY the summary. No questions or offers to elaborate."""
+            prompt = render('youtube.channel_mini.user',
+                            channel_name=channel_name,
+                            time_period=time_period,
+                            video_count=len(articles),
+                            articles_text=articles_text)
 
             summary = self.ai_client.chat_completion(
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a concise cybersecurity analyst. Provide brief, informative summaries without follow-up questions."
+                        "content": render('youtube.channel_mini.system')
                     },
                     {
                         "role": "user",

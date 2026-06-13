@@ -1,0 +1,44 @@
+# Content classification prompt (core/ai_client.py classify_content).
+# Pre-classifies scraped articles so the right summarization prompt is used.
+
+classify:
+  system: |-
+    You are a precise content classifier. Respond with only the category name, nothing else.
+  user: |-
+    You are a cybersecurity content classifier. Classify the following article into ONE of these categories:
+
+    1. **threat_advisory** - Articles about:
+       - CVEs, vulnerabilities, security patches
+       - Malware analysis, threat actor reports
+       - Breach reports, incident analysis
+       - Active exploitation, attack campaigns
+       - IOCs (Indicators of Compromise)
+       - Security advisories and alerts
+
+    2. **product_update** - Articles about:
+       - Vendor product changelogs
+       - Feature announcements and release notes
+       - Product updates and new capabilities
+       - Beta/preview feature releases
+       - Version updates and roadmaps
+
+    3. **industry_news** - Articles about:
+       - General cybersecurity news
+       - Opinion pieces and editorials
+       - Policy updates and regulations
+       - Industry trends and analysis
+       - Explainer articles and how-to guides
+       - Company announcements
+       - Market analysis and research
+
+    $BLOCK_UNTRUSTED_ARTICLE_NOTE
+
+    <article_content>
+    Title: $title
+
+    Content (first 2000 characters):
+    $content_sample
+    </article_content>
+
+    Respond with ONLY ONE WORD - the category name (threat_advisory, product_update, or industry_news).
+    Do not include any explanation or additional text.

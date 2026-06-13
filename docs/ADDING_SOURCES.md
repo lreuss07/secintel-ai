@@ -30,6 +30,16 @@ python secintel.py --scrape --tracker <tracker_name>
 | General threat intel, CVEs, advisories, APTs    | `threat_intel`         |
 | Third-party security vendors                    | `thirdparty_security`  |
 | AI/LLM updates (OpenAI, Anthropic, etc.)        | `llm_news`             |
+| YouTube security channels (video transcription) | `youtube_security`     |
+
+> **Note:** `youtube_security` is opt-in per run (you are prompted at scrape time; the default is to skip it). It uses `yt-dlp` + Whisper for transcription and is significantly heavier than the other trackers.
+
+### Tracker implementation notes
+
+- **`defender` and `microsoft_products`** do not have their own `scraper_*.py` or `summarizer_*.py` files. They share `core/microsoft_security_scraper.py` and `core/microsoft_security_summarizer.py`.
+- All other trackers (`threat_intel`, `thirdparty_security`, `llm_news`, `youtube_security`) have their own `scraper_*/summarizer_*/reporting_*` modules inside `trackers/<name>/`.
+- **Prompts are externalized.** AI summarization and classification prompts live in `prompts/<tracker>.yaml` (one file per tracker, plus `prompts/classify.yaml` and `prompts/common.yaml`). They are loaded at runtime by `core/prompt_library.py`. Summarizer modules do **not** embed prompt strings — if you need to tune how a tracker summarizes content, edit the corresponding `prompts/<tracker>.yaml` file, not the Python code.
+- If you are adding a **brand-new tracker** (not just a new source to an existing one), you must also create `prompts/<tracker>.yaml` with at least a `summarize` and `system` key for the new tracker's summarizer to load.
 
 ---
 

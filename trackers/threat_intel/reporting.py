@@ -11,10 +11,11 @@ import json
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from .summarizer import clean_summary_artifacts, validate_cves_in_text
 from core.report_sanitizer import esc, safe_url, sanitize_html
+from core.report_helpers import AIModelAttributionMixin
 
 logger = logging.getLogger(__name__)
 
-class ReportGenerator:
+class ReportGenerator(AIModelAttributionMixin):
     """Generates reports from executive summaries and article data"""
     
     def __init__(self, template_dir=None, ai_config=None):
@@ -46,45 +47,6 @@ class ReportGenerator:
 
         # Store AI config for model attribution in reports
         self.ai_config = ai_config
-
-    def _get_ai_model_attribution(self):
-        """
-        Generate AI model attribution string for reports.
-
-        Returns:
-            dict: Dictionary with model name, provider type, and formatted display string
-        """
-        if not self.ai_config:
-            return {
-                'model_name': 'Unknown',
-                'provider_type': 'Unknown',
-                'display': 'AI Model: Unknown'
-            }
-
-        provider = self.ai_config.get('provider', 'unknown').lower()
-
-        if provider == 'lmstudio':
-            lm_config = self.ai_config.get('lmstudio', {})
-            model_name = lm_config.get('model', 'local-model')
-            return {
-                'model_name': model_name,
-                'provider_type': 'Local',
-                'display': f'AI Model: {model_name} (Local - LM Studio)'
-            }
-        elif provider == 'claude':
-            claude_config = self.ai_config.get('claude', {})
-            model_name = claude_config.get('model', 'claude-sonnet-4-20250514')
-            return {
-                'model_name': model_name,
-                'provider_type': 'Cloud',
-                'display': f'AI Model: {model_name} (Cloud - Anthropic Claude API)'
-            }
-        else:
-            return {
-                'model_name': provider,
-                'provider_type': 'Unknown',
-                'display': f'AI Model: {provider} (Unknown Provider)'
-            }
 
     @staticmethod
     def _clean_thinking_tags(text):

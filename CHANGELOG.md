@@ -4,6 +4,64 @@ All notable changes to SecIntel AI are documented here.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-06-13
+
+### Added
+- **Reports show the actual loaded local model name.** The "AI Model" line in
+  report headers previously showed the `local-model` placeholder from config.
+  Reports now query LM Studio's native `/api/v0/models` endpoint at generation
+  time to resolve the model that's actually loaded (e.g. `google/gemma-4-12b`),
+  falling back to the configured value if the endpoint is unreachable. Resolved
+  once per run via a shared `resolve_lmstudio_model()` helper used by all six
+  trackers.
+
+### Security
+- **Prompt-injection defense in all summarizers.** Scraped article bodies,
+  video transcripts, and prior summaries are now wrapped in delimiter tags with
+  an explicit "treat as data, not instructions" note, so a hostile or
+  compromised source can't hijack the LLM (verified: an "ignore all previous
+  instructions" payload and a malicious "disable your firewall" directive were
+  both ignored).
+- **Anti-fabrication guardrails restored across every tracker.** The IOC / CVE /
+  threat-actor accuracy rules previously existed only in the threat_intel
+  summarizer; they're now applied (in the appropriate flavor) to defender,
+  microsoft_products, thirdparty_security, llm_news, and youtube_security too.
+
+### Changed
+- **Testing mode now also bounds report generation.** Previously `--max-summaries`
+  (and `--testing`) only limited the scrape and analyze stages; the report stage
+  still pulled the entire time-window backlog from the database and generated an
+  executive summary per section, so a quick test run could fire dozens of LLM
+  calls. `get_recent_articles_with_summary()` now takes an optional `limit`, and
+  every tracker's report passes `limit=self.max_summaries` — so in testing mode
+  the report summarizes only the N most-recent in-window articles. Production
+  reports are unchanged (`limit` is `None` when no testing limit is set).
+- **LLM prompts externalized to `prompts/*.yaml`** (loaded via
+  `core/prompt_library.py`), replacing the prompt strings that were duplicated
+  and drifting across the six summarizers. Shared blocks (guardrails, injection
+  delimiters, output rules) are defined once in `prompts/common.yaml`.
+
+### Added
+- **Database reliability settings** (all optional, safe defaults). `busy_timeout_ms`
+  makes connections wait on a locked DB instead of erroring; a startup
+  `PRAGMA quick_check` integrity check logs corruption as an early warning; and
+  opt-in pre-run snapshot backups via `VACUUM INTO` (with retention) for
+  deployments holding data that can't be regenerated. WAL mode is intentionally
+  avoided as unsafe on cloud-synced storage. Configurable under `database:` in
+  `config.yaml`.
+
+### Fixed
+- `secintel.py` now checks the return value of `initialize_database()` and
+  aborts on failure instead of continuing into a run against an uninitialized DB.
+- **Summarizers skip too-thin content and no longer store errors as summaries.**
+  All summarizers now skip articles with under ~200 characters of scraped
+  content (empty RSS stub / paywall) before calling the LLM — this matches the
+  guard threat_intel already had, and avoids an edge case where empty content
+  could push a local model into a degenerate loop. On a genuine summarization
+  failure, the summarizer now returns `None` and the analyze loop leaves the
+  article unsummarized for retry on the next run, rather than persisting the
+  error message as the article's summary.
+
 ## [1.2.0] - 2026-06-10
 
 ### Security

@@ -5,8 +5,8 @@ Microsoft Defender tracker plugin for SecIntel AI.
 from core.base_tracker import BaseTracker
 from core.lm_studio_connection import LMStudioConnectionManager
 from core.ai_client import AIClient
-from .scraper_defender import MicrosoftSecurityProductScraper
-from .summarizer_defender import MicrosoftSecurityProductSummarizer, MicrosoftSecurityExecutiveSummarizer
+from core.microsoft_security_scraper import MicrosoftSecurityProductScraper
+from core.microsoft_security_summarizer import MicrosoftSecurityProductSummarizer, MicrosoftSecurityExecutiveSummarizer
 from .reporting_defender import MicrosoftSecurityReportGenerator
 import logging
 
@@ -122,9 +122,13 @@ class DefenderTracker(BaseTracker):
                     update_type=update_types
                 )
 
-                # Store summary
-                self.db.update_article_summary(article_id, summary)
-                self.logger.info(f"✓ Summary generated for update ID: {article_id}")
+                # Store summary (skip on failure - summarize() returns None so the
+                # article stays unsummarized and is retried on the next run)
+                if summary:
+                    self.db.update_article_summary(article_id, summary)
+                    self.logger.info(f"✓ Summary generated for update ID: {article_id}")
+                else:
+                    self.logger.warning(f"✗ No summary produced for update ID {article_id} - left unsummarized for retry")
 
             except Exception as e:
                 self.logger.error(f"✗ Failed to analyze update ID {article_id}: {str(e)}")
@@ -161,7 +165,8 @@ class DefenderTracker(BaseTracker):
         # Get recent articles
         recent_articles = self.db.get_recent_articles_with_summary(
             days=time_window,
-            tracker_name='defender'
+            tracker_name='defender',
+            limit=self.max_summaries
         )
 
         self.logger.info(f"Found {len(recent_articles)} Defender updates from last {time_window} days")

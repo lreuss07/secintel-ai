@@ -170,7 +170,8 @@ class ThreatIntelTracker(BaseTracker):
         # Get recent articles
         recent_articles = self.db.get_recent_articles_with_summary(
             days=time_window,
-            tracker_name='threat_intel'
+            tracker_name='threat_intel',
+            limit=self.max_summaries
         )
 
         self.logger.info(f"Found {len(recent_articles)} threat intel articles from last {time_window} days")

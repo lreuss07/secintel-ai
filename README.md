@@ -277,27 +277,47 @@ secintel-ai/
 ├── config.yaml                 # Global configuration
 ├── requirements.txt            # Python dependencies
 ├── core/                       # Shared modules
-│   ├── database.py             # SQLite operations
-│   ├── config.py               # YAML config loading
+│   ├── ai_client.py            # Unified AI client (LM Studio + Claude)
 │   ├── base_tracker.py         # Base tracker class
-│   └── ioc_extractor.py        # IOC extraction utilities
+│   ├── config.py               # YAML config loading
+│   ├── database.py             # SQLite operations
+│   ├── ioc_extractor.py        # IOC extraction utilities
+│   ├── lm_studio_connection.py # LM Studio connection manager
+│   ├── microsoft_security_scraper.py    # Shared scraper (defender + microsoft_products)
+│   ├── microsoft_security_summarizer.py # Shared summarizer (defender + microsoft_products)
+│   ├── prompt_library.py       # Loads externalized prompts from prompts/
+│   ├── report_helpers.py       # Shared report utilities
+│   ├── report_sanitizer.py     # HTML escaping/XSS protection
+│   └── source_validator.py     # Source configuration validator
+├── prompts/                    # Externalized LLM prompt templates (YAML)
+│   ├── classify.yaml
+│   ├── common.yaml
+│   ├── llm_news.yaml
+│   ├── microsoft_products.yaml
+│   ├── thirdparty.yaml
+│   ├── threat_intel.yaml
+│   └── youtube.yaml
 ├── trackers/                   # Tracker plugins
 │   ├── defender/               # Microsoft Defender tracker
 │   ├── microsoft_products/     # Microsoft Products tracker
 │   ├── threat_intel/           # Threat Intelligence tracker
-│   └── thirdparty_security/    # 3rd Party Security tracker
-│       ├── __init__.py
-│       ├── config.yaml         # Source definitions
-│       ├── scraper_thirdparty.py
-│       ├── summarizer_thirdparty.py
-│       ├── reporting_thirdparty.py
-│       └── templates/
+│   ├── thirdparty_security/    # 3rd Party Security tracker
+│   │   ├── __init__.py
+│   │   ├── config.yaml         # Source definitions
+│   │   ├── scraper_thirdparty.py
+│   │   ├── summarizer_thirdparty.py
+│   │   ├── reporting_thirdparty.py
+│   │   └── templates/
+│   ├── llm_news/               # LLM/AI provider updates tracker
+│   └── youtube_security/       # Security YouTube channels tracker (opt-in)
 ├── data/                       # SQLite database
 ├── reports/                    # Generated reports
 │   ├── defender/
 │   ├── microsoft_products/
 │   ├── threat_intel/
-│   └── thirdparty_security/
+│   ├── thirdparty_security/
+│   ├── llm_news/
+│   └── youtube_security/
 └── logs/                       # Log files
 ```
 

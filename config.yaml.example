@@ -26,6 +26,24 @@ ai:
 database:
   path: data/secintel.db
 
+  # Optional reliability settings (safe defaults shown; all can be omitted).
+  # busy_timeout_ms: how long a connection waits on a locked DB before erroring
+  # (0 disables). WAL mode is intentionally not used - its sidecar files are
+  # unsafe on cloud-synced storage like OneDrive.
+  busy_timeout_ms: 5000
+
+  # integrity_check: run PRAGMA quick_check at startup as a corruption early
+  # warning (logs an error but does not abort the run).
+  integrity_check: true
+
+  # Pre-run snapshot backups via VACUUM INTO. Off by default. Enable when this
+  # DB holds data you can't easily regenerate. Snapshots land in `dir`; the
+  # most recent `keep` are retained.
+  backup:
+    enabled: false
+    dir: data/backups
+    keep: 7
+
 # Tracker configurations
 trackers:
   # Microsoft Defender tracker

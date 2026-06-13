@@ -14,14 +14,18 @@ logger = logging.getLogger(__name__)
 class DatabaseManager:
     """Manages SQLite database operations with tag support and multi-tracker functionality"""
 
-    def __init__(self, db_path):
+    def __init__(self, db_path, busy_timeout_ms=5000):
         """
         Initialize the database manager.
 
         Args:
             db_path (str): Path to the SQLite database file
+            busy_timeout_ms (int): PRAGMA busy_timeout in milliseconds. Makes a
+                connection wait (rather than immediately erroring) when the DB
+                is locked by another writer. Set to 0 to disable.
         """
         self.db_path = db_path
+        self.busy_timeout_ms = busy_timeout_ms
         # Ensure the directory exists
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
@@ -34,7 +38,101 @@ class DatabaseManager:
         """
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row  # Return rows as dictionaries
+        # Wait for a lock instead of erroring out immediately under contention.
+        # Applied explicitly (even for 0) because Python's sqlite3 defaults
+        # busy_timeout to 5000ms - so 0 here authoritatively disables it.
+        # NOTE: WAL mode is deliberately NOT enabled - its persistent -wal/-shm
+        # sidecar files can desync from the main DB on cloud-synced storage
+        # (e.g. OneDrive). The default rollback journal stays self-contained.
+        if self.busy_timeout_ms is not None:
+            conn.execute(f"PRAGMA busy_timeout = {int(self.busy_timeout_ms)}")
         return conn
+
+    def check_integrity(self):
+        """
+        Run a fast integrity check (PRAGMA quick_check) on the database.
+
+        Intended as an early-warning at startup so corruption surfaces on the
+        next run rather than silently weeks later. Cheap on small databases.
+
+        Returns:
+            tuple[bool, str]: (ok, detail). ok is True when SQLite reports "ok";
+            detail carries the problem description(s) otherwise.
+        """
+        conn = None
+        try:
+            conn = self.get_connection()
+            rows = conn.execute("PRAGMA quick_check").fetchall()
+            results = [row[0] for row in rows]
+            ok = results == ["ok"]
+            if ok:
+                logger.debug("Database integrity check passed (quick_check: ok)")
+            else:
+                logger.error(f"Database integrity check FAILED: {'; '.join(results)}")
+            return ok, "; ".join(results)
+        except sqlite3.Error as e:
+            logger.error(f"Database integrity check could not run: {str(e)}")
+            return False, str(e)
+        finally:
+            if conn:
+                conn.close()
+
+    def create_snapshot(self, backup_dir, keep=7, timestamp=None):
+        """
+        Write a consistent point-in-time backup of the database and prune old
+        snapshots, keeping the most recent `keep`.
+
+        Uses `VACUUM INTO`, which produces a fully consistent single-file copy
+        (preferred over a raw file copy on cloud-synced storage, since there
+        are no journal sidecars to desync).
+
+        Args:
+            backup_dir (str): Directory to write snapshots into (created if absent).
+            keep (int): Number of most-recent snapshots to retain (0/None = keep all).
+            timestamp (str|None): Override the filename timestamp (for tests).
+
+        Returns:
+            str|None: Path to the snapshot written, or None on failure.
+        """
+        conn = None
+        try:
+            os.makedirs(backup_dir, exist_ok=True)
+            if timestamp is None:
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            base = os.path.splitext(os.path.basename(self.db_path))[0]
+            dest = os.path.join(backup_dir, f"{base}-{timestamp}.db")
+
+            conn = self.get_connection()
+            conn.execute("VACUUM INTO ?", (dest,))
+            logger.info(f"Database snapshot written: {dest}")
+
+            self._prune_snapshots(backup_dir, base, keep)
+            return dest
+        except (sqlite3.Error, OSError) as e:
+            logger.error(f"Database snapshot failed: {str(e)}")
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def _prune_snapshots(self, backup_dir, base, keep):
+        """Delete all but the most recent `keep` snapshots for this database."""
+        if not keep or keep <= 0:
+            return
+        try:
+            # Timestamp format YYYYMMDD_HHMMSS sorts chronologically by name.
+            snaps = sorted(
+                f for f in os.listdir(backup_dir)
+                if f.startswith(f"{base}-") and f.endswith(".db")
+            )
+            for old in snaps[:-keep]:
+                try:
+                    os.remove(os.path.join(backup_dir, old))
+                    logger.debug(f"Pruned old snapshot: {old}")
+                except OSError as e:
+                    logger.warning(f"Could not prune snapshot {old}: {str(e)}")
+        except OSError as e:
+            logger.warning(f"Could not list snapshots for pruning: {str(e)}")
 
     def initialize_database(self):
         """
@@ -459,13 +557,16 @@ class DatabaseManager:
             if conn:
                 conn.close()
 
-    def get_recent_articles_with_summary(self, days=30, tracker_name=None):
+    def get_recent_articles_with_summary(self, days=30, tracker_name=None, limit=None):
         """
         Get recent articles that have been analyzed (have summaries).
 
         Args:
             days (int): Number of days to look back (based on published_date)
             tracker_name (str): Filter by tracker name (optional)
+            limit (int): Cap the result to the N most-recent in-window articles.
+                None (default) returns all. Used by testing mode so report
+                generation doesn't summarize the whole backlog.
 
         Returns:
             list: List of article dictionaries with IOCs included
@@ -551,13 +652,18 @@ class DatabaseManager:
                         articles.append(article)
                         if date_source == 'scraped':
                             logger.debug(f"Article {article['id']} using scraped_date (no published_date)")
+                        # Results are ordered most-recent-first, so stopping here
+                        # yields the N newest in-window articles (testing mode).
+                        if limit is not None and limit > 0 and len(articles) >= limit:
+                            break
                     else:
                         logger.debug(f"Article {article['id']} dated {date_naive.strftime('%Y-%m-%d')} is outside {days}-day window")
                 except Exception as e:
                     logger.warning(f"Error processing article {article['id']}: {str(e)}")
                     continue
 
-            logger.info(f"Retrieved {len(articles)} recent articles with summaries (published within last {days} days)")
+            cap_note = f" (TESTING MODE: capped at {limit})" if (limit is not None and limit > 0) else ""
+            logger.info(f"Retrieved {len(articles)} recent articles with summaries (published within last {days} days){cap_note}")
             return articles
 
         except sqlite3.Error as e:

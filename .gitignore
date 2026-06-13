@@ -28,6 +28,12 @@ __pycache__/
 .Python
 *.so
 
+# Test artifacts
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
 # Environment
 .env
 .venv

@@ -1,0 +1,165 @@
+# Prompts for the Microsoft security product summarizers
+# (core/microsoft_security_summarizer.py - shared by the defender and
+# microsoft_products trackers). Rendered via core/prompt_library.py;
+# $BLOCK_* values come from prompts/common.yaml.
+
+article:
+  system: |-
+    You are a Microsoft Security specialist. Provide clear, informative summaries of security product updates that help administrators understand new features, improvements, and changes across Microsoft's security portfolio. Never ask follow-up questions.
+  user: |-
+    You are a Microsoft Security specialist assistant. Analyze the following Microsoft security product update or announcement and provide a clear, informative summary.
+
+    $BLOCK_UNTRUSTED_ARTICLE_NOTE
+
+    <article_content>
+    Title: $title
+
+    Content:
+    $content
+
+    $update_context
+    </article_content>
+
+    Please provide a structured summary that includes:
+
+    1. **What Changed**: Clearly identify what specific aspect of Microsoft security products was updated, changed, or announced
+       - Which product/component (Entra ID, Intune, Purview, Windows Security, Office 365 Security, Microsoft Copilot, etc.)
+       - Specific features, capabilities, or configurations affected
+
+    2. **Key Details**: Extract the most important technical details
+       - Version numbers, build numbers, or release dates if mentioned
+       - New features or capabilities introduced
+       - Bugs fixed or issues resolved
+       - Performance improvements
+       - Changes to existing functionality
+       - Policy or configuration changes
+
+    3. **What This Means**: How this affects your security environment
+       - Who can use this (all users, specific licensing tiers, specific platforms)
+       - Availability (automatic rollout, opt-in, configuration available, preview vs GA)
+       - Any breaking changes or deprecated features
+       - Benefits and improvements this provides
+       - Impact on security posture
+
+    4. **How to Use It**: Optional steps to take advantage of this update
+       - Configuration options to explore
+       - Recommended settings to consider
+       - Getting started guidance
+       - Timeline or availability if specified
+       - Integration with other Microsoft security products
+
+    5. **Additional Notes**: Any important details, prerequisites, or related information
+       - Known limitations or requirements
+       - Links to documentation if mentioned
+       - Related updates or dependencies
+       - Compliance or regulatory considerations
+
+    Keep the summary technical, specific, and informative. Focus on helping security administrators understand what's new and how they might use it. Aim for 300-400 words.
+
+    $BLOCK_ACCURACY_PRODUCT
+
+    $BLOCK_NO_QUESTIONS
+
+exec:
+  system: |-
+    You are a Microsoft Security specialist. Create comprehensive, informative summaries of security product updates that help administrators stay current with new features and improvements across the Microsoft security portfolio. Never ask follow-up questions.
+
+exec_product:
+  user: |-
+    You are a Microsoft Security specialist. Analyze the following $product_focus updates from the $time_period and create a concise executive summary.
+
+    $BLOCK_UNTRUSTED_SUMMARIES_NOTE
+
+    <article_summaries>
+    $articles_text
+    </article_summaries>
+
+    Create a brief executive summary for $product_focus that includes:
+
+    1. **Key Updates** (2-3 sentences)
+       - Most important changes or new features
+       - Notable improvements or capabilities
+
+    2. **What Changed**
+       - New features and capabilities
+       - Improvements and enhancements
+       - Bug fixes if significant
+
+    3. **Action Items** (if applicable)
+       - What administrators should review
+       - Configuration changes to consider
+       - Deprecations or breaking changes
+
+    Keep the summary concise and focused on $product_focus. Format in markdown with clear sections and bullet points.
+
+    $BLOCK_ACCURACY_PRODUCT
+
+    $BLOCK_NO_QUESTIONS
+
+exec_overview:
+  user: |-
+    You are a Microsoft Security specialist. Analyze the following Microsoft security product updates from the $time_period and create a comprehensive overview summary.
+
+    CRITICAL INSTRUCTION - FOLLOW EXACTLY:
+    $date_instruction
+    Your title MUST be EXACTLY: "$title_format"
+    DO NOT use any other date format. The report is for $date_format.
+
+    $BLOCK_UNTRUSTED_SUMMARIES_NOTE
+
+    <article_summaries>
+    $articles_text
+    </article_summaries>
+
+    Create a structured summary that includes:
+
+    1. **Executive Overview** (2-3 sentences)
+       - $overview_instruction
+       - Overall theme or focus of recent updates across the Microsoft security portfolio
+
+    2. **Featured Updates** (highlighted items)
+       - Notable new capabilities announced
+       - Significant improvements or enhancements
+       - Breaking changes or deprecations that require awareness
+
+    3. **New Features & Capabilities**
+       - Major new features introduced
+       - Enhanced capabilities or improvements
+       - Preview features announced
+
+    4. **Product-Specific Updates** (organized by product category)
+       - Entra ID (Identity & Access)
+       - Microsoft Intune (Endpoint Management)
+       - Microsoft Purview (Data Governance & Compliance)
+       - Office 365 Security
+       - Windows Security
+       - Microsoft Copilot (Security Copilot, Microsoft 365 Copilot, etc.)
+       - Other Microsoft security products
+
+    5. **Performance & Reliability Improvements**
+       - Bug fixes and stability improvements
+       - Performance enhancements
+       - Known issues resolved
+
+    6. **Worth Exploring** (optional recommendations)
+       - Updates worth reviewing for your environment
+       - New features to consider enabling
+       - Configuration options to explore
+       - Integration opportunities across products
+
+    7. **Upcoming Changes & Deprecations**
+       - Features being deprecated
+       - Timeline for upcoming changes
+       - Migration paths if applicable
+
+    8. **Key Metrics** (if discernible from articles)
+       - Number of new features
+       - Number of improvements and fixes
+       - Number of preview releases
+       - Affected product areas
+
+    Format the summary in clear sections with bullet points. Be specific about version numbers, dates, and availability. This summary should help security administrators quickly understand what's new across Microsoft's security portfolio and what updates might be useful for their deployment.
+
+    $BLOCK_ACCURACY_PRODUCT
+
+    $BLOCK_NO_QUESTIONS

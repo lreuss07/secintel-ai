@@ -13,11 +13,13 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from core.ai_client import AIClient
+from core.report_helpers import SummaryCleanupMixin, content_too_short, insufficient_content_placeholder
+from core.prompt_library import render
 
 logger = logging.getLogger(__name__)
 
 
-class LLMNewsSummarizer:
+class LLMNewsSummarizer(SummaryCleanupMixin):
     """Generates summaries for LLM news and update articles"""
 
     def __init__(self, ai_config=None, base_url=None, api_key=None, model=None):
@@ -43,33 +45,6 @@ class LLMNewsSummarizer:
                 model=model or "local-model"
             )
 
-    def _remove_trailing_questions(self, text):
-        """
-        Remove trailing questions that the AI might add at the end of summaries.
-
-        Args:
-            text (str): Summary text
-
-        Returns:
-            str: Cleaned text without trailing questions
-        """
-        question_patterns = [
-            r'\n\n?Do you want.*?\?.*?$',
-            r'\n\n?Would you like.*?\?.*?$',
-            r'\n\n?Should I.*?\?.*?$',
-            r'\n\n?Can I.*?\?.*?$',
-            r'\n\n?Is there anything.*?\?.*?$',
-            r'\n\n?Let me know if.*?\?.*?$',
-            r'\n\n?Feel free to.*?\?.*?$',
-            r'\n\n?Please let me know.*?\?.*?$',
-        ]
-
-        cleaned = text
-        for pattern in question_patterns:
-            cleaned = re.sub(pattern, '', cleaned, flags=re.DOTALL | re.IGNORECASE)
-
-        return cleaned.strip()
-
     def summarize(self, title, content, content_type=None, provider=None, product=None):
         """
         Generate a summary for an LLM news article.
@@ -85,6 +60,11 @@ class LLMNewsSummarizer:
             tuple: (summary, content_type) - Generated summary and detected content type
         """
         try:
+            # Skip too-thin content (empty RSS stub / paywall) - don't burn an LLM call
+            if content_too_short(content):
+                logger.warning(f"Content too short ({len(content) if content else 0} chars) for '{title}' - skipping AI summarization")
+                return insufficient_content_placeholder(content), "general_update"
+
             # Build context
             type_context = ""
             if content_type and isinstance(content_type, list):
@@ -96,55 +76,18 @@ class LLMNewsSummarizer:
             if product:
                 provider_context += f"Product: {product}\n"
 
-            prompt = f"""You are an AI/LLM industry analyst helping cybersecurity professionals stay current with AI tool developments. Analyze the following LLM news article and provide a concise, informative summary.
-
-Title: {title}
-{provider_context}
-Content:
-{content[:8000]}
-{type_context}
-
-Please provide a structured summary that includes:
-
-1. **What's New**: Clearly identify what was announced, released, or changed
-   - Model name, version, or capability affected
-   - Key features or improvements
-
-2. **Technical Details**: Important technical information
-   - Model specifications (if announced)
-   - API changes or new endpoints
-   - Performance benchmarks or improvements
-   - Pricing changes
-
-3. **Cybersecurity Relevance**: How this affects security professionals
-   - New capabilities useful for security work
-   - Code analysis or vulnerability detection improvements
-   - Potential risks or considerations
-   - Integration possibilities with security tools
-
-4. **Action Items**: What users should know or do
-   - Availability and access (general, beta, enterprise-only)
-   - Migration requirements if applicable
-   - Recommended actions
-
-Keep the summary technical and focused on practical implications for cybersecurity professionals using LLMs. Aim for 200-300 words.
-
-CRITICAL ACCURACY RULES:
-- ONLY use information explicitly stated in the article content above
-- Do NOT invent or guess model version numbers (like GPT-5.1, GPT-4.1)
-- Do NOT fabricate statistics, percentages, or pricing unless explicitly stated
-- If a detail is not mentioned, say "not specified" or omit it entirely
-- Do NOT reference deprecated or outdated API endpoints unless mentioned in the article
-
-IMPORTANT: Provide ONLY the summary content. Do NOT ask follow-up questions, do NOT offer to refine the summary, and do NOT ask if the user wants more details. End your response after completing the summary.
-"""
+            prompt = render('llm_news.article.user',
+                            title=title,
+                            content=content[:8000],
+                            provider_context=provider_context,
+                            type_context=type_context)
 
             # Call the AI API
             summary = self.ai_client.chat_completion(
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an AI industry analyst specializing in LLM developments. Provide clear, informative summaries that help cybersecurity professionals understand and leverage new AI capabilities. Never ask follow-up questions."
+                        "content": render('llm_news.article.system')
                     },
                     {
                         "role": "user",
@@ -166,7 +109,8 @@ IMPORTANT: Provide ONLY the summary content. Do NOT ask follow-up questions, do 
 
         except Exception as e:
             logger.error(f"Error generating LLM news summary: {str(e)}")
-            return f"Error generating summary: {str(e)}", "general_update"
+            # Return None so the caller leaves the article unsummarized for retry
+            return None, "general_update"
 
     def _detect_content_type(self, title, content):
         """Detect the content type based on title and content keywords"""
@@ -188,7 +132,7 @@ IMPORTANT: Provide ONLY the summary content. Do NOT ask follow-up questions, do 
             return 'general_update'
 
 
-class LLMNewsExecutiveSummarizer:
+class LLMNewsExecutiveSummarizer(SummaryCleanupMixin):
     """Generates executive summaries from multiple LLM news articles"""
 
     def __init__(self, ai_config=None, base_url=None, api_key=None, model=None):
@@ -213,33 +157,6 @@ class LLMNewsExecutiveSummarizer:
                 api_key=api_key or "lm-studio",
                 model=model or "local-model"
             )
-
-    def _get_day_suffix(self, day):
-        """Get the ordinal suffix for a day number (st, nd, rd, th)."""
-        if 10 <= day % 100 <= 20:
-            suffix = 'th'
-        else:
-            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
-        return suffix
-
-    def _remove_trailing_questions(self, text):
-        """Remove trailing questions that the AI might add at the end of summaries."""
-        question_patterns = [
-            r'\n\n?Do you want.*?\?.*?$',
-            r'\n\n?Would you like.*?\?.*?$',
-            r'\n\n?Should I.*?\?.*?$',
-            r'\n\n?Can I.*?\?.*?$',
-            r'\n\n?Is there anything.*?\?.*?$',
-            r'\n\n?Let me know if.*?\?.*?$',
-            r'\n\n?Feel free to.*?\?.*?$',
-            r'\n\n?Please let me know.*?\?.*?$',
-        ]
-
-        cleaned = text
-        for pattern in question_patterns:
-            cleaned = re.sub(pattern, '', cleaned, flags=re.DOTALL | re.IGNORECASE)
-
-        return cleaned.strip()
 
     def create_summary(self, articles, max_articles=30, time_period="last 30 days", provider_focus=None):
         """
@@ -301,85 +218,22 @@ class LLMNewsExecutiveSummarizer:
             # Build provider list for the prompt
             provider_list = ", ".join(sorted(providers_seen))
 
-            prompt = f"""You are an AI industry analyst helping cybersecurity professionals stay current with LLM developments. Analyze the following LLM news from the {time_period} and create a comprehensive executive summary.
-
-CRITICAL INSTRUCTION - FOLLOW EXACTLY:
-The current date is {current_date.strftime('%B %d, %Y')}.
-Your title MUST be EXACTLY: "{title_format}"
-The report is for {date_format}.
-
-Providers covered: {provider_list}
-ARTICLE COUNTS BY PROVIDER: {provider_counts_str}
-
-{articles_text}
-
-Create a structured executive summary that includes:
-
-1. **Executive Overview** (2-3 sentences)
-   - {overview_instruction}
-   - Key themes across LLM providers
-
-2. **Major Announcements**
-   - New model releases
-   - Significant capability updates
-   - Breaking changes or deprecations
-
-3. **Provider Updates** (organized by provider)
-   IMPORTANT: Use the ARTICLE COUNTS BY PROVIDER above to determine which providers have updates.
-   If a provider has 0 articles in the counts, say "No updates reported."
-   If a provider has 1+ articles, you MUST include their updates from the articles above.
-
-   - **Anthropic Claude**: Recent updates
-   - **OpenAI**: Recent updates
-   - **Google Gemini**: Recent updates
-   - **Meta Llama**: Recent updates
-   - **LM Studio**: Recent updates
-   - **Mistral AI**: Recent updates
-   - **Microsoft Copilot**: Recent updates
-   - **Perplexity**: Recent updates
-   - **Hugging Face**: Recent updates
-   - **Others**: Any other providers (LangChain, Ollama, etc.)
-
-4. **Cybersecurity Relevance**
-   - New capabilities useful for security work
-   - Code analysis or threat detection improvements
-   - Security considerations or risks
-   - Integration opportunities
-
-5. **API & Developer Updates**
-   - New API endpoints or features
-   - SDK updates
-   - Rate limit or pricing changes
-   - Deprecations to be aware of
-
-6. **Worth Exploring**
-   - Features worth trying for security work
-   - New capabilities to evaluate
-   - Recommended actions
-
-7. **Key Metrics**
-   - Number of provider updates
-   - Types of announcements (releases, features, etc.)
-
-Format the summary in clear sections with bullet points. Be specific about model names, versions, and dates. This summary should help cybersecurity professionals quickly understand what's new in the LLM landscape and how it might affect their work.
-
-CRITICAL ACCURACY RULES:
-- ONLY use information explicitly stated in the article summaries above
-- Do NOT invent or guess model version numbers (like GPT-5.1, GPT-4.1, GPT-5.2)
-- Do NOT fabricate statistics, percentages, or pricing unless explicitly stated in the articles
-- PROVIDER UPDATES ACCURACY: Check the ARTICLE COUNTS BY PROVIDER line above. If a provider shows count > 0, you MUST find and include their updates. If count is 0, say "No updates reported."
-- Do NOT reference deprecated or outdated API endpoints unless mentioned in the articles
-- If details are not specified in the source material, omit them rather than guessing
-
-IMPORTANT: Provide ONLY the executive summary content. Do NOT ask follow-up questions, do NOT offer to refine the summary, and do NOT ask if the user wants more details. End your response after completing the summary.
-"""
+            prompt = render('llm_news.exec.user',
+                            time_period=time_period,
+                            current_date_str=current_date.strftime('%B %d, %Y'),
+                            title_format=title_format,
+                            date_format=date_format,
+                            provider_list=provider_list,
+                            provider_counts_str=provider_counts_str,
+                            articles_text=articles_text,
+                            overview_instruction=overview_instruction)
 
             # Call AI API
             executive_summary = self.ai_client.chat_completion(
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an AI industry analyst specializing in LLM developments. Create comprehensive, informative summaries that help cybersecurity professionals stay current with AI capabilities and integrate them into their security work. Never ask follow-up questions."
+                        "content": render('llm_news.exec.system')
                     },
                     {
                         "role": "user",
@@ -454,31 +308,18 @@ IMPORTANT: Provide ONLY the executive summary content. Do NOT ask follow-up ques
                     # Take first 500 chars of summary
                     articles_text += f"   Summary: {summary[:500]}...\n" if len(summary) > 500 else f"   Summary: {summary}\n"
 
-            prompt = f"""You are an AI industry analyst. Create a brief 2-4 sentence summary of {provider_name}'s updates from the {time_period}.
-
-Provider: {provider_name}
-Number of updates: {len(articles)}
-
-Articles:
-{articles_text}
-
-Write a concise summary highlighting:
-- Key releases or announcements
-- Most important changes for users
-- Any security-relevant updates
-
-Keep it to 2-4 sentences maximum. Be specific about model names and features. Focus on what matters most to cybersecurity professionals.
-
-CRITICAL: Only use information from the articles above. Do NOT invent version numbers, statistics, or details not mentioned. If something is unclear, omit it.
-
-IMPORTANT: Provide ONLY the summary. No introductions, no questions, no offers to elaborate."""
+            prompt = render('llm_news.provider_mini.user',
+                            provider_name=provider_name,
+                            time_period=time_period,
+                            article_count=len(articles),
+                            articles_text=articles_text)
 
             # Call AI API
             summary = self.ai_client.chat_completion(
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a concise AI industry analyst. Provide brief, informative summaries without any follow-up questions or offers to elaborate."
+                        "content": render('llm_news.provider_mini.system')
                     },
                     {
                         "role": "user",

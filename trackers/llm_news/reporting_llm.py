@@ -13,11 +13,12 @@ from markdown.extensions.nl2br import Nl2BrExtension
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from collections import defaultdict
 from core.report_sanitizer import esc, safe_url, sanitize_html
+from core.report_helpers import SummaryCleanupMixin
 
 logger = logging.getLogger(__name__)
 
 
-class LLMNewsReportGenerator:
+class LLMNewsReportGenerator(SummaryCleanupMixin):
     """Generates LLM news and update reports"""
 
     LAST_REPORT_FILE = '.last_report_time'
@@ -39,28 +40,6 @@ class LLMNewsReportGenerator:
             loader=FileSystemLoader(template_dir),
             autoescape=select_autoescape(['html', 'xml'])
         )
-
-    def _remove_trailing_questions(self, text):
-        """Remove trailing questions that the AI might have added."""
-        if not text:
-            return text
-
-        question_patterns = [
-            r'\n\n?Do you want.*?\?.*?$',
-            r'\n\n?Would you like.*?\?.*?$',
-            r'\n\n?Should I.*?\?.*?$',
-            r'\n\n?Can I.*?\?.*?$',
-            r'\n\n?Is there anything.*?\?.*?$',
-            r'\n\n?Let me know if.*?\?.*?$',
-            r'\n\n?Feel free to.*?\?.*?$',
-            r'\n\n?Please let me know.*?\?.*?$',
-        ]
-
-        cleaned = text
-        for pattern in question_patterns:
-            cleaned = re.sub(pattern, '', cleaned, flags=re.DOTALL | re.IGNORECASE)
-
-        return cleaned.strip()
 
     def _fix_provider_updates_section(self, exec_summary_html, providers, provider_summaries):
         """

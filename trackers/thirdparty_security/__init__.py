@@ -134,9 +134,13 @@ class ThirdPartySecurityTracker(BaseTracker):
                     update_type=update_types
                 )
 
-                # Store summary
-                self.db.update_article_summary(article_id, summary)
-                self.logger.info(f"Summary generated for update ID: {article_id}")
+                # Store summary (skip on failure - summarize() returns None so the
+                # article stays unsummarized and is retried on the next run)
+                if summary:
+                    self.db.update_article_summary(article_id, summary)
+                    self.logger.info(f"Summary generated for update ID: {article_id}")
+                else:
+                    self.logger.warning(f"No summary produced for update ID {article_id} - left unsummarized for retry")
 
             except Exception as e:
                 self.logger.error(f"Failed to analyze update ID {article_id}: {str(e)}")
@@ -173,7 +177,8 @@ class ThirdPartySecurityTracker(BaseTracker):
         # Get recent articles
         recent_articles = self.db.get_recent_articles_with_summary(
             days=time_window,
-            tracker_name='thirdparty_security'
+            tracker_name='thirdparty_security',
+            limit=self.max_summaries
         )
 
         self.logger.info(f"Found {len(recent_articles)} updates from last {time_window} days")

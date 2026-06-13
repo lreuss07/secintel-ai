@@ -67,6 +67,11 @@ Located in `core/`. These provide shared functionality used by all trackers.
 | `config.py` | YAML configuration file loader |
 | `ioc_extractor.py` | Extracts Indicators of Compromise from text |
 | `lm_studio_connection.py` | LM Studio connection testing and fallback logic |
+| `microsoft_security_scraper.py` | Shared RSS scraper used by both `defender` and `microsoft_products` trackers (`MicrosoftSecurityProductScraper`) |
+| `microsoft_security_summarizer.py` | Shared summarizer used by both `defender` and `microsoft_products` trackers (`MicrosoftSecurityProductSummarizer`, `MicrosoftSecurityExecutiveSummarizer`) |
+| `prompt_library.py` | Loads externalized LLM prompts from `prompts/*.yaml` files and renders them via `string.Template` |
+| `report_helpers.py` | Shared reporter/summarizer mixins (`SummaryCleanupMixin`, `AIModelAttributionMixin`) |
+| `report_sanitizer.py` | HTML escaping and sanitizing for reports (XSS protection) |
 | `source_validator.py` | Validates tracker source configurations |
 
 ### base_tracker.py
@@ -136,14 +141,14 @@ Located in `trackers/`. Each tracker follows a consistent plugin pattern.
 
 ### Tracker Structure
 
-Every tracker directory contains:
+Most tracker directories contain:
 
 | File | Purpose |
 |------|---------|
 | `__init__.py` | Tracker class extending `BaseTracker` |
 | `config.yaml` | Source definitions (URLs, feed types, keywords) |
-| `scraper_*.py` | Fetches content from configured sources |
-| `summarizer_*.py` | Generates AI summaries and extracts IOCs |
+| `scraper_*.py` | Fetches content from configured sources (absent for `defender` and `microsoft_products`, which use `core/microsoft_security_scraper.py`) |
+| `summarizer_*.py` | Generates AI summaries and extracts IOCs (absent for `defender` and `microsoft_products`, which use `core/microsoft_security_summarizer.py`) |
 | `reporting_*.py` | Produces tiered HTML/Markdown reports |
 
 ### Available Trackers
@@ -152,16 +157,20 @@ Every tracker directory contains:
 
 Tracks Microsoft Defender product updates (XDR, Endpoint, Office 365, Identity, Vulnerability Management).
 
-- **DefenderTracker** - Main tracker class
-- **MicrosoftSecurityProductScraper** - Fetches from Defender RSS feeds
-- **MicrosoftSecurityProductSummarizer** - AI-powered summarization
-- **MicrosoftSecurityReportGenerator** - Tiered report generation
+Files: `__init__.py`, `config.yaml`, `reporting_defender.py`
+
+- **DefenderTracker** (`__init__.py`) - Main tracker class
+- Scraping and summarization are handled by the shared core modules `microsoft_security_scraper.py` and `microsoft_security_summarizer.py`; this tracker has no own scraper or summarizer
+- **MicrosoftSecurityReportGenerator** (`reporting_defender.py`) - Tiered report generation
 
 #### microsoft_products/
 
 Tracks Microsoft security products (Entra, Intune, Purview, Sentinel, Teams, SharePoint, Exchange).
 
-- **MicrosoftProductsTracker** - Main tracker class
+Files: `__init__.py`, `config.yaml`, `reporting.py`
+
+- **MicrosoftProductsTracker** (`__init__.py`) - Main tracker class
+- Scraping and summarization are handled by the shared core modules `microsoft_security_scraper.py` and `microsoft_security_summarizer.py`; this tracker has no own scraper or summarizer
 - Sources include Tech Community blogs and Microsoft Learn documentation
 
 #### threat_intel/
@@ -185,8 +194,23 @@ Tracks third-party security tools and vendors. Supports multiple source types an
 
 Tracks LLM/AI provider news and updates (OpenAI, Anthropic, Google, Meta, Perplexity).
 
-- **LLMNewsTracker** - Main tracker class
-- **LLMNewsScraper** - Fetches from AI provider blogs and news feeds
+Files: `__init__.py`, `config.yaml`, `scraper_llm.py`, `summarizer_llm.py`, `reporting_llm.py`
+
+- **LLMNewsTracker** (`__init__.py`) - Main tracker class
+- **LLMNewsScraper** (`scraper_llm.py`) - Fetches from AI provider blogs and news feeds (RSS + headless browser)
+- **LLMNewsSummarizer** / **LLMNewsExecutiveSummarizer** (`summarizer_llm.py`) - AI-focused summarization
+- **LLMNewsReportGenerator** (`reporting_llm.py`) - Tiered report generation
+
+#### youtube_security/
+
+Tracks security-focused YouTube channels. Heavy pipeline: downloads audio via yt-dlp and transcribes it with OpenAI Whisper before summarization. Opt-in per run (prompts the user at runtime; auto-skipped in cron/unattended mode).
+
+Files: `__init__.py`, `config.yaml`, `scraper_youtube.py`, `summarizer_youtube.py`, `reporting_youtube.py`
+
+- **YouTubeSecurityTracker** (`__init__.py`) - Main tracker class
+- **YouTubeSecurityScraper** (`scraper_youtube.py`) - Downloads audio via yt-dlp and transcribes with Whisper
+- **YouTubeSecuritySummarizer** (`summarizer_youtube.py`) - Summarization of transcribed content
+- **YouTubeSecurityReportGenerator** (`reporting_youtube.py`) - Tiered report generation
 
 #### _template/
 
@@ -274,6 +298,23 @@ Located in `docs/`.
 
 ## Data and Output Directories
 
+### prompts/
+
+Externalized LLM prompt templates, loaded at runtime by `core/prompt_library.py`:
+
+```
+prompts/
+├── classify.yaml          # Content classification prompts
+├── common.yaml            # Shared/generic prompts
+├── llm_news.yaml          # LLM news tracker prompts
+├── microsoft_products.yaml # Defender + microsoft_products prompts
+├── thirdparty.yaml        # Third-party security prompts
+├── threat_intel.yaml      # Threat intelligence prompts
+└── youtube.yaml           # YouTube tracker prompts
+```
+
+Prompts use `string.Template` substitution syntax (`$variable`). Editing these files changes AI behavior without touching Python code.
+
 ### data/
 
 Contains the SQLite database:
@@ -298,7 +339,8 @@ reports/
 ├── microsoft_products/
 ├── threat_intel/
 ├── thirdparty_security/
-└── llm_news/
+├── llm_news/
+└── youtube_security/
 ```
 
 **Report naming:** `{tracker}_tier{N}_report_{YYYYMMDD}_{HHMMSS}.{html|md}`

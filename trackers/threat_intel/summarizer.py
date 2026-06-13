@@ -13,6 +13,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from core.ai_client import AIClient
+from core.prompt_library import render
 
 logger = logging.getLogger(__name__)
 
@@ -444,63 +445,11 @@ class ArticleSummarizer:
         """
         # Check for source-specific customization
         if "Volexity" in title or "volexity" in title.lower():
-            return f"""You are a cybersecurity threat intelligence analyst. You need to create a concise, technical summary of the following Volexity threat intelligence article.
-
-Title: {title}
-
-Content:
-{content}
-
-{iocs_text}
-
-Volexity is known for detailed threat actor attribution and technical analysis of advanced threats. Please provide a summary that:
-1. Identifies the key threat actors mentioned (including any APT group names or attributions)
-2. Extracts the specific TTPs (Tactics, Techniques, and Procedures)
-3. Summarizes the technical details of the attack, malware, or vulnerability
-4. Highlights the most significant IOCs and any MITRE ATT&CK mappings
-5. Notes the industries, sectors, or geographic regions targeted
-6. Explains the potential impact, severity, and recommended mitigations
-
-Your summary should be technical but clear, aimed at cybersecurity professionals. Keep the summary concise (250-350 words) and emphasize attribution details and actionable intelligence.
-
-CRITICAL ACCURACY REQUIREMENTS:
-- ONLY include IOCs (IPs, domains, hashes, URLs, CVEs) that are EXPLICITLY mentioned in the article text above
-- If the article does not provide specific IOCs, state "No specific IOCs provided in source"
-- If the article does not name specific threat actors, state "Threat actor not attributed" - do NOT invent names
-- If CVE numbers are not mentioned, do NOT fabricate them - say "CVE not assigned" or omit
-- NEVER generate example or placeholder IOCs like "example.com", "192.168.x.x", or "abcd1234..."
-- If CVSS scores are not provided in the article, do NOT assign them
-- Stick strictly to facts stated in the article - do not extrapolate or infer technical details not present
-"""
+            return render('threat_intel.advisory_volexity.user',
+                          title=title, content=content, iocs_text=iocs_text)
         else:
-            return f"""You are a cybersecurity threat intelligence analyst. You need to create a concise, technical summary of the following threat intelligence article.
-
-Title: {title}
-
-Content:
-{content}
-
-{iocs_text}
-
-Please provide a summary that:
-1. Identifies the key threat actors, malware, or attack vectors
-2. Summarizes the technical details of the attack or vulnerability
-3. Highlights the most significant IOCs
-4. Notes the industries or sectors targeted
-5. Explains the potential impact and severity
-6. Provides any recommended mitigations or defensive measures
-
-Your summary should be technical but clear, aimed at cybersecurity professionals. Keep the summary concise (250-350 words) and focus on actionable intelligence.
-
-CRITICAL ACCURACY REQUIREMENTS:
-- ONLY include IOCs (IPs, domains, hashes, URLs, CVEs) that are EXPLICITLY mentioned in the article text above
-- If the article does not provide specific IOCs, state "No specific IOCs provided in source"
-- If the article does not name specific threat actors, state "Threat actor not attributed" - do NOT invent names
-- If CVE numbers are not mentioned, do NOT fabricate them - say "CVE not assigned" or omit
-- NEVER generate example or placeholder IOCs like "example.com", "192.168.x.x", or "abcd1234..."
-- If CVSS scores are not provided in the article, do NOT assign them
-- Stick strictly to facts stated in the article - do not extrapolate or infer technical details not present
-"""
+            return render('threat_intel.advisory.user',
+                          title=title, content=content, iocs_text=iocs_text)
 
     def _get_product_update_prompt(self, title, content):
         """
@@ -513,23 +462,7 @@ CRITICAL ACCURACY REQUIREMENTS:
         Returns:
             str: Prompt for product update summarization
         """
-        return f"""You are a cybersecurity product analyst. Summarize the following security product update or announcement.
-
-Title: {title}
-
-Content:
-{content}
-
-Please provide a brief, informative summary that:
-1. **What Changed**: Identify the product/feature that was updated
-2. **Key Updates**: List the main changes, new features, or improvements
-3. **Availability**: Note when/how users can access these updates
-4. **Why It Matters**: Explain the security or operational benefits
-
-Keep the summary concise (150-250 words) and focus on practical information for security teams evaluating or using this product.
-
-IMPORTANT: Do NOT fabricate IOCs, threat actors, or attack details. This is a product update, not a threat advisory.
-"""
+        return render('threat_intel.product_update.user', title=title, content=content)
 
     def _get_industry_news_prompt(self, title, content):
         """
@@ -542,22 +475,7 @@ IMPORTANT: Do NOT fabricate IOCs, threat actors, or attack details. This is a pr
         Returns:
             str: Prompt for industry news summarization
         """
-        return f"""You are a cybersecurity industry analyst. Provide a brief summary of the following cybersecurity news article.
-
-Title: {title}
-
-Content:
-{content}
-
-Please provide a concise summary (2-3 sentences, max 100 words) that:
-1. States the main topic or announcement
-2. Explains why it's relevant to the cybersecurity industry
-3. Notes any key implications or takeaways
-
-Keep the summary brief and informational. This is general industry news, not a technical threat report.
-
-IMPORTANT: Do NOT fabricate IOCs, CVEs, threat actors, or specific attack details. Stick to the facts presented in the article.
-"""
+        return render('threat_intel.industry_news.user', title=title, content=content)
     
     def summarize(self, title, content, iocs=None):
         """
@@ -614,23 +532,15 @@ IMPORTANT: Do NOT fabricate IOCs, CVEs, threat actors, or specific attack detail
             # STEP 2: Select the appropriate prompt template based on classification
             if content_type == 'threat_advisory':
                 prompt = self._get_threat_advisory_prompt(title, content, iocs_text)
-                system_prompt = """You are a cybersecurity threat intelligence analyst assistant. Provide accurate, concise, technical summaries of threat intelligence.
-
-ACCURACY IS PARAMOUNT: You must NEVER fabricate, invent, or hallucinate any of the following:
-- IOCs (IP addresses, domains, URLs, file hashes, email addresses)
-- CVE numbers or CVSS scores
-- Threat actor names or APT group designations
-- Specific technical details not present in the source
-
-If information is not provided in the source article, explicitly state it is "not provided" or "not specified" rather than inventing plausible-sounding data. Fabricated IOCs in threat intelligence can mislead security teams and waste investigative resources."""
+                system_prompt = render('threat_intel.advisory.system')
                 max_tokens = 2000
             elif content_type == 'product_update':
                 prompt = self._get_product_update_prompt(title, content)
-                system_prompt = "You are a cybersecurity product analyst. Provide clear, informative summaries of security product updates."
+                system_prompt = render('threat_intel.product_update.system')
                 max_tokens = 1500
             else:  # industry_news
                 prompt = self._get_industry_news_prompt(title, content)
-                system_prompt = "You are a cybersecurity industry analyst. Provide brief, factual summaries of cybersecurity news."
+                system_prompt = render('threat_intel.industry_news.system')
                 max_tokens = 500
 
             # STEP 3: Call the AI API with the appropriate prompt
@@ -735,123 +645,10 @@ class ExecutiveSummarizer:
                         article_data[-1]['iocs'] = top_iocs
             
             # Construct the prompt
-            prompt = f"""You are a senior cybersecurity threat intelligence analyst preparing an executive summary for C-level executives and board members. You have the following summaries of recent threat intelligence articles:
+            article_data_json = json.dumps(article_data, indent=2)
+            prompt = render('threat_intel.exec.user', article_data=article_data_json)
 
-{json.dumps(article_data, indent=2)}
-
-Please create an executive summary that:
-
-1. Identifies the 3-5 most significant cybersecurity threats from these articles
-2. Focuses on business impact rather than technical details
-3. Highlights industry trends and emerging threats
-4. Identifies the most critical threat actors and their targets
-5. Provides clear, actionable recommendations for organizational security
-
-FORMAT YOUR EXECUTIVE SUMMARY WITH CLEAR SECTIONS using markdown:
-
-The executive_summary field MUST use this exact structure with markdown headings and bullet lists:
-
-## Threat Landscape Overview
-(2-3 sentences providing context on the current threat environment)
-
-## Top Threats This Period
-(Use a numbered list for the 3-5 most critical threats)
-
-1. **Threat Name**: Brief description of the threat and why it matters to the business
-2. **Threat Name**: Brief description...
-(etc.)
-
-## Business Impact Assessment
-(Use bullet points to describe potential business impacts)
-
-- **Financial Risk**: Description of financial exposure
-- **Operational Risk**: Description of operational disruption potential
-- **Reputational Risk**: Description of brand/trust implications
-- **Regulatory Risk**: Description of compliance concerns
-
-## Key Threat Actors
-(Brief paragraph or bullet list of the most significant actors)
-
-## Priority Actions
-(Use a numbered list for immediate actions executives should authorize)
-
-1. Action item one
-2. Action item two
-(etc.)
-
-Format your response as a structured JSON object with the following keys:
-- executive_summary: The main executive summary text using the EXACT markdown structure above with ## headings and bullet/numbered lists
-- key_actors: Array of objects with "name" and "description" fields for each key threat actor
-- critical_iocs: Array of objects with "type", "value", and "description" fields for the most important IOCs
-- recommendations: Array of strategic recommendation strings (3-5 bullet points)
-
-Example format:
-{{
-  "executive_summary": "## Threat Landscape Overview\\n\\nThe cybersecurity landscape continues to evolve with sophisticated attacks...\\n\\n## Top Threats This Period\\n\\n1. **Ransomware Operations**: Criminal groups are targeting...\\n2. **Supply Chain Attacks**: Software dependencies are being...\\n\\n## Business Impact Assessment\\n\\n- **Financial Risk**: Ransomware demands averaging $2M...\\n- **Operational Risk**: Average downtime of 21 days...\\n\\n## Key Threat Actors\\n\\nAPT29 and FIN7 remain the most active...\\n\\n## Priority Actions\\n\\n1. Implement MFA across all systems\\n2. Review backup procedures...",
-  "key_actors": [
-    {{
-      "name": "APT29",
-      "description": "Russian state-sponsored group targeting government and defense sectors"
-    }},
-    {{
-      "name": "FIN7",
-      "description": "Financially motivated actor targeting retail and hospitality"
-    }}
-  ],
-  "critical_iocs": [
-    {{
-      "type": "domain",
-      "value": "malicious-domain.com",
-      "description": "C2 server for Emotet campaign"
-    }},
-    {{
-      "type": "ip",
-      "value": "192.168.1.1",
-      "description": "Scanning host for vulnerability XYZ"
-    }}
-  ],
-  "recommendations": [
-    "Implement MFA across all remote access services",
-    "Patch vulnerable systems against CVE-2023-12345 immediately",
-    "Update EDR signatures to detect the Lazarus campaign IOCs"
-  ]
-}}
-
-IMPORTANT: Use markdown ## headings and proper bullet/numbered lists in the executive_summary. Keep it non-technical and easily understandable by executives without cybersecurity background.
-
-CRITICAL ACCURACY REQUIREMENTS - DO NOT FABRICATE DATA:
-- For critical_iocs: ONLY include IOCs that are EXPLICITLY mentioned in the article summaries above. If no specific IOCs are mentioned, return an empty array [] or use "value": "See individual reports"
-- For key_actors: ONLY name threat actors that are EXPLICITLY attributed in the source articles. If articles say "unknown actor" or don't attribute, reflect that honestly
-- NEVER invent CVE numbers, IP addresses, domains, hashes, or threat actor names
-- NEVER use placeholder patterns like "example.com", "192.168.x.x", "abcd1234...", or obviously fake IDs
-- If the source articles lack specific technical indicators, state "No specific IOCs provided in source reports" rather than fabricating plausible-looking data
-- Fabricated IOCs are DANGEROUS in threat intelligence - they waste analyst time and can lead to false positives
-"""
-
-            system_prompt = """You are a senior cybersecurity threat intelligence analyst assistant. Distill complex technical information into clear, business-focused executive summaries.
-
-Always provide structured output in valid JSON format when requested. Be concise and direct in your summaries.
-
-CRITICAL: NEVER FABRICATE OR HALLUCINATE DATA
-- Only include IOCs, CVEs, threat actor names, and technical details that are EXPLICITLY stated in the source articles
-- If specific data is not available, say so honestly rather than inventing plausible-looking fake data
-- Fabricated IOCs are dangerous and can mislead security teams
-
-For the executive_summary field:
-1. ALWAYS use markdown formatting with ## headings to create clear sections
-2. Use numbered lists (1. 2. 3.) for prioritized items like top threats and priority actions
-3. Use bullet lists (- item) for non-prioritized items like risk categories
-4. Use **bold text** to highlight key terms and threat names
-5. Do NOT include phrases like "Here is the executive summary" or "Based on the analyzed intelligence"
-6. Do NOT include references to the JSON structure or other sections
-7. Write in a clear, professional style appropriate for business executives
-8. Structure MUST include: Threat Landscape Overview, Top Threats This Period, Business Impact Assessment, Key Threat Actors, Priority Actions
-
-For the key_actors, critical_iocs, and recommendations fields:
-1. Follow the exact format requested
-2. ONLY include data explicitly mentioned in the source articles - never invent IOCs or actor names
-3. If no specific IOCs are provided in sources, use an empty array or "See individual reports"
-4. Ensure information is accurate and directly traceable to source articles"""
+            system_prompt = render('threat_intel.exec.system')
 
             # Call the AI API
             response_text = self.ai_client.chat_completion(
